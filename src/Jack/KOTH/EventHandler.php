@@ -32,9 +32,10 @@
 declare(strict_types=1);
 namespace Jack\KOTH;
 
-use pocketmine\Player;
-use pocketmine\Server;
+
+
 use pocketmine\event\Listener;
+use pocketmine\event\player\{PlayerMoveEvent,PlayerRespawnEvent,PlayerQuitEvent};;
 
 use pocketmine\utils\TextFormat as C;
 
@@ -44,6 +45,41 @@ class EventHandler implements Listener{
 
     public function __construct(Main $plugin){
         $this->plugin = $plugin;
+    }
+
+    public function onQuit(PlayerQuitEvent $event){
+        $player = $event->getPlayer();
+        $playerName = strtolower($player->getName());
+        if($this->plugin->inGame($playerName) === true){
+            //notify players in that arena that a player has left, adjust scoreboard.
+            $arena = $this->plugin->getArenaByPlayer($playerName);
+            $arena->removePlayer("Disconnected from server."); //arg0 is reason.
+            foreach($arena->getPlayers() as $ePlayer){
+                $ePlayer->sendMessage("Test");
+            }
+        }
+    }
+
+    public function onRespawn(PlayerRespawnEvent $event){
+        $player = $event->getPlayer();
+        $playerName = strtolower($player->getName());
+        if($this->plugin->inGame($playerName) === true){
+            //Respawn player in different spawn location.
+            $arena = $this->plugin->getArenaByPlayer($playerName);
+            $arena->spawnPlayer(true); //arg0 is spawn randomly? bool.
+            foreach($arena->getPlayers() as $ePlayer){
+                $ePlayer->sendMessage("Test, player joined.");
+            }
+        }
+    }
+
+    public function onMove(PlayerMoveEvent $event){
+        $player = $event->getPlayer();
+        $playerName = strtolower($player->getName());
+        $from = $event->getFrom();
+        $to = $event->getTo();
+        var_dump($from);
+        var_dump($to);
     }
 
 }

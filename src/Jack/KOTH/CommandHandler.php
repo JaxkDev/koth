@@ -76,6 +76,12 @@ class CommandHandler{
                     $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." CREDITS".C::YELLOW."]");
                     $sender->sendMessage(C::AQUA."Developer: ".C::GOLD."Jackthehack21");
                     return true;
+                case 'make':
+                case 'new':
+                    if(!$sender->hasPermission("koth.new")){
+                        $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
+                        return true;
+                    } 
                 default:
                     $sender->sendMessage($this->prefix.C::RED."Unknown Command, /koth help");
                     return true;
