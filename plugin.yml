@@ -16,4 +16,17 @@ permissions:
   koth:
     default: true
     description: "Allows usage of /koth"
+    children:
+      koth.rem:
+        description: "Allows player to remove a arena."
+        default: op
+      koth.new:
+        descripyion: "Allows player to start process of making a arena."
+        default: op
+      koth.setpoints:
+        description: "Allows player to set points when setting up a new arena."
+        default: op
+      koth.join:
+        description: "Allows player to join a game."
+        default: true
 ...

@@ -47,23 +47,37 @@ class CommandHandler{
 
     public function __construct(Main $plugin){
         $this->plugin = $plugin;
+        $this->prefix = C::YELLOW."[".C::AQUA."KOTH".C::YELLOW."] ".C::RESET;
     }
 
     public function handleCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
         if($cmd->getName() == "koth"){
+            if (!$sender->hasPermission("koth")) {
+                $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
+                return true;
+            }
             if(!isset($args[0])){
-                return false;
+                $sender->sendMessage($this->prefix.C::RED."Unknown Command, /koth help");
+                return true;
             }
             if(!$sender instanceof Player){
-                $sender->sendMessage(C::RED."Commands can only be run in-game");
+                $sender->sendMessage($this->prefix.C::RED."Commands can only be run in-game");
                 return true;
             }
             switch($args[0]){
+                case 'help':
+                    $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." HELP".C::YELLOW."]");
+                    $sender->sendMessage(C::GOLD."/koth help ".C::RESET."- Sends help :)");
+                    $sender->sendMessage(C::GOLD."/koth credits ".C::RESET."- Display the credits.");
+                    if($sender->hasPermission("koth.new")) $sender->sendMessage(C::GOLD."/koth new <arena name>".C::RESET." - Start the setup process of making a new arena.");
+                    if($sender->hasPermission("koth.rem")) $sender->sendMessage(C::GOLD."/koth rem <arena name>".C::RESET." - Remove a area that has been setup.");
+                    return true;
                 case 'credits':
-                    $sender->sendMessage(C::RED."Nobody has a bounty yet.");
+                    $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." CREDITS".C::YELLOW."]");
+                    $sender->sendMessage(C::AQUA."Developer: ".C::GOLD."Jackthehack21");
                     return true;
                 default:
-                    $sender->sendMessage(C::RED."Unknown Command, /koth help");
+                    $sender->sendMessage($this->prefix.C::RED."Unknown Command, /koth help");
                     return true;
             }
         }
