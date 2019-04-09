@@ -1,0 +1,19 @@
+---
+name: KOTH
+author: Jackthehaxk21
+version: 1.0.0
+api:
+- 3.7.0
+main: Jack\KOTH\Main
+
+commands:
+  koth:
+    description: "KOTH general command"
+    permission: koth
+    usage: /koth help
+
+permissions:
+  koth:
+    default: true
+    description: "Allows usage of /koth"
+...
