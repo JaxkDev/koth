@@ -52,7 +52,7 @@ class Arena{
     private $plugin;
     public $spawns = []; //[[12,50,10],[],[],[]] list of spawn points.
     public $spawnCounter;
-    public $hill = []; //[[20,50,20],[30,50,20]] two points corner to corner.
+    public $hill = []; //[[20,20],[30,20]] two points corner to corner. (X,Z) no y.
     public $players = []; //list of all players currently ingame. (lowercase names)
     public $minPlayers;
     public $maxPlayers;
@@ -62,16 +62,17 @@ class Arena{
     public $countDown;
     public $world;
 
+    public $oldKing;
     public $king;
     public $playersInBox;
 
     public $timerTask;
 
-    public function __construct(Main $plugin, string $name, int $min, int $limit, int $time, int $count, array $hill, array $spawns, string $world){
+    public function __construct(Main $plugin, string $name, int $min, int $max, int $time, int $count, array $hill, array $spawns, string $world){
         $this->plugin = $plugin;
         $this->hill = $hill;
         $this->minPlayers = $min;
-        $this->maxPlayers = $limit;
+        $this->maxPlayers = $max;
         $this->name = $name;
         $this->spawns = $spawns;
         $this->spawnCounter = 0;
@@ -85,23 +86,32 @@ class Arena{
         $this->timerTask = null;
     }
 
-    public function broadcastMessage(string $msg){
+    public function getName() : string{
+        return $this->name;
+    }
+
+    public function broadcastMessage(string $msg) : void{
         foreach($this->players as $player){
             $this->plugin->getServer()->getPlayerExact($player)->sendMessage($msg);
         }
     }
 
-    public function broadcastQuit(Player $player, string $reason){
-        //get config.
+    public function broadcastWinner(string $player) : void{
+        //todo get config.
+        $this->broadcastMessage($this->plugin->prefix.$player."Has won the game !");
+    }
+
+    public function broadcastQuit(Player $player, string $reason) : void{
+        //todo get config.
         $this->broadcastMessage($this->plugin->prefix.$player->getName()." Has left the game, reason: ".$reason);
     }
 
-    public function broadcastJoin(Player $player){
-        //get config.
+    public function broadcastJoin(Player $player) : void{
+        //todo get config.
         $this->broadcastMessage($this->plugin->prefix.$player->getName()." Has joined the game !");
     }
 
-    public function spawnPlayer(Player $player, $random = false){
+    public function spawnPlayer(Player $player, $random = false) : void{
         if(strtolower($player->getLevel()->getName()) !== strtolower($this->world)){
             if(!$this->plugin->getServer()->isLevelGenerated($this->world)) {
                 //todo config msg.
@@ -128,6 +138,12 @@ class Arena{
         }
     }
 
+    public function freezeAll(bool $freeze) : void{
+        foreach($this->players as $name){
+            $this->plugin->getServer()->getPlayerExact($name)->setImmobile($freeze);
+        }
+    }
+
     public function startTimer() : void{
         //start pre timer.
         //schedule repeating task, delay of 20ticks to do 1 second countdown.
@@ -137,6 +153,31 @@ class Arena{
     public function startGame() : void{
         /** @noinspection PhpUndefinedMethodInspection */
         $this->timerTask->cancel();
+        //start next timer task.
+        //broadcast the games started, start task to keep track of king.
+    }
+
+    public function endGame() : void{
+        $old = $this->oldKing; //in case of no king.
+        $king = $this->king; //in case of a change in this tiny blind spot.
+        /** @noinspection PhpUndefinedMethodInspection */
+        $this->timerTask->cancel();
+        $this->freezeAll(true);
+        //todo events.
+        if($king !== null){
+            /** @noinspection PhpStrictTypeCheckingInspection */
+            $this->setWinner($king);
+        } else {
+            /** @noinspection PhpStrictTypeCheckingInspection */
+            $this->setWinner($old);
+        }
+    }
+
+    public function setWinner(string $king) : void{
+        $this->broadcastWinner($king);
+        //todo give rewards based on config.
+        //todo particles fireworks and more for king, and Xsecond delay before un freezing.
+        $this->freezeAll(false);
     }
 
     public function getPlayers() : array{
@@ -144,19 +185,59 @@ class Arena{
     }
 
     public function playersInBox() : array{
-        $pos1 = $this->hill[0];
-        $pos2 = $this->hill[1];
+        $pos1 = [];
+        $pos1["x"] = $this->hill[0][0];
+        $pos1["z"] = $this->hill[0][1];
+        $pos2 = [];
+        $pos2["x"] = $this->hill[1][0];
+        $pos2["z"] = $this->hill[1][1];
+        if($pos1["x"] < $pos2["x"]){
+            $minX = $pos1["x"];
+            $maxX = $pos2["x"];
+        } else {
+            $minX = $pos2["x"];
+            $maxX = $pos1["x"];
+        }
+        if($pos1["z"] < $pos2["z"]){
+            $minZ = $pos1["z"];
+            $maxZ = $pos2["z"];
+        } else {
+            $minZ = $pos2["z"];
+            $maxZ = $pos1["z"];
+        }
+        $list = [];
+
+        foreach($this->players as $playerName){
+            $player = $this->plugin->getServer()->getPlayerExact($playerName);
+            if(($player->x >= $minX and $player->x <= $maxX) and ($player->z >= $minZ and $player->z <= $maxZ)){
+                $list[] = $playerName;
+            }
+        }
+
+        return $list;
     }
 
-    public function changeking() : void{
+    public function removeKing() : void{
         if($this->king === null) return;
+        $this->broadcastMessage("The king has fallen.");
+        //todo config.
+        $this->oldKing = $this->king;
+        $this->king = null;
+        $this->changeking();
+    }
+
+    public function changeKing() : void{
+        if($this->king !== null){
+            $this->oldKing = $this->king;
+        }
         $this->king = null;
         if(count($this->playersInBox()) === 0){
-            $this->broadcastMessage("The king has fallen, race to the throne.");
+            $this->broadcastMessage("No one has claimed the throne, the race is on.");
+            //todo config.
             return;
         } else {
             $player = array_rand(($this->playersInBox()));
-            $this->broadcastMessage($player." Has claimed the throne.");
+            $this->broadcastMessage($player." Has claimed the throne, how long will it last...");
             $this->king = $player;
             //todo update HUD etc.
         }
@@ -170,8 +251,7 @@ class Arena{
      */
     public function removePlayer(Player $player, string $reason) : void{
         if($this->king === $player->getLowerCaseName()){
-            //change king.
-            $this->changeKing();
+            $this->removeKing();
         }
         unset($this->players[array_search(strtolower($player->getName()), $this->players)]);
         $this->broadcastQuit($player, $reason);

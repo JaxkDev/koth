@@ -85,12 +85,76 @@ class CommandHandler{
                     if(!$sender->hasPermission("koth.new")){
                         $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
                         return true;
-                    } 
+                    }
+                    //create arena.
+                    $this->createArena($sender, $args);
+                    return true;
                 default:
                     $sender->sendMessage($this->prefix.C::RED."Unknown Command, /koth help");
                     return true;
             }
         }
         return false;
+    }
+
+
+    //todo API class that holds all methods that SHOULD be used via other plugins :)
+    private function createArena(CommandSender $sender, array $args) : void{
+        //assume has perms as it got here.
+
+        $usage = "/koth new (arena name - no spaces) (min players) (max players) (gametime in seconds)";
+        //rest will be in config, or default for now (rem after coming out of beta)
+
+        if(count($args) !== 5){
+            $sender->sendMessage($usage);
+            return;
+        }
+        $minGametime = 60; //1min, todo config.
+        $maxGametime = 120; //2min, todo config.
+        $forceMax = 20; //todo config.
+
+        $name = $args[1];
+        $min = $args[2];
+        $max = $args[3];
+        $gameTime = $args[4];
+
+        //verify data:
+        if($this->plugin->getArenaByName($name) !== null){
+            $sender->sendMessage(C::RED."A arena with that name already exists.");
+            return;
+        }
+        if(!is_numeric($min)){
+            $sender->sendMessage(C::RED."Min value must be a number.");
+            return;
+        }
+        if(intval($min) < 2){
+            $sender->sendMessage(C::RED."minimum value must be above 2.");
+            return;
+        }
+        if(!is_numeric($max)){
+            $sender->sendMessage(C::RED."Max value must be a number.");
+            return;
+        }
+        if(intval($max) >= intval($min)){
+            $sender->sendMessage(C::RED."Cant play with 1 player, make sure max value is bigger then min.");
+            return;
+        }
+        if(intval($max) > $forceMax){
+            $sender->sendMessage(C::RED."The maximum number of players cannot be above ".$forceMax);
+            return;
+        }
+
+        if(!is_numeric($gameTime)){
+            $sender->sendMessage(C::RED."Game time has to be numbers :/");
+            return;
+        }
+        if(intval($gameTime) < $minGametime or intval($gameTime) > $maxGametime){
+            $sender->sendMessage(C::RED."Game time has to be between ".$minGametime." and ".$maxGametime);
+            return;
+        }
+
+        //create arena
+        $arena = new Arena($this->plugin, $name, $min, $max, $gameTime, 10 /*todo default config.*/, [[0,0] ,[0,0]], [], "null");
+        $this->plugin->newArena($arena);
     }
 }

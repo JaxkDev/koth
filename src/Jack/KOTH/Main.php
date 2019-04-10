@@ -29,6 +29,8 @@
 *   Email   :: gangnam253@gmail.com
 */
 
+/** @noinspection PhpUndefinedMethodInspection */
+
 declare(strict_types=1);
 namespace Jack\KOTH;
 
@@ -87,6 +89,7 @@ class Main extends PluginBase implements Listener{
     }
 
     public function onCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->CommandHandler->handleCommand($sender, $cmd, $label, $args);
     }
 
@@ -110,6 +113,11 @@ class Main extends PluginBase implements Listener{
         return $this->getArenaByPlayer($name) !== null;
     }
 
+    public function newArena(Arena $arena){
+        $this->arenas[] = $arena;
+        //todo save data. $this->saveArenas();
+    }
+
     /**
 	 * NOTE: This only matches by their lowercase name.
 	 *
@@ -126,5 +134,20 @@ class Main extends PluginBase implements Listener{
         return null;
     }
 
+    /**
+     * NOTE: This only matches by their lowercase name.
+     *
+     * @param string $name
+     *
+     * @return Arena|null
+     */
+    public function getArenaByName(string $name){
+        foreach($this->arenas as $arena){
+            if(strtolower($arena->getName()) == strtolower($name)){
+                return $arena;
+            }
+        }
+        return null;
+    }
 
 }
