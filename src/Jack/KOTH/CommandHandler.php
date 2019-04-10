@@ -29,19 +29,18 @@
 *   Email   :: gangnam253@gmail.com
 */
 
+/** @noinspection PhpMissingBreakStatementInspection */
+/** @noinspection PhpUnusedParameterInspection */
+//PhpStorm useless warnings.
+
 declare(strict_types=1);
 namespace Jack\KOTH;
 
 use pocketmine\Player;
-use pocketmine\Server;
-use pocketmine\event\Listener;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\ConsoleCommandSender;
 
 use pocketmine\utils\TextFormat as C;
-
-use Jack\KOTH\Main;
 
 class CommandHandler{
 
@@ -72,6 +71,8 @@ class CommandHandler{
                     $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." HELP".C::YELLOW."]");
                     $sender->sendMessage(C::GOLD."/koth help ".C::RESET."- Sends help :)");
                     $sender->sendMessage(C::GOLD."/koth credits ".C::RESET."- Display the credits.");
+                    $sender->sendMessage(C::GOLD."/koth list ".C::RESET."- List all arena's setup and ready to play !");
+                    if($sender->hasPermission("koth.join")) $sender->sendMessage(C::GOLD."/koth join <arena name>".C::RESET." - Join a game.");
                     if($sender->hasPermission("koth.new")) $sender->sendMessage(C::GOLD."/koth new <arena name>".C::RESET." - Start the setup process of making a new arena.");
                     if($sender->hasPermission("koth.rem")) $sender->sendMessage(C::GOLD."/koth rem <arena name>".C::RESET." - Remove a area that has been setup.");
                     return true;

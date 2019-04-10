@@ -40,8 +40,6 @@ use pocketmine\command\CommandSender;
 
 use pocketmine\utils\TextFormat as C;
 
-use Jack\KOTH\{CommandHandler, EventHandler, Arena};;
-
 class Main extends PluginBase implements Listener{
 
     private $arenas;
@@ -106,6 +104,10 @@ class Main extends PluginBase implements Listener{
             return;
         }
         $this->configC->setAll($this->config);
+    }
+
+    public function inGame(string $name) : bool{
+        return $this->getArenaByPlayer($name) !== null;
     }
 
     /**

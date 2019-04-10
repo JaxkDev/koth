@@ -32,6 +32,7 @@
 declare(strict_types=1);
 namespace Jack\KOTH;
 
+use Jack\KOTH\Tasks\Prestart;
 use pocketmine\Player;
 use pocketmine\level\Position;
 
@@ -64,6 +65,8 @@ class Arena{
     public $king;
     public $playersInBox;
 
+    public $timerTask;
+
     public function __construct(Main $plugin, string $name, int $min, int $limit, int $time, int $count, array $hill, array $spawns, string $world){
         $this->plugin = $plugin;
         $this->hill = $hill;
@@ -79,6 +82,7 @@ class Arena{
 
         $this->king = null;
         $this->playersInBox = [];
+        $this->timerTask = null;
     }
 
     public function broadcastMessage(string $msg){
@@ -127,15 +131,21 @@ class Arena{
     public function startTimer() : void{
         //start pre timer.
         //schedule repeating task, delay of 20ticks to do 1 second countdown.
+        $this->timerTask = $this->plugin->getScheduler()->scheduleRepeatingTask(new Prestart($this->plugin, $this, $this->countDown),20);
     }
 
     public function startGame() : void{
-        //called by repeating task, once timers finished.
-        //start a different task to keep checking who goes in box.
+        /** @noinspection PhpUndefinedMethodInspection */
+        $this->timerTask->cancel();
     }
 
     public function getPlayers() : array{
         return $this->players;
+    }
+
+    public function playersInBox() : array{
+        $pos1 = $this->hill[0];
+        $pos2 = $this->hill[1];
     }
 
     public function changeking() : void{
