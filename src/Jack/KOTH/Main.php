@@ -73,8 +73,7 @@ class Main extends PluginBase implements Listener{
         if(count($this->arenas) === 0) return;
         foreach($this->arenas as $arenaC){
             var_dump($arenaC);
-            $level = $this->getServe()->getLevelByName($arenaC["world"]);
-            $arena = new Arena($this, $arenaC["name"], $arenaC["player_limit"], $arenaC["play_time"], $arenaC["start_countdown"], [$arenaC["hill_1"],$arenaC["hill_2"]], $arenaC["spawns"], $level);
+            $arena = new Arena($this, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["start_countdown"], [$arenaC["hill_1"],$arenaC["hill_2"]], $arenaC["spawns"], $arenaC["world"]);
             $this->arenas[] = $arena;
         }
     }

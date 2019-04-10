@@ -64,10 +64,11 @@ class Arena{
 
     public $king;
 
-    public function __construct(Main $plugin, string $name, int $limit, int $time, int $count, array $hill, array $spawns, Level $world){
+    public function __construct(Main $plugin, string $name, int $min, int $limit, int $time, int $count, array $hill, array $spawns, string $world){
         $this->plugin = $plugin;
         $this->hill = $hill;
-        $this->limit = $limit;
+        $this->minPlayers = $min;
+        $this->maxPlayers = $limit;
         $this->name = $name;
         $this->spawns = $spawns;
         $this->spawnCounter = 0;
@@ -94,22 +95,27 @@ class Arena{
     }
 
     public function spawnPlayer(Player $player, bool $random = false){
-        if($player->getLevel() !== $this->world){
-            //Change world, possibly have to load world.
+        if(strtolower($player->getLevel()->getName()) !== strtolower($this->world)){
+            if(!$this->plugin->getServer()->isLevelGenerated($this->world)) {
+                //todo config msg.
+                //world does not exist
+                return;
+            }
+            if(!$this->getServer()->isLevelLoaded($this->world)) {
+                $this->getServer()->loadLevel($this->world);
+            }
+
         }
         if($random === true){
             $old = array_rand($this->spawns);
-            $pos = new Vector3($old[0], $old[1], old[2]); //x,y,zs;
+            $pos = new Position($old[0], $old[1], old[2], $this->getServer()->getLevelByName($this->world)); //x,y,z,level;
             $player->teleport($pos);
         } else {
             if($spawnCounter > count($this->spawns)){
-                $spawnCounter = 0; //reseet
-                $old = array_rand($this->spawns);
-                $pos = new Vector3($old[0], $old[1], old[2]); //x,y,zs;
-                $player->teleport($pos);
+                $spawnCounter = 0; //reset
             }
             $old = $this->spawns[$spawnCounter];
-            $pos = new Vector3($old[0], $old[1], old[2]); //x,y,zs;
+            $pos = new Position($old[0], $old[1], old[2], $this->getServer()->getLevelByName($this->world)); //x,y,z,level;
             $player->teleport($pos);
             $spawnCounter++;
         }

@@ -36,7 +36,7 @@ namespace Jack\KOTH;
 
 use pocketmine\event\Listener;
 use pocketmine\event\block\{BlockBreakEvent, BlockPlaceEvent};;
-use pocketmine\event\player\{PlayerMoveEvent,PlayerRespawnEvent,PlayerQuitEvent};;
+use pocketmine\event\player\{PlayerMoveEvent,PlayerRespawnEvent,PlayerQuitEvent,PlayerGameModeChangeEvent};;
 
 use pocketmine\utils\TextFormat as C;
 
@@ -84,8 +84,25 @@ class EventHandler implements Listener{
         var_dump($to);
     }
 
+    public function onPlayerGameModeChange(PlayerGameModeChangeEvent $event){
+        if($this->plugin->getArenaByPlayer($event->getPlayer()->getLowerCaseName()) !== null){
+            if($event->getPlayer()->isOp() === false){
+                $event->setCancelled(true);
+                $this->plugin->getArenaByPlayer($event->getPlayer()->getLowerCaseName())->broadcastMessage($event->getPlayer()->getName()." Attempted to change gamemode.");
+                //todo config.
+            }
+        }
+    }
+
     public function onBlockBreak(BlockBreakEvent $event){
-        if($this->plugin->getArenaByPlayer($event->getPlayer()) !== null){
+        if($this->plugin->getArenaByPlayer($event->getPlayer()->getLowerCaseName()) !== null){
+            $event->setCancelled(true);
+            //todo config.
+        }
+    }
+
+    public function onBlockPlace(BlockPlaceEvent $event){
+        if($this->plugin->getArenaByPlayer($event->getPlayer()->getLowerCaseName()) !== null){
             $event->setCancelled(true);
             //todo config.
         }
