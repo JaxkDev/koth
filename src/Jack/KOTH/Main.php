@@ -32,13 +32,11 @@
 declare(strict_types=1);
 namespace Jack\KOTH;
 
-use pocketmine\Player;
-use pocketmine\Server;
 use pocketmine\utils\Config;
 use pocketmine\event\Listener;
 use pocketmine\command\Command;
 use pocketmine\plugin\PluginBase;
-use pocketmine\command\{CommandSender,ConsoleCommandSender};;
+use pocketmine\command\CommandSender;
 
 use pocketmine\utils\TextFormat as C;
 
@@ -47,7 +45,13 @@ use Jack\KOTH\{CommandHandler, EventHandler, Arena};;
 class Main extends PluginBase implements Listener{
 
     private $arenas;
+    private $CommandHandler;
+    private $EventHandler;
+    private $configC;
+    private $arenaC;
+    private $arena;
 
+    public $config;
     public $prefix;
 
     private function init() : void{

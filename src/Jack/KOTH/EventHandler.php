@@ -36,13 +36,11 @@ namespace Jack\KOTH;
 
 use pocketmine\event\Listener;
 use pocketmine\event\block\{BlockBreakEvent, BlockPlaceEvent};;
-use pocketmine\event\player\{PlayerMoveEvent,PlayerRespawnEvent,PlayerQuitEvent,PlayerGameModeChangeEvent};;
-
-use pocketmine\utils\TextFormat as C;
-
-use Jack\KOTH\Main;
+use pocketmine\event\player\{/*PlayerMoveEvent,*/PlayerRespawnEvent,PlayerQuitEvent,PlayerGameModeChangeEvent};;
 
 class EventHandler implements Listener{
+
+    private $plugin;
 
     public function __construct(Main $plugin){
         $this->plugin = $plugin;
@@ -56,7 +54,7 @@ class EventHandler implements Listener{
             $arena = $this->plugin->getArenaByPlayer($playerName);
             $arena->removePlayer($event->getPlayer(), "Disconnected from server."); //arg1 is reason.
             foreach($arena->getPlayers() as $ePlayer){
-                $ePlayer->sendMessage("Test");
+                $this->plugin->getServer()->getPlayerExact($ePlayer)->sendMessage("Test");
             }
         }
     }
@@ -65,16 +63,16 @@ class EventHandler implements Listener{
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
         if($this->plugin->inGame($playerName) === true){
-            //Respawn player in different spawn location.
+            //Re-spawn player in different spawn location.
             $arena = $this->plugin->getArenaByPlayer($playerName);
             $arena->spawnPlayer($event->getPlayer(), true); //arg1 is spawn randomly? bool (optional).
             foreach($arena->getPlayers() as $ePlayer){
-                $ePlayer->sendMessage("Test, player joined."); //todo config.
+                $this->plugin->getServer()->getPlayerExact($ePlayer)->sendMessage("Test, player joined."); //todo config.
             }
         }
     }
 
-    public function onMove(PlayerMoveEvent $event){
+    /*public function onMove(PlayerMoveEvent $event){
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
         $from = $event->getFrom();
@@ -82,7 +80,7 @@ class EventHandler implements Listener{
         //hmm todo, decide on this. (probably config)
         var_dump($from);
         var_dump($to);
-    }
+    }*/
 
     public function onPlayerGameModeChange(PlayerGameModeChangeEvent $event){
         if($this->plugin->getArenaByPlayer($event->getPlayer()->getLowerCaseName()) !== null){

@@ -33,10 +33,8 @@ declare(strict_types=1);
 namespace Jack\KOTH;
 
 use pocketmine\Player;
-use pocketmine\level\Level;
-use pocketmine\math\Vector3;
+use pocketmine\level\Position;
 
-use Jack\KOTH\Main;
 /*
 
 NOTES:
@@ -55,7 +53,8 @@ class Arena{
     public $spawnCounter;
     public $hill = []; //[[20,50,20],[30,50,20]] two points corner to corner.
     public $players = []; //list of all players currently ingame. (lowercase names)
-    public $limit;
+    public $minPlayers;
+    public $maxPlayers;
     public $name;
     public $started;
     public $time;
@@ -63,6 +62,7 @@ class Arena{
     public $world;
 
     public $king;
+    public $playersInBox;
 
     public function __construct(Main $plugin, string $name, int $min, int $limit, int $time, int $count, array $hill, array $spawns, string $world){
         $this->plugin = $plugin;
@@ -76,6 +76,9 @@ class Arena{
         $this->time = $time;
         $this->countDown = $count;
         $this->world = $world;
+
+        $this->king = null;
+        $this->playersInBox = [];
     }
 
     public function broadcastMessage(string $msg){
@@ -94,30 +97,58 @@ class Arena{
         $this->broadcastMessage($this->plugin->prefix.$player->getName()." Has joined the game !");
     }
 
-    public function spawnPlayer(Player $player, bool $random = false){
+    public function spawnPlayer(Player $player, $random = false){
         if(strtolower($player->getLevel()->getName()) !== strtolower($this->world)){
             if(!$this->plugin->getServer()->isLevelGenerated($this->world)) {
                 //todo config msg.
                 //world does not exist
                 return;
             }
-            if(!$this->getServer()->isLevelLoaded($this->world)) {
-                $this->getServer()->loadLevel($this->world);
+            if(!$this->plugin->getServer()->isLevelLoaded($this->world)) {
+                $this->plugin->getServer()->loadLevel($this->world);
             }
 
         }
         if($random === true){
             $old = array_rand($this->spawns);
-            $pos = new Position($old[0], $old[1], old[2], $this->getServer()->getLevelByName($this->world)); //x,y,z,level;
+            $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getLevelByName($this->world)); //x,y,z,level;
             $player->teleport($pos);
         } else {
-            if($spawnCounter > count($this->spawns)){
-                $spawnCounter = 0; //reset
+            if($this->spawnCounter > count($this->spawns)){
+                $this->spawnCounter = 0; //reset
             }
-            $old = $this->spawns[$spawnCounter];
-            $pos = new Position($old[0], $old[1], old[2], $this->getServer()->getLevelByName($this->world)); //x,y,z,level;
+            $old = $this->spawns[$this->spawnCounter];
+            $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getLevelByName($this->world)); //x,y,z,level;
             $player->teleport($pos);
-            $spawnCounter++;
+            $this->spawnCounter++;
+        }
+    }
+
+    public function startTimer() : void{
+        //start pre timer.
+        //schedule repeating task, delay of 20ticks to do 1 second countdown.
+    }
+
+    public function startGame() : void{
+        //called by repeating task, once timers finished.
+        //start a different task to keep checking who goes in box.
+    }
+
+    public function getPlayers() : array{
+        return $this->players;
+    }
+
+    public function changeking() : void{
+        if($this->king === null) return;
+        $this->king = null;
+        if(count($this->playersInBox()) === 0){
+            $this->broadcastMessage("The king has fallen, race to the throne.");
+            return;
+        } else {
+            $player = array_rand(($this->playersInBox()));
+            $this->broadcastMessage($player." Has claimed the throne.");
+            $this->king = $player;
+            //todo update HUD etc.
         }
     }
 
@@ -130,8 +161,9 @@ class Arena{
     public function removePlayer(Player $player, string $reason) : void{
         if($this->king === $player->getLowerCaseName()){
             //change king.
+            $this->changeKing();
         }
-        unset($this->players[array_search(strtolower($player->getName(), $this->players))]);
+        unset($this->players[array_search(strtolower($player->getName()), $this->players)]);
         $this->broadcastQuit($player, $reason);
     }
 
@@ -143,7 +175,7 @@ class Arena{
      * @return bool
      */
     public function addPlayer(Player $player) : bool{
-        if(count($this->players) >= $this->limit){
+        if(count($this->players) >= $this->maxPlayers){
             return false;
         }
         if($this->plugin->getArenaByPlayer(strtolower($player->getName())) !== null){
@@ -152,5 +184,9 @@ class Arena{
         $this->broadcastJoin($player);
         $this->players[] = strtolower($player->getName());
         $this->spawnPlayer($player);
+        if(count($this->players) >= $this->minPlayers){
+            $this->startTimer();
+        }
+        return true;
     }
 }

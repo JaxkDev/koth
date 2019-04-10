@@ -45,6 +45,9 @@ use Jack\KOTH\Main;
 
 class CommandHandler{
 
+    private $plugin;
+    private $prefix;
+
     public function __construct(Main $plugin){
         $this->plugin = $plugin;
         $this->prefix = $plugin->prefix;
@@ -87,5 +90,6 @@ class CommandHandler{
                     return true;
             }
         }
+        return false;
     }
 }
