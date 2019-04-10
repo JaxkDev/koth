@@ -47,7 +47,7 @@ class CommandHandler{
 
     public function __construct(Main $plugin){
         $this->plugin = $plugin;
-        $this->prefix = C::YELLOW."[".C::AQUA."KOTH".C::YELLOW."] ".C::RESET;
+        $this->prefix = $plugin->prefix;
     }
 
     public function handleCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{

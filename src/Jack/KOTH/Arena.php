@@ -33,6 +33,8 @@ declare(strict_types=1);
 namespace Jack\KOTH;
 
 use pocketmine\Player;
+use pocketmine\level\Level;
+use pocketmine\math\Vector3;
 
 use Jack\KOTH\Main;
 /*
@@ -48,19 +50,101 @@ NOTES:
 */
 
 class Arena{
+    private $plugin;
     public $spawns = []; //[[12,50,10],[],[],[]] list of spawn points.
+    public $spawnCounter;
     public $hill = []; //[[20,50,20],[30,50,20]] two points corner to corner.
-    public $players = []; //list of all players currently ingame.
+    public $players = []; //list of all players currently ingame. (lowercase names)
     public $limit;
+    public $name;
+    public $started;
+    public $time;
+    public $countDown;
+    public $world;
 
-    public function __construct(Main $plugin, string $name, int $limit, array $hill, array $spawns){
+    public $king;
+
+    public function __construct(Main $plugin, string $name, int $limit, int $time, int $count, array $hill, array $spawns, Level $world){
         $this->plugin = $plugin;
         $this->hill = $hill;
         $this->limit = $limit;
         $this->name = $name;
         $this->spawns = $spawns;
+        $this->spawnCounter = 0;
+        $this->started = false;
+        $this->time = $time;
+        $this->countDown = $count;
+        $this->world = $world;
     }
 
-    public function spawnPlayer(bool $random){}
-    public function addPlayer(Player $player){}
+    public function broadcastMessage(string $msg){
+        foreach($this->players as $player){
+            $this->plugin->getServer()->getPlayerExact($player)->sendMessage($msg);
+        }
+    }
+
+    public function broadcastQuit(Player $player, string $reason){
+        //get config.
+        $this->broadcastMessage($this->plugin->prefix.$player->getName()." Has left the game, reason: ".$reason);
+    }
+
+    public function broadcastJoin(Player $player){
+        //get config.
+        $this->broadcastMessage($this->plugin->prefix.$player->getName()." Has joined the game !");
+    }
+
+    public function spawnPlayer(Player $player, bool $random = false){
+        if($player->getLevel() !== $this->world){
+            //Change world, possibly have to load world.
+        }
+        if($random === true){
+            $old = array_rand($this->spawns);
+            $pos = new Vector3($old[0], $old[1], old[2]); //x,y,zs;
+            $player->teleport($pos);
+        } else {
+            if($spawnCounter > count($this->spawns)){
+                $spawnCounter = 0; //reseet
+                $old = array_rand($this->spawns);
+                $pos = new Vector3($old[0], $old[1], old[2]); //x,y,zs;
+                $player->teleport($pos);
+            }
+            $old = $this->spawns[$spawnCounter];
+            $pos = new Vector3($old[0], $old[1], old[2]); //x,y,zs;
+            $player->teleport($pos);
+            $spawnCounter++;
+        }
+    }
+
+    /**
+     * @param Player $player
+     * @param string $reason
+     * 
+     * @return void
+     */
+    public function removePlayer(Player $player, string $reason) : void{
+        if($this->king === $player->getLowerCaseName()){
+            //change king.
+        }
+        unset($this->players[array_search(strtolower($player->getName(), $this->players))]);
+        $this->broadcastQuit($player, $reason);
+    }
+
+    /**
+     * NOTE: Returns false if player cannot join.
+     * 
+     * @param Player $player
+     * 
+     * @return bool
+     */
+    public function addPlayer(Player $player) : bool{
+        if(count($this->players) >= $this->limit){
+            return false;
+        }
+        if($this->plugin->getArenaByPlayer(strtolower($player->getName())) !== null){
+            return false;
+        }
+        $this->broadcastJoin($player);
+        $this->players[] = strtolower($player->getName());
+        $this->spawnPlayer($player);
+    }
 }

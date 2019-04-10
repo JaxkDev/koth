@@ -35,6 +35,7 @@ namespace Jack\KOTH;
 
 
 use pocketmine\event\Listener;
+use pocketmine\event\block\{BlockBreakEvent, BlockPlaceEvent};;
 use pocketmine\event\player\{PlayerMoveEvent,PlayerRespawnEvent,PlayerQuitEvent};;
 
 use pocketmine\utils\TextFormat as C;
@@ -53,7 +54,7 @@ class EventHandler implements Listener{
         if($this->plugin->inGame($playerName) === true){
             //notify players in that arena that a player has left, adjust scoreboard.
             $arena = $this->plugin->getArenaByPlayer($playerName);
-            $arena->removePlayer("Disconnected from server."); //arg0 is reason.
+            $arena->removePlayer($event->getPlayer(), "Disconnected from server."); //arg1 is reason.
             foreach($arena->getPlayers() as $ePlayer){
                 $ePlayer->sendMessage("Test");
             }
@@ -66,9 +67,9 @@ class EventHandler implements Listener{
         if($this->plugin->inGame($playerName) === true){
             //Respawn player in different spawn location.
             $arena = $this->plugin->getArenaByPlayer($playerName);
-            $arena->spawnPlayer(true); //arg0 is spawn randomly? bool.
+            $arena->spawnPlayer($event->getPlayer(), true); //arg1 is spawn randomly? bool (optional).
             foreach($arena->getPlayers() as $ePlayer){
-                $ePlayer->sendMessage("Test, player joined.");
+                $ePlayer->sendMessage("Test, player joined."); //todo config.
             }
         }
     }
@@ -78,8 +79,16 @@ class EventHandler implements Listener{
         $playerName = strtolower($player->getName());
         $from = $event->getFrom();
         $to = $event->getTo();
+        //hmm todo, decide on this. (probably config)
         var_dump($from);
         var_dump($to);
+    }
+
+    public function onBlockBreak(BlockBreakEvent $event){
+        if($this->plugin->getArenaByPlayer($event->getPlayer()) !== null){
+            $event->setCancelled(true);
+            //todo config.
+        }
     }
 
 }

@@ -42,14 +42,22 @@ use pocketmine\command\{CommandSender,ConsoleCommandSender};;
 
 use pocketmine\utils\TextFormat as C;
 
-use Jack\KOTH\{CommandHandler, EventHandler};;
+use Jack\KOTH\{CommandHandler, EventHandler, Arena};;
 
 class Main extends PluginBase implements Listener{
 
+    private $arenas;
+
+    public $prefix;
+
     private function init() : void{
+        $this->prefix = C::YELLOW."[".C::AQUA."KOTH".C::YELLOW."] ".C::RESET;
         $this->CommandHandler = new CommandHandler($this);
         $this->EventHandler = new EventHandler($this);
-        //TODO Arena's
+        // --- //
+        $this->arenas = [];
+        $this->loadArenas();
+        // --- //
         $this->getServer()->getPluginManager()->registerEvents($this->EventHandler, $this);
     }
 
@@ -61,9 +69,19 @@ class Main extends PluginBase implements Listener{
 		$this->arena = $this->arenaC->getAll();
     }
 
+    private function loadArenas() : void{
+        if(count($this->arenas) === 0) return;
+        foreach($this->arenas as $arenaC){
+            var_dump($arenaC);
+            $level = $this->getServe()->getLevelByName($arenaC["world"]);
+            $arena = new Arena($this, $arenaC["name"], $arenaC["player_limit"], $arenaC["play_time"], $arenaC["start_countdown"], [$arenaC["hill_1"],$arenaC["hill_2"]], $arenaC["spawns"], $level);
+            $this->arenas[] = $arena;
+        }
+    }
+
     public function onEnable() : void{
+        $this->initResources(); //first to enable Debug.
         $this->init();
-        $this->initResources();
         $this->getLogger()->info(C::GREEN."Plugin Enabled.");
     }
 
@@ -78,7 +96,7 @@ class Main extends PluginBase implements Listener{
         }
         $this->arenaC->setAll($this->arena);
     }
-    
+
     public function saveConfig(array $data = null) : void{
         if($data === null){
             $this->configC->setAll($data);
@@ -86,4 +104,22 @@ class Main extends PluginBase implements Listener{
         }
         $this->configC->setAll($this->config);
     }
+
+    /**
+	 * NOTE: This only matches by their lowercase name.
+	 *
+	 * @param string $name
+	 *
+	 * @return Arena|null
+	 */
+    public function getArenaByPlayer(string $name){
+        foreach($this->arenas as $arena){
+            if(in_array($name, $arena->players)){
+                return $arena;
+            }
+        }
+        return null;
+    }
+
+
 }
