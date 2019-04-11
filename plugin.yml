@@ -11,6 +11,7 @@ commands:
     description: "KOTH general command"
     permission: koth
     usage: /koth help
+    permission-message: "[KOTH] You do not have permission to use this command."
 
 permissions:
   koth:
@@ -23,9 +24,15 @@ permissions:
       koth.new:
         descripyion: "Allows player to start process of making a arena."
         default: op
+      koth.setspawns:
+        description: "Allows player to set spawn points for a arena."
+        default: op
       koth.setpoints:
         description: "Allows player to set points when setting up a new arena."
         default: op
+      koth.list:
+        description: "Allows player to see all Arena's and their status."
+        default: true
       koth.join:
         description: "Allows player to join a game."
         default: true

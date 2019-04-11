@@ -94,11 +94,11 @@ class Main extends PluginBase implements Listener{
     }
 
     public function saveArena(array $data = null) : void{
-        if($data === null){
+        if($data !== null){
             $this->arenaC->setAll($data);
             return;
         }
-        $this->arenaC->setAll($this->arena);
+        //todo shouldn't save the class. $this->arenaC->setAll($this->arena);
     }
 
     public function saveConfig(array $data = null) : void{
@@ -115,7 +115,14 @@ class Main extends PluginBase implements Listener{
 
     public function newArena(Arena $arena){
         $this->arenas[] = $arena;
-        //todo save data. $this->saveArenas();
+        $this->saveArena();
+    }
+
+    /**
+     * @return Arena[]
+     */
+    public function getAllArenas() : array{
+        return $this->arenas;
     }
 
     /**

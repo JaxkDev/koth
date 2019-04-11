@@ -36,6 +36,7 @@ use Jack\KOTH\Tasks\Prestart;
 use pocketmine\Player;
 use pocketmine\level\Position;
 
+
 /*
 
 NOTES:
@@ -49,6 +50,19 @@ NOTES:
 */
 
 class Arena{
+
+    public const STATUS_NOT_READY = 0;
+    public const STATUS_READY = 1;
+    public const STATUS_STARTED = 2;
+    public const STATUS_FULL = 3;
+
+    public $statusList = [
+        self::STATUS_NOT_READY => "Not Ready/Setup",
+        self::STATUS_READY => "Ready",
+        self::STATUS_STARTED => "Started",
+        self::STATUS_FULL => "Full"
+    ];
+
     private $plugin;
     public $spawns = []; //[[12,50,10],[],[],[]] list of spawn points.
     public $spawnCounter;
@@ -67,8 +81,11 @@ class Arena{
     public $playersInBox;
 
     public $timerTask;
+    public $ready;
+    public $status;
 
     public function __construct(Main $plugin, string $name, int $min, int $max, int $time, int $count, array $hill, array $spawns, string $world){
+        echo($this->statusList[self::STATUS_NOT_READY]);
         $this->plugin = $plugin;
         $this->hill = $hill;
         $this->minPlayers = $min;
@@ -84,6 +101,17 @@ class Arena{
         $this->king = null;
         $this->playersInBox = [];
         $this->timerTask = null;
+
+        //$this->ready = $this->checkData();
+        $this->status = self::STATUS_NOT_READY;
+    }
+
+    public function getFriendlyStatus() : string{
+        return $this->statusList[$this->status];
+    }
+
+    public function getStatus() : int{
+        return $this->status;
     }
 
     public function getName() : string{
@@ -158,11 +186,11 @@ class Arena{
     }
 
     public function endGame() : void{
+        $this->freezeAll(true);
         $old = $this->oldKing; //in case of no king.
         $king = $this->king; //in case of a change in this tiny blind spot.
         /** @noinspection PhpUndefinedMethodInspection */
         $this->timerTask->cancel();
-        $this->freezeAll(true);
         //todo events.
         if($king !== null){
             /** @noinspection PhpStrictTypeCheckingInspection */

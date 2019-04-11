@@ -71,14 +71,22 @@ class CommandHandler{
                     $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." HELP".C::YELLOW."]");
                     $sender->sendMessage(C::GOLD."/koth help ".C::RESET."- Sends help :)");
                     $sender->sendMessage(C::GOLD."/koth credits ".C::RESET."- Display the credits.");
-                    $sender->sendMessage(C::GOLD."/koth list ".C::RESET."- List all arena's setup and ready to play !");
-                    if($sender->hasPermission("koth.join")) $sender->sendMessage(C::GOLD."/koth join <arena name>".C::RESET." - Join a game.");
-                    if($sender->hasPermission("koth.new")) $sender->sendMessage(C::GOLD."/koth new <arena name>".C::RESET." - Start the setup process of making a new arena.");
-                    if($sender->hasPermission("koth.rem")) $sender->sendMessage(C::GOLD."/koth rem <arena name>".C::RESET." - Remove a area that has been setup.");
+                    if($sender->hasPermission("koth.list")) $sender->sendMessage(C::GOLD."/koth list ".C::RESET."- List all arena's setup and ready to play !");
+                    if($sender->hasPermission("koth.join")) $sender->sendMessage(C::GOLD."/koth join (arena name)".C::RESET." - Join a game.");
+                    if($sender->hasPermission("koth.new")) $sender->sendMessage(C::GOLD."/koth new (arena name - no spaces) (min players) (max players) (gametime in seconds)".C::RESET." - Start the setup process of making a new arena.");
+                    if($sender->hasPermission("koth.rem")) $sender->sendMessage(C::GOLD."/koth rem (arena name)".C::RESET." - Remove a area that has been setup.");
                     return true;
                 case 'credits':
                     $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." CREDITS".C::YELLOW."]");
                     $sender->sendMessage(C::AQUA."Developer: ".C::GOLD."Jackthehack21");
+                    return true;
+                case 'list':
+                    if(!$sender->hasPermission("koth.list")){
+                        $sender->sendMessage($this->prefix.C::RED."You do not have permission to use this command.");
+                        return true;
+                    }
+                    //list all arena's
+                    $this->listArenas($sender);
                     return true;
                 case 'make':
                 case 'new':
@@ -97,12 +105,23 @@ class CommandHandler{
         return false;
     }
 
+    //todo API class for all the functions below.
+    private function listArenas(CommandSender $sender) : void{
+        $list = $this->plugin->getAllArenas();
+        if(count($list) === 0){
+            $sender->sendMessage($this->prefix.C::RED."No arenas are currently setup.");
+            return;
+        }
+        $sender->sendMessage($this->prefix.C::RED.count($list).C::GOLD." Arena(s) - ".C::RED."Arena Name | Arena Status");
+        foreach($list as $arena){
+            $sender->sendMessage(C::GREEN.$arena->getName().C::RED." | ".C::AQUA.$arena->getFriendlyStatus());
+        }
+    }
 
-    //todo API class that holds all methods that SHOULD be used via other plugins :)
     private function createArena(CommandSender $sender, array $args) : void{
         //assume has perms as it got here.
 
-        $usage = "/koth new (arena name - no spaces) (min players) (max players) (gametime in seconds)";
+        $usage = $this->prefix.C::RED."/koth new (arena name - no spaces) (min players) (max players) (gametime in seconds)";
         //rest will be in config, or default for now (rem after coming out of beta)
 
         if(count($args) !== 5){
@@ -110,7 +129,7 @@ class CommandHandler{
             return;
         }
         $minGametime = 60; //1min, todo config.
-        $maxGametime = 120; //2min, todo config.
+        $maxGametime = 300; //5min, todo config.
         $forceMax = 20; //todo config.
 
         $name = $args[1];
@@ -120,41 +139,48 @@ class CommandHandler{
 
         //verify data:
         if($this->plugin->getArenaByName($name) !== null){
-            $sender->sendMessage(C::RED."A arena with that name already exists.");
+            $sender->sendMessage($this->prefix.C::RED."A arena with that name already exists.");
             return;
         }
         if(!is_numeric($min)){
-            $sender->sendMessage(C::RED."Min value must be a number.");
+            $sender->sendMessage($this->prefix.C::RED."Min value must be a number.");
             return;
         }
         if(intval($min) < 2){
-            $sender->sendMessage(C::RED."minimum value must be above 2.");
+            $sender->sendMessage($this->prefix.C::RED."minimum value must be above 2.");
             return;
         }
         if(!is_numeric($max)){
-            $sender->sendMessage(C::RED."Max value must be a number.");
+            $sender->sendMessage($this->prefix.C::RED."Max value must be a number.");
             return;
         }
-        if(intval($max) >= intval($min)){
-            $sender->sendMessage(C::RED."Cant play with 1 player, make sure max value is bigger then min.");
+        if(intval($max) <= intval($min)){
+            $sender->sendMessage($this->prefix.C::RED."Cant play with 1 player, make sure max value is bigger then min.");
             return;
         }
         if(intval($max) > $forceMax){
-            $sender->sendMessage(C::RED."The maximum number of players cannot be above ".$forceMax);
+            $sender->sendMessage($this->prefix.C::RED."The maximum number of players cannot be above ".$forceMax);
             return;
         }
 
         if(!is_numeric($gameTime)){
-            $sender->sendMessage(C::RED."Game time has to be numbers :/");
+            $sender->sendMessage($this->prefix.C::RED."Game time has to be numbers :/");
             return;
         }
         if(intval($gameTime) < $minGametime or intval($gameTime) > $maxGametime){
-            $sender->sendMessage(C::RED."Game time has to be between ".$minGametime." and ".$maxGametime);
+            $sender->sendMessage($this->prefix.C::RED."Game time has to be between ".$minGametime." and ".$maxGametime);
             return;
         }
 
         //create arena
-        $arena = new Arena($this->plugin, $name, $min, $max, $gameTime, 10 /*todo default config.*/, [[0,0] ,[0,0]], [], "null");
-        $this->plugin->newArena($arena);
+        $arena = new Arena($this->plugin, $name, intval($min), intval($max), intval($gameTime), 10 /*todo default config.*/, [[0,0] ,[0,0]], [], "null");
+        $result = $this->plugin->newArena($arena);
+        if($result === false){
+            $sender->sendMessage($this->prefix.C::RED."Failed to create arena, sorry.");
+            return;
+        }
+        $sender->sendMessage($this->prefix.C::GREEN."Nice one, ".$name." arena is almost fully setup, to complete the arena setup be sure to do '/koth setpos1 (arena name)' when standing on pos 1, and '/koth setpos2 (arena name)' when standing in the opposite corner.");
+        $sender->sendMessage(C::GREEN."You then setup spawn points, any amount of spawn points, set one by using the command '/koth setspawn (arena name)' when standing on the spawn point.");
+        return;
     }
 }
