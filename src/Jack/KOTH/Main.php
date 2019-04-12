@@ -49,7 +49,7 @@ class Main extends PluginBase implements Listener{
     private $EventHandler;
     private $configC;
     private $arenaC;
-    private $arena;
+    private $arenaSaves;
 
     public $config;
     public $prefix;
@@ -70,16 +70,21 @@ class Main extends PluginBase implements Listener{
         $this->configC = new Config($this->getDataFolder() . "config.yml", Config::YAML);
         $this->config = $this->configC->getAll();
         $this->arenaC = new Config($this->getDataFolder() . "arena.yml", Config::YAML, ["version" => 1, "arena_list" => []]);
-		$this->arena = $this->arenaC->getAll();
+		$this->arenaSaves = $this->arenaC->getAll();
     }
 
     private function loadArenas() : void{
-        if(count($this->arenas) === 0) return;
-        foreach($this->arenas as $arenaC){
-            var_dump($arenaC);
+        if(count($this->arenaSaves["arena_list"]) === 0) return;
+        foreach($this->arenaSaves["arena_list"] as $arenaC){
             $arena = new Arena($this, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["start_countdown"], $arenaC["hill"], $arenaC["spawns"], $arenaC["world"]);
             $this->arenas[] = $arena;
         }
+    }
+
+    public function onDisable()
+    {
+        $this->saveArena();
+        $this->saveConfig();
     }
 
     public function onEnable() : void{
@@ -95,18 +100,34 @@ class Main extends PluginBase implements Listener{
 
     public function saveArena(array $data = null) : void{
         if($data !== null){
-            $this->arenaC->setAll($data);
+            $this->arenaC->set("arena_list",$data);
             return;
         }
-        //todo shouldn't save the class. $this->arenaC->setAll($this->arena);
+        $save = [];
+        foreach($this->arenas as $arena) {
+            $save[] = [
+                "name" => $arena->name,
+                "min_players" => $arena->minPlayers,
+                "max_players" => $arena->maxPlayers,
+                "play_time" => $arena->time,
+                "start_countdown" => $arena->countDown,
+                "hill" => $arena->hill,
+                "spawns" => $arena->spawns,
+                "world" => $arena->world
+            ];
+        }
+        $this->getLogger()->debug("Saving Arena data.");
+        $this->arenaC->set("arena_list", $save);
+        $this->arenaC->save();  //<-- took a hour to figure out why it wasn't saving :/
     }
 
     public function saveConfig(array $data = null) : void{
-        if($data === null){
+        if($data !== null){
             $this->configC->setAll($data);
             return;
         }
         $this->configC->setAll($this->config);
+        $this->configC->save(); //<-- took a hour to figure out why it wasn't saving :/
     }
 
     public function inGame(string $name) : bool{

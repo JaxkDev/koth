@@ -123,6 +123,108 @@ class CommandHandler{
                     //create arena.
                     $this->createArena($sender, $args);
                     return true;
+
+                case 'join':
+                    if(!$sender->hasPermission("koth.join")){
+                        $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
+                        return true;
+                    }
+                    if(count($args) !== 2){
+                        $sender->sendMessage($this->prefix.C::RED."No arena specified, /koth join (arena nzme)");
+                        return true;
+                    }
+                    $arena = $this->plugin->getArenaByName($args[1]);
+                    if($arena === null){
+                        $sender->sendMessage($this->prefix.C::RED."A arena with that name does not exist.");
+                        return true;
+                    }
+                    $arena->addPlayer($sender);
+                    return true;
+
+                //////-----Arena Setup------///////
+                /** @noinspection SpellCheckingInspection */
+                case 'setpos1':
+                    //Set position one of the hill.
+                    if(!$sender->hasPermission("koth.setpoints")){
+                        $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
+                        return true;
+                    }
+                    $pos = $sender->getPosition();
+                    $point = [$pos->getFloorX(), $pos->getFloorY(), $pos->getFloorZ()]; //get first to avoid split second movement *shrug*
+                    if(count($args) !== 2){
+                        $sender->sendMessage($this->prefix.C::RED."No arena specified, /koth setpos1 (arenaName)");
+                        return true;
+                    }
+                    $arena = $this->plugin->getArenaByName($args[1]);
+                    if($arena === null){
+                        $sender->sendMessage($this->prefix.C::RED."A arena with that name does not exist.");
+                        return true;
+                    }
+                    if($arena->status !== Arena::STATUS_NOT_READY or count($arena->hill) !== 0){
+                        $sender->sendMessage($this->prefix.C::RED."That arena has already been setup (coming soon over-ride stored values)."); //TODO overwrite data.
+                        return true;
+                    }
+                    $arena->hill[] = $point;
+                    $arena->world = $sender->getLevel()->getName();
+                    $sender->sendMessage($this->prefix.C::GREEN."Position 1 set, be sure to do /koth setpos2 ".$arena->getName());
+                    return true;
+
+                /** @noinspection SpellCheckingInspection */
+                case 'setpos2':
+                    //Set position two of the hill.
+                    if(!$sender->hasPermission("koth.setpoints")){
+                        $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
+                        return true;
+                    }
+                    $pos = $sender->getPosition();
+                    $point = [$pos->getFloorX(), $pos->getFloorY(), $pos->getFloorZ()]; //get first to avoid split second movement *shrug*
+                    if(count($args) !== 2){
+                        $sender->sendMessage($this->prefix.C::RED."No arena specified, /koth setpos2 (arenaName)");
+                        return true;
+                    }
+                    $arena = $this->plugin->getArenaByName($args[1]);
+                    if($arena === null){
+                        $sender->sendMessage($this->prefix.C::RED."A arena with that name does not exist.");
+                        return true;
+                    }
+                    if($arena->status !== Arena::STATUS_NOT_READY ){
+                        $sender->sendMessage($this->prefix.C::RED."That arena has already been setup (coming soon over-ride stored values)."); //TODO overwrite data.
+                        return true;
+                    }
+                    if(count($arena->hill) === 0){
+                        $sender->sendMessage($this->prefix.C::RED."That arena has no position1 set, please use /koth setpos1 ".$arena->getName()." First.");
+                        return true;
+                    }
+                    $arena->hill[] = $point;
+                    $arena->checkStatus();
+                    $sender->sendMessage($this->prefix.C::GREEN."Position 2 set, be sure to setup some spawn point '/koth setspawn ".$arena->getName());
+                    return true;
+
+                /** @noinspection SpellCheckingInspection */
+                case 'setspawn':
+                    //Set a spawn position
+                    if(!$sender->hasPermission("koth.setspawns")){
+                        $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
+                        return true;
+                    }
+                    $pos = $sender->getPosition();
+                    $point = [$pos->getFloorX(), $pos->getFloorY(), $pos->getFloorZ()]; //get first to avoid split second movement *shrug*
+                    if(count($args) !== 2){
+                        $sender->sendMessage($this->prefix.C::RED."No arena specified, /koth setspawn (arenaName)");
+                        return true;
+                    }
+                    $arena = $this->plugin->getArenaByName($args[1]);
+                    if($arena === null){
+                        $sender->sendMessage($this->prefix.C::RED."A arena with that name does not exist.");
+                        return true;
+                    }
+                    $arena->spawns[] = $point;
+                    $arena->checkStatus();
+                    $sender->sendMessage($this->prefix.C::GREEN."spawn position added.");
+                    return true;
+
+                //////----------------------///////
+
                 default:
                     $sender->sendMessage($this->prefix.C::RED."Unknown Command, /koth help");
                     return true;

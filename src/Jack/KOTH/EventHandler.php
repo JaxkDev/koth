@@ -65,10 +65,7 @@ class EventHandler implements Listener{
         if($this->plugin->inGame($playerName) === true){
             //Re-spawn player in different spawn location.
             $arena = $this->plugin->getArenaByPlayer($playerName);
-            $arena->spawnPlayer($event->getPlayer(), true); //arg1 is spawn randomly? bool (optional).
-            foreach($arena->getPlayers() as $ePlayer){
-                $this->plugin->getServer()->getPlayerExact($ePlayer)->sendMessage("Test, player joined."); //todo config.
-            }
+            $arena->spawnPlayer($event->getPlayer(), true); //arg1 is spawn randomly? bool (optional)
         }
     }
 

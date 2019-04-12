@@ -33,6 +33,8 @@ declare(strict_types=1);
 namespace Jack\KOTH;
 
 use Jack\KOTH\Tasks\Prestart;
+use Jack\KOTH\Tasks\Gametimer;
+
 use pocketmine\Player;
 use pocketmine\level\Position;
 
@@ -138,20 +140,23 @@ class Arena{
         $this->broadcastMessage($this->plugin->prefix.$player->getName()." Has joined the game !");
     }
 
-    public function checkStatus() : void{
+    public function checkStatus(bool $save = true) : void{
         if(count($this->hill) === 2 && count($this->spawns) >= 1){
             $this->status = self::STATUS_READY;
         } else {
             $this->status = self::STATUS_NOT_READY;
+            if($save === true) $this->plugin->saveArena();
             return;
         }
         if($this->started === true){
             $this->status = self::STATUS_STARTED;
         }
-        if($this->players >= $this->maxPlayers){
+        if(count($this->players) >= $this->maxPlayers){
             $this->status = self::STATUS_FULL;
+            if($save === true) $this->plugin->saveArena();
             return;
         }
+        if($save === true) $this->plugin->saveArena();
     }
 
     public function spawnPlayer(Player $player, $random = false) : void{
@@ -200,6 +205,7 @@ class Arena{
         $this->started = true;
         $this->checkStatus();
         $this->broadcastMessage("Game started");
+        $this->timerTask = $this->plugin->getScheduler()->scheduleRepeatingTask(new Gametimer($this->plugin, $this),20);
         //start next timer task.
         //broadcast the games started, start task to keep track of king.
     }
@@ -278,19 +284,26 @@ class Arena{
     public function changeKing() : void{
         if($this->king !== null){
             $this->oldKing = $this->king;
+            $this->king = null;
         }
-        $this->king = null;
-        if(count($this->playersInBox()) === 0){
-            $this->broadcastMessage("No one has claimed the throne, the race is on.");
-            //todo config.
+        if($this->checkNewKing() === false){
+            $this->broadcastMessage($this->plugin->prefix.C::GOLD."No one has claimed the throne, who will be king of the hill...");
             return;
+        }
+    }
+
+    public function checkNewKing() : bool{
+        if(count($this->playersInBox()) === 0){
+            return false;
         } else {
-            $player = array_rand(($this->playersInBox()));
+            $player = array_rand(($this->playersInBox())); //todo closest to middle.
             $this->broadcastMessage($player." Has claimed the throne, how long will it last...");
             $this->king = $player;
             //todo update HUD etc.
+            return true;
         }
     }
+
 
     /**
      * @param Player $player
@@ -329,8 +342,9 @@ class Arena{
                 $player->sendMessage($this->plugin->prefix.C::RED."This arena is full.");
                 return false;
         }
-        $this->broadcastJoin($player);
         $this->players[] = strtolower($player->getName());
+        $this->broadcastJoin($player);
+        $player->setGamemode(0);
         $this->spawnPlayer($player);
         if(count($this->players) >= $this->minPlayers && $this->timerTask === null){
             $this->startTimer();
