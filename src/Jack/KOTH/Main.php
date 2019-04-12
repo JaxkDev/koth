@@ -77,7 +77,7 @@ class Main extends PluginBase implements Listener{
         if(count($this->arenas) === 0) return;
         foreach($this->arenas as $arenaC){
             var_dump($arenaC);
-            $arena = new Arena($this, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["start_countdown"], [$arenaC["hill_1"],$arenaC["hill_2"]], $arenaC["spawns"], $arenaC["world"]);
+            $arena = new Arena($this, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["start_countdown"], $arenaC["hill"], $arenaC["spawns"], $arenaC["world"]);
             $this->arenas[] = $arena;
         }
     }
@@ -116,6 +116,17 @@ class Main extends PluginBase implements Listener{
     public function newArena(Arena $arena){
         $this->arenas[] = $arena;
         $this->saveArena();
+    }
+
+    public function removeArena(Arena $arena) : void{
+        if (($key = array_search($arena, $this->arenas)) !== false) {
+            unset($this->arenas[$key]);
+            $this->saveArena();
+        }
+    }
+
+    public function removeArenaByName(string $name) : void{
+        $this->removeArena($this->getArenaByName($name));
     }
 
     /**

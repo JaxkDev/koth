@@ -36,6 +36,8 @@ use Jack\KOTH\Tasks\Prestart;
 use pocketmine\Player;
 use pocketmine\level\Position;
 
+use pocketmine\utils\TextFormat as C;
+
 
 /*
 
@@ -81,11 +83,9 @@ class Arena{
     public $playersInBox;
 
     public $timerTask;
-    public $ready;
     public $status;
 
     public function __construct(Main $plugin, string $name, int $min, int $max, int $time, int $count, array $hill, array $spawns, string $world){
-        echo($this->statusList[self::STATUS_NOT_READY]);
         $this->plugin = $plugin;
         $this->hill = $hill;
         $this->minPlayers = $min;
@@ -102,8 +102,7 @@ class Arena{
         $this->playersInBox = [];
         $this->timerTask = null;
 
-        //$this->ready = $this->checkData();
-        $this->status = self::STATUS_NOT_READY;
+        $this->checkStatus();
     }
 
     public function getFriendlyStatus() : string{
@@ -139,11 +138,28 @@ class Arena{
         $this->broadcastMessage($this->plugin->prefix.$player->getName()." Has joined the game !");
     }
 
+    public function checkStatus() : void{
+        if(count($this->hill) === 2 && count($this->spawns) >= 1){
+            $this->status = self::STATUS_READY;
+        } else {
+            $this->status = self::STATUS_NOT_READY;
+            return;
+        }
+        if($this->started === true){
+            $this->status = self::STATUS_STARTED;
+        }
+        if($this->players >= $this->maxPlayers){
+            $this->status = self::STATUS_FULL;
+            return;
+        }
+    }
+
     public function spawnPlayer(Player $player, $random = false) : void{
         if(strtolower($player->getLevel()->getName()) !== strtolower($this->world)){
             if(!$this->plugin->getServer()->isLevelGenerated($this->world)) {
                 //todo config msg.
                 //world does not exist
+                $player->sendMessage("This arena is corrupt.");
                 return;
             }
             if(!$this->plugin->getServer()->isLevelLoaded($this->world)) {
@@ -181,6 +197,9 @@ class Arena{
     public function startGame() : void{
         /** @noinspection PhpUndefinedMethodInspection */
         $this->timerTask->cancel();
+        $this->started = true;
+        $this->checkStatus();
+        $this->broadcastMessage("Game started");
         //start next timer task.
         //broadcast the games started, start task to keep track of king.
     }
@@ -199,12 +218,14 @@ class Arena{
             /** @noinspection PhpStrictTypeCheckingInspection */
             $this->setWinner($old);
         }
+        //$this->reset();
+        $this->checkStatus();
     }
 
     public function setWinner(string $king) : void{
         $this->broadcastWinner($king);
         //todo give rewards based on config.
-        //todo particles fireworks and more for king, and Xsecond delay before un freezing.
+        //todo particles fireworks and more for king, and X second delay before un freezing.
         $this->freezeAll(false);
     }
 
@@ -283,6 +304,7 @@ class Arena{
         }
         unset($this->players[array_search(strtolower($player->getName()), $this->players)]);
         $this->broadcastQuit($player, $reason);
+        $this->checkStatus();
     }
 
     /**
@@ -299,12 +321,21 @@ class Arena{
         if($this->plugin->getArenaByPlayer(strtolower($player->getName())) !== null){
             return false;
         }
+        switch($this->status){
+            case self::STATUS_NOT_READY:
+                $player->sendMessage($this->plugin->prefix.C::RED."This arena has not been setup.");
+                return false;
+            case self::STATUS_FULL:
+                $player->sendMessage($this->plugin->prefix.C::RED."This arena is full.");
+                return false;
+        }
         $this->broadcastJoin($player);
         $this->players[] = strtolower($player->getName());
         $this->spawnPlayer($player);
-        if(count($this->players) >= $this->minPlayers){
+        if(count($this->players) >= $this->minPlayers && $this->timerTask === null){
             $this->startTimer();
         }
+        $this->checkStatus();
         return true;
     }
 }

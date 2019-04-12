@@ -82,12 +82,38 @@ class CommandHandler{
                     return true;
                 case 'list':
                     if(!$sender->hasPermission("koth.list")){
-                        $sender->sendMessage($this->prefix.C::RED."You do not have permission to use this command.");
+                        $sender->sendMessage($this->prefix.C::RED."You do not have permission to use this command!");
                         return true;
                     }
                     //list all arena's
                     $this->listArenas($sender);
                     return true;
+                case 'rem':
+                case 'remove':
+                case 'del':
+                case 'delete':
+                    if(!$sender->hasPermission("koth.rem")){
+                        $sender->sendMessage($this->prefix.C::RED."You do not have permission to use this command!");
+                        return true;
+                    }
+                    if(count($args) !== 2){
+                        $sender->sendMessage($this->prefix.C::RED."Usage /koth rem (arena name)");
+                        return true;
+                    }
+                    $arena = $this->plugin->getArenaByName($args[1]);
+                    if($arena === null){
+                        $sender->sendMessage($this->prefix.C::RED."A arena with that name does not exist.");
+                        return true;
+                    }
+                    if($arena->getStatus() !== Arena::STATUS_READY and $arena->getStatus() !== Arena::STATUS_NOT_READY){
+                        //in middle of game.
+                        $sender->sendMessage($this->prefix.C::RED."That arena is currently running a game, when everyone has left the arena you can then remove it.");
+                        return true;
+                    }
+                    $this->plugin->removeArena($arena);
+                    $sender->sendMessage($this->prefix.C::GREEN."Arena removed.");
+                    return true;
+                case 'create':
                 case 'make':
                 case 'new':
                     if(!$sender->hasPermission("koth.new")){
@@ -173,7 +199,7 @@ class CommandHandler{
         }
 
         //create arena
-        $arena = new Arena($this->plugin, $name, intval($min), intval($max), intval($gameTime), 10 /*todo default config.*/, [[0,0] ,[0,0]], [], "null");
+        $arena = new Arena($this->plugin, $name, intval($min), intval($max), intval($gameTime), 10 /*todo default config.*/, [], [], "null");
         $result = $this->plugin->newArena($arena);
         if($result === false){
             $sender->sendMessage($this->prefix.C::RED."Failed to create arena, sorry.");
