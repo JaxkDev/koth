@@ -177,7 +177,7 @@ class Arena{
             $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getLevelByName($this->world)); //x,y,z,level;
             $player->teleport($pos);
         } else {
-            if($this->spawnCounter > count($this->spawns)){
+            if($this->spawnCounter >= count($this->spawns)){
                 $this->spawnCounter = 0; //reset
             }
             $old = $this->spawns[$this->spawnCounter];
@@ -210,6 +210,15 @@ class Arena{
         //broadcast the games started, start task to keep track of king.
     }
 
+    public function reset() : void{
+        //todo tp all players.
+        $this->players = [];
+        $this->started = false;
+        $this->king = null;
+
+        $this->checkStatus();
+    }
+
     public function endGame() : void{
         $this->freezeAll(true);
         $old = $this->oldKing; //in case of no king.
@@ -221,14 +230,23 @@ class Arena{
             /** @noinspection PhpStrictTypeCheckingInspection */
             $this->setWinner($king);
         } else {
+            if($old === null){
+                $this->setWinner("Null");
+                return;
+            }
             /** @noinspection PhpStrictTypeCheckingInspection */
             $this->setWinner($old);
         }
-        //$this->reset();
+        $this->reset();
         $this->checkStatus();
     }
 
     public function setWinner(string $king) : void{
+        if($king === "Null"){
+            $this->broadcastMessage($this->plugin->prefix.C::RED."GAME OVER, No one managed to claim the hill and win the game. Better luck next time.");
+            $this->freezeAll(false);
+            return;
+        }
         $this->broadcastWinner($king);
         //todo give rewards based on config.
         //todo particles fireworks and more for king, and X second delay before un freezing.
@@ -242,33 +260,22 @@ class Arena{
     public function playersInBox() : array{
         $pos1 = [];
         $pos1["x"] = $this->hill[0][0];
-        $pos1["z"] = $this->hill[0][1];
+        $pos1["z"] = $this->hill[0][2];
         $pos2 = [];
         $pos2["x"] = $this->hill[1][0];
-        $pos2["z"] = $this->hill[1][1];
-        if($pos1["x"] < $pos2["x"]){
-            $minX = $pos1["x"];
-            $maxX = $pos2["x"];
-        } else {
-            $minX = $pos2["x"];
-            $maxX = $pos1["x"];
-        }
-        if($pos1["z"] < $pos2["z"]){
-            $minZ = $pos1["z"];
-            $maxZ = $pos2["z"];
-        } else {
-            $minZ = $pos2["z"];
-            $maxZ = $pos1["z"];
-        }
+        $pos2["z"] = $this->hill[1][2];
+        $minX = min($pos2["x"],$pos1["x"]);
+        $maxX = max($pos2["x"],$pos2["x"]);
+        $minZ = min($pos2["z"],$pos1["z"]);
+        $maxZ = max($pos2["z"],$pos2["z"]);
         $list = [];
 
         foreach($this->players as $playerName){
             $player = $this->plugin->getServer()->getPlayerExact($playerName);
-            if(($player->x >= $minX and $player->x <= $maxX) and ($player->z >= $minZ and $player->z <= $maxZ)){
+            if(($minX <= $player->getFloorX() && $player->getFloorX() <= $maxX && $minZ <= $player->getFloorZ() && $player->getFloorZ() <= $maxZ)){
                 $list[] = $playerName;
             }
         }
-
         return $list;
     }
 
@@ -296,7 +303,7 @@ class Arena{
         if(count($this->playersInBox()) === 0){
             return false;
         } else {
-            $player = array_rand(($this->playersInBox())); //todo closest to middle.
+            $player = $this->playersInBox()[array_rand($this->playersInBox())]; //todo closest to middle.
             $this->broadcastMessage($player." Has claimed the throne, how long will it last...");
             $this->king = $player;
             //todo update HUD etc.
@@ -342,9 +349,9 @@ class Arena{
                 $player->sendMessage($this->plugin->prefix.C::RED."This arena is full.");
                 return false;
         }
+        $player->setGamemode(0);
         $this->players[] = strtolower($player->getName());
         $this->broadcastJoin($player);
-        $player->setGamemode(0);
         $this->spawnPlayer($player);
         if(count($this->players) >= $this->minPlayers && $this->timerTask === null){
             $this->startTimer();

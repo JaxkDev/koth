@@ -55,7 +55,7 @@ class Prestart extends Task{
             return;
             //task should be cancelled before next 20ticks.
         }
-        $this->arena->broadcastMessage($this->countDown." Seconds...");
+        $this->arena->broadcastMessage($this->plugin->prefix.$this->countDown." Seconds...");
         $this->countDown--;
     }
 }

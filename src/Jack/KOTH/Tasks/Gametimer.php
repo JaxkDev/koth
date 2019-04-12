@@ -43,6 +43,8 @@ class Gametimer extends Task{
     private $arena;
 
     public $secondsPlayed = 0;
+    public $startTick = 0;
+
 
     public function __construct(Main $plugin, Arena $arena){
         $this->plugin = $plugin;
@@ -50,15 +52,16 @@ class Gametimer extends Task{
     }
 
     public function onRun(int $tick){
-        $this->secondsPlayed = floor($tick/20);
+        if($this->startTick === 0) $this->startTick = $tick;
+        $this->secondsPlayed = floor(($tick-$this->startTick)/20);
         $inBox = $this->arena->playersInBox();
         if($this->arena->king === null){
             $this->arena->checkNewKing();
-            return;
-        }
-        if(in_array($this->arena->king, $inBox) === false){
-            $this->arena->removeKing();
-            return;
+        } else {
+            if (!in_array($this->arena->king, $inBox)) {
+                $this->arena->removeKing();
+                return;
+            }
         }
 
         if($this->secondsPlayed >= $this->arena->time){
