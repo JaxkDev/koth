@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace Jack\KOTH\Tasks;
 
 use pocketmine\scheduler\Task;
+use pocketmine\utils\TextFormat as C;
 
 use Jack\KOTH\Main;
 use Jack\KOTH\Arena;
@@ -53,9 +54,8 @@ class Prestart extends Task{
         if($this->countDown === 0){
             $this->arena->startGame();
             return;
-            //task should be cancelled before next 20ticks.
         }
-        $this->arena->broadcastMessage($this->plugin->prefix.$this->countDown." Seconds...");
+        $this->arena->broadcastMessage($this->plugin->prefix.C::RED."[COUNTDOWN] : ".$this->countDown);
         $this->countDown--;
     }
 }

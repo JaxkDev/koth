@@ -47,11 +47,11 @@ class Main extends PluginBase implements Listener{
     private $arenas;
     private $CommandHandler;
     private $EventHandler;
-    private $configC;
+    //private $configC;
     private $arenaC;
     private $arenaSaves;
 
-    public $config;
+    //public $config;
     public $prefix;
 
     private function init() : void{
@@ -66,31 +66,34 @@ class Main extends PluginBase implements Listener{
     }
 
     private function initResources() : void{
-        $this->saveResource("config.yml");
+        /*$this->saveResource("config.yml");
         $this->configC = new Config($this->getDataFolder() . "config.yml", Config::YAML);
-        $this->config = $this->configC->getAll();
+        $this->config = $this->configC->getAll();*/
         $this->arenaC = new Config($this->getDataFolder() . "arena.yml", Config::YAML, ["version" => 1, "arena_list" => []]);
-		$this->arenaSaves = $this->arenaC->getAll();
+	$this->arenaSaves = $this->arenaC->getAll();
     }
 
     private function loadArenas() : void{
-        if(count($this->arenaSaves["arena_list"]) === 0) return;
+        if(count($this->arenaSaves["arena_list"]) === 0){
+            $this->getLogger()->debug("0 Arena(s) loaded.");
+            return;
+        }
         foreach($this->arenaSaves["arena_list"] as $arenaC){
             $arena = new Arena($this, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["start_countdown"], $arenaC["hill"], $arenaC["spawns"], $arenaC["world"]);
             $this->arenas[] = $arena;
         }
+        $this->getLogger()->debug(count($this->arenas)." Arena(s) loaded.");
     }
 
     public function onDisable()
     {
         $this->saveArena();
-        $this->saveConfig();
+        //$this->saveConfig();
     }
 
     public function onEnable() : void{
         $this->initResources(); //first to enable Debug.
         $this->init();
-        $this->getLogger()->info(C::GREEN."Plugin Enabled.");
     }
 
     public function onCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
@@ -116,19 +119,19 @@ class Main extends PluginBase implements Listener{
                 "world" => $arena->world
             ];
         }
-        $this->getLogger()->debug("Saving Arena data.");
+        //$this->getLogger()->debug("Saving Arena data.");
         $this->arenaC->set("arena_list", $save);
         $this->arenaC->save();  //<-- took a hour to figure out why it wasn't saving :/
     }
 
-    public function saveConfig(array $data = null) : void{
+    /*public function saveConfig(array $data = null) : void{
         if($data !== null){
             $this->configC->setAll($data);
             return;
         }
         $this->configC->setAll($this->config);
         $this->configC->save(); //<-- took a hour to figure out why it wasn't saving :/
-    }
+    }*/
 
     public function inGame(string $name) : bool{
         return $this->getArenaByPlayer($name) !== null;

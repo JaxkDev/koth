@@ -150,7 +150,7 @@ class CommandHandler{
                         return true;
                     }
                     $pos = $sender->getPosition();
-                    $point = [$pos->getFloorX(), $pos->getFloorY(), $pos->getFloorZ()]; //get first to avoid split second movement *shrug*
+                    $point = [$pos->x, $pos->y, $pos->z]; //get first to avoid split second movement *shrug*
                     if(count($args) !== 2){
                         $sender->sendMessage($this->prefix.C::RED."No arena specified, /koth setpos1 (arenaName)");
                         return true;
@@ -177,7 +177,7 @@ class CommandHandler{
                         return true;
                     }
                     $pos = $sender->getPosition();
-                    $point = [$pos->getFloorX(), $pos->getFloorY(), $pos->getFloorZ()]; //get first to avoid split second movement *shrug*
+                    $point = [$pos->x, $pos->y, $pos->z]; //get first to avoid split second movement *shrug*
                     if(count($args) !== 2){
                         $sender->sendMessage($this->prefix.C::RED."No arena specified, /koth setpos2 (arenaName)");
                         return true;
@@ -208,7 +208,7 @@ class CommandHandler{
                         return true;
                     }
                     $pos = $sender->getPosition();
-                    $point = [$pos->getFloorX(), $pos->getFloorY(), $pos->getFloorZ()]; //get first to avoid split second movement *shrug*
+                    $point = [$pos->x, $pos->y, $pos->z]; //get first to avoid split second movement *shrug*
                     if(count($args) !== 2){
                         $sender->sendMessage($this->prefix.C::RED."No arena specified, /koth setspawn (arenaName)");
                         return true;

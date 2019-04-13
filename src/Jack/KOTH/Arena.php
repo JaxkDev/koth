@@ -127,7 +127,7 @@ class Arena{
 
     public function broadcastWinner(string $player) : void{
         //todo get config.
-        $this->broadcastMessage($this->plugin->prefix.$player."Has won the game !");
+        $this->broadcastMessage($this->plugin->prefix.$player." Has won the game !");
     }
 
     public function broadcastQuit(Player $player, string $reason) : void{
@@ -164,7 +164,7 @@ class Arena{
             if(!$this->plugin->getServer()->isLevelGenerated($this->world)) {
                 //todo config msg.
                 //world does not exist
-                $player->sendMessage("This arena is corrupt.");
+                $player->sendMessage($this->plugin->prefix.C::RED."This arena is corrupt.");
                 return;
             }
             if(!$this->plugin->getServer()->isLevelLoaded($this->world)) {
@@ -204,10 +204,8 @@ class Arena{
         $this->timerTask->cancel();
         $this->started = true;
         $this->checkStatus();
-        $this->broadcastMessage("Game started");
-        $this->timerTask = $this->plugin->getScheduler()->scheduleRepeatingTask(new Gametimer($this->plugin, $this),20);
-        //start next timer task.
-        //broadcast the games started, start task to keep track of king.
+        $this->broadcastMessage($this->plugin->prefix.C::GOLD."Game On !");
+        $this->timerTask = $this->plugin->getScheduler()->scheduleRepeatingTask(new Gametimer($this->plugin, $this),10);
     }
 
     public function reset() : void{
@@ -272,7 +270,7 @@ class Arena{
 
         foreach($this->players as $playerName){
             $player = $this->plugin->getServer()->getPlayerExact($playerName);
-            if(($minX <= $player->getFloorX() && $player->getFloorX() <= $maxX && $minZ <= $player->getFloorZ() && $player->getFloorZ() <= $maxZ)){
+            if(($minX <= $player->x && $player->x <= $maxX && $minZ <= $player->z && $player->z <= $maxZ)){
                 $list[] = $playerName;
             }
         }
