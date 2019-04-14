@@ -30,32 +30,40 @@
 */
 
 declare(strict_types=1);
-namespace Jack\KOTH\Tasks;
+namespace Jackthehack21\KOTH\Tasks;
 
 use pocketmine\scheduler\Task;
-use pocketmine\utils\TextFormat as C;
 
-use Jack\KOTH\Main;
-use Jack\KOTH\Arena;
+use Jackthehack21\KOTH\Main;
+use Jackthehack21\KOTH\Arena;
 
-class Prestart extends Task{
+class Gametimer extends Task{
 
     private $plugin;
     private $arena;
-    private $countDown;
 
-    public function __construct(Main $plugin, Arena $arena, int $count){
+    public $secondsPlayed = 0;
+
+
+    public function __construct(Main $plugin, Arena $arena){
         $this->plugin = $plugin;
         $this->arena = $arena;
-        $this->countDown = $count;
     }
 
     public function onRun(int $tick){
-        if($this->countDown === 0){
-            $this->arena->startGame();
-            return;
+        $this->secondsPlayed += 0.5;
+        $inBox = $this->arena->playersInBox();
+        if($this->arena->king === null){
+            $this->arena->checkNewKing();
+        } else {
+            if (!in_array($this->arena->king, $inBox)) {
+                $this->arena->removeKing();
+                return;
+            }
         }
-        $this->arena->broadcastMessage($this->plugin->prefix.C::RED."[COUNTDOWN] : ".$this->countDown);
-        $this->countDown--;
+
+        if($this->secondsPlayed >= $this->arena->time){
+            $this->arena->endGame();
+        }
     }
 }

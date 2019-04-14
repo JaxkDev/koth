@@ -30,7 +30,7 @@
 */
 
 declare(strict_types=1);
-namespace Jack\KOTH;
+namespace Jackthehack21\KOTH;
 
 
 

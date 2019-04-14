@@ -32,7 +32,7 @@
 /** @noinspection PhpUndefinedMethodInspection */
 
 declare(strict_types=1);
-namespace Jack\KOTH;
+namespace Jackthehack21\KOTH;
 
 use pocketmine\utils\Config;
 use pocketmine\event\Listener;

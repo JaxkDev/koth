@@ -4,7 +4,7 @@ author: Jackthehack21
 version: 1.0.0-Beta1
 api:
 - 3.7.0
-main: Jack\KOTH\Main
+main: Jackthehack21\KOTH\Main
 
 commands:
   koth:

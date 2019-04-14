@@ -34,7 +34,7 @@
 //PhpStorm useless warnings.
 
 declare(strict_types=1);
-namespace Jack\KOTH;
+namespace Jackthehack21\KOTH;
 
 use pocketmine\Player;
 use pocketmine\command\Command;

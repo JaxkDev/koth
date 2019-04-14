@@ -30,10 +30,10 @@
 */
 
 declare(strict_types=1);
-namespace Jack\KOTH;
+namespace Jackthehack21\KOTH;
 
-use Jack\KOTH\Tasks\Prestart;
-use Jack\KOTH\Tasks\Gametimer;
+use Jackthehack21\KOTH\Tasks\Prestart;
+use Jackthehack21\KOTH\Tasks\Gametimer;
 
 use pocketmine\Player;
 use pocketmine\level\Position;
