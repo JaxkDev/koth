@@ -1,10 +1,13 @@
 ---
 name: KOTH
 author: Jackthehack21
-version: 1.0.0-Beta1
+version: 1.0.0-Beta2
 api:
 - 3.7.0
 main: Jackthehack21\KOTH\Main
+
+softdepend:
+  - EconomyAPI
 
 commands:
   koth:

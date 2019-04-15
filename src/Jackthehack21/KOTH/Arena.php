@@ -36,6 +36,7 @@ use Jackthehack21\KOTH\Tasks\Prestart;
 use Jackthehack21\KOTH\Tasks\Gametimer;
 
 use pocketmine\Player;
+use pocketmine\math\Vector3;
 use pocketmine\level\Position;
 
 use pocketmine\utils\TextFormat as C;
@@ -47,7 +48,7 @@ NOTES:
 - so if king dies out of box or goes out of box, its race to the box, 
   if killed in box from someone inside box that killer is king
   if someone outside the box kills him next to box is king
-  if multple people in box when next king selection, person closest to middle is crowned.
+  if multiple people in box when next king selection, person closest to middle is crowned.
 
 - EventHandler handles all events from pmmp, then passed here.
 
@@ -87,6 +88,8 @@ class Arena{
     public $timerTask;
     public $status;
 
+    public $currentKingParticle = null;
+
     public function __construct(Main $plugin, string $name, int $min, int $max, int $time, int $count, array $hill, array $spawns, string $world){
         $this->plugin = $plugin;
         $this->hill = $hill;
@@ -105,6 +108,7 @@ class Arena{
         $this->timerTask = null;
 
         $this->checkStatus();
+        $this->createKingTextParticle();
     }
 
     public function getFriendlyStatus() : string{
@@ -159,6 +163,21 @@ class Arena{
         if($save === true) $this->plugin->saveArena();
     }
 
+    public function createKingTextParticle() : void{
+        if($this->status !== $this::STATUS_NOT_READY && $this->currentKingParticle !== null){
+            //spawn king particle, as we have position of hill/throne and level.
+            $pos = new Vector3(($this->hill[0][0]+$this->hill[1][0])/2,($this->hill[0][1]+$this->hill[1][1])/2,($this->hill[0][2]+$this->hill[1][2])/2);
+            $this->currentKingParticle = new FloatingText($this->plugin, $this->plugin->getServer()->getLevelByName($this->world), $pos, C::RED."King: -");
+        }
+    }
+
+    public function updateKingTextParticle() : void{
+        if($this->currentKingParticle !== null){
+            /** @noinspection PhpUndefinedMethodInspection */
+            $this->currentKingParticle->setText("King: ".($this->king === null ? "-" : $this->king));
+        }
+    }
+
     public function spawnPlayer(Player $player, $random = false) : void{
         if(strtolower($player->getLevel()->getName()) !== strtolower($this->world)){
             if(!$this->plugin->getServer()->isLevelGenerated($this->world)) {
@@ -205,6 +224,7 @@ class Arena{
         $this->started = true;
         $this->checkStatus();
         $this->broadcastMessage($this->plugin->prefix.C::GOLD."Game On !");
+        $this->createKingTextParticle(); //in case it was never made on startup as it was first made.
         $this->timerTask = $this->plugin->getScheduler()->scheduleRepeatingTask(new Gametimer($this->plugin, $this),10);
     }
 
@@ -258,19 +278,24 @@ class Arena{
     public function playersInBox() : array{
         $pos1 = [];
         $pos1["x"] = $this->hill[0][0];
+        $pos1["y"] = $this->hill[0][1];
         $pos1["z"] = $this->hill[0][2];
         $pos2 = [];
         $pos2["x"] = $this->hill[1][0];
+        $pos2["y"] = $this->hill[1][1]; //for those who have a weird arena...
         $pos2["z"] = $this->hill[1][2];
         $minX = min($pos2["x"],$pos1["x"]);
         $maxX = max($pos2["x"],$pos2["x"]);
+        $minY = min($pos2["y"],$pos1["y"]);
+        $maxY = max($pos2["y"],$pos2["y"]);
         $minZ = min($pos2["z"],$pos1["z"]);
         $maxZ = max($pos2["z"],$pos2["z"]);
         $list = [];
 
         foreach($this->players as $playerName){
             $player = $this->plugin->getServer()->getPlayerExact($playerName);
-            if(($minX <= $player->x && $player->x <= $maxX && $minZ <= $player->z && $player->z <= $maxZ)){
+            //Y value, this does create a issue with jumping...*todo find a away around this.
+            if(($minX <= $player->x && $player->x <= $maxX && $minY <= $player->y && $player->y <= $maxY && $minZ <= $player->z && $player->z <= $maxZ)){
                 $list[] = $playerName;
             }
         }
@@ -291,6 +316,7 @@ class Arena{
             $this->oldKing = $this->king;
             $this->king = null;
         }
+        $this->updateKingTextParticle();
         if($this->checkNewKing() === false){
             $this->broadcastMessage($this->plugin->prefix.C::GOLD."No one has claimed the throne, who will be king of the hill...");
             return;
@@ -304,6 +330,7 @@ class Arena{
             $player = $this->playersInBox()[array_rand($this->playersInBox())]; //todo closest to middle.
             $this->broadcastMessage($player." Has claimed the throne, how long will it last...");
             $this->king = $player;
+            $this->updateKingTextParticle();
             //todo update HUD etc.
             return true;
         }

@@ -1,3 +1,8 @@
 ---
-version: 1
+version: 0
+
+plugin_enabled: true
+debug: false
+
+
 ...

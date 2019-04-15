@@ -46,10 +46,12 @@ class CommandHandler{
 
     private $plugin;
     private $prefix;
+    private $particle;
 
     public function __construct(Main $plugin){
         $this->plugin = $plugin;
         $this->prefix = $plugin->prefix;
+        $this->particle = new FloatingText($this->plugin, $this->plugin->getServer()->getDefaultLevel(), $this->plugin->getServer()->getDefaultLevel()->getSpawnLocation()->asVector3(), "Test text\nNew Line\nNew Line", "Test Title");
     }
 
     public function handleCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
@@ -67,6 +69,22 @@ class CommandHandler{
                 return true;
             }
             switch($args[0]){
+                /*case 'test':
+                    $this->plugin->getServer()->getDefaultLevel()->addParticle($this->particle);
+                    return true;
+                case 'test2':
+                    $this->particle->setTitle("New TITLE");
+                    return true;
+                case 'test3':
+                    $this->particle->setInvisible();
+                    //$this->particle->setInvisible(false);
+                    return true;
+                case 'test4':
+                    $this->particle->setInvisible(false);
+                    return true;
+                case 'update':
+                    $this->plugin->getServer()->getDefaultLevel()->addParticle($this->particle);
+                    return true;*/
                 case 'help':
                     $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." HELP".C::YELLOW."]");
                     $sender->sendMessage(C::GOLD."/koth help ".C::RESET."- Sends help :)");

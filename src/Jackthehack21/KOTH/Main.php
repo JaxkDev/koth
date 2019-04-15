@@ -47,11 +47,11 @@ class Main extends PluginBase implements Listener{
     private $arenas;
     private $CommandHandler;
     private $EventHandler;
-    //private $configC;
+    private $configC;
     private $arenaC;
     private $arenaSaves;
 
-    //public $config;
+    public $config;
     public $prefix;
 
     private function init() : void{
@@ -66,11 +66,11 @@ class Main extends PluginBase implements Listener{
     }
 
     private function initResources() : void{
-        /*$this->saveResource("config.yml");
+        $this->saveResource("config.yml");
         $this->configC = new Config($this->getDataFolder() . "config.yml", Config::YAML);
-        $this->config = $this->configC->getAll();*/
+        $this->config = $this->configC->getAll();
         $this->arenaC = new Config($this->getDataFolder() . "arena.yml", Config::YAML, ["version" => 1, "arena_list" => []]);
-	$this->arenaSaves = $this->arenaC->getAll();
+	    $this->arenaSaves = $this->arenaC->getAll();
     }
 
     private function loadArenas() : void{
@@ -88,12 +88,13 @@ class Main extends PluginBase implements Listener{
     public function onDisable()
     {
         $this->saveArena();
-        //$this->saveConfig();
+        $this->saveConfig();
     }
 
     public function onEnable() : void{
         $this->initResources(); //first to enable Debug.
         $this->init();
+
     }
 
     public function onCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
@@ -124,14 +125,14 @@ class Main extends PluginBase implements Listener{
         $this->arenaC->save();  //<-- took a hour to figure out why it wasn't saving :/
     }
 
-    /*public function saveConfig(array $data = null) : void{
+    public function saveConfig(array $data = null) : void{
         if($data !== null){
             $this->configC->setAll($data);
             return;
         }
         $this->configC->setAll($this->config);
         $this->configC->save(); //<-- took a hour to figure out why it wasn't saving :/
-    }*/
+    }
 
     public function inGame(string $name) : bool{
         return $this->getArenaByPlayer($name) !== null;
