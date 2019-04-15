@@ -107,6 +107,8 @@ class Arena{
         $this->playersInBox = [];
         $this->timerTask = null;
 
+        $this->currentKingParticle = null;
+
         $this->checkStatus();
         $this->createKingTextParticle();
     }
@@ -164,17 +166,17 @@ class Arena{
     }
 
     public function createKingTextParticle() : void{
-        if($this->status !== $this::STATUS_NOT_READY && $this->currentKingParticle !== null){
+        if($this->status !== $this::STATUS_NOT_READY and $this->currentKingParticle === null){
             //spawn king particle, as we have position of hill/throne and level.
             $pos = new Vector3(($this->hill[0][0]+$this->hill[1][0])/2,($this->hill[0][1]+$this->hill[1][1])/2,($this->hill[0][2]+$this->hill[1][2])/2);
-            $this->currentKingParticle = new FloatingText($this->plugin, $this->plugin->getServer()->getLevelByName($this->world), $pos, C::RED."King: -");
+            $this->currentKingParticle = new FloatingText($this->plugin, $this->plugin->getServer()->getLevelByName($this->world), $pos, C::RED."King: ".C::GOLD."-");
         }
     }
 
     public function updateKingTextParticle() : void{
         if($this->currentKingParticle !== null){
             /** @noinspection PhpUndefinedMethodInspection */
-            $this->currentKingParticle->setText("King: ".($this->king === null ? "-" : $this->king));
+            $this->currentKingParticle->setText(C::RED."King: ".C::GOLD.($this->king === null ? "-" : $this->king));
         }
     }
 
@@ -225,6 +227,7 @@ class Arena{
         $this->checkStatus();
         $this->broadcastMessage($this->plugin->prefix.C::GOLD."Game On !");
         $this->createKingTextParticle(); //in case it was never made on startup as it was first made.
+        $this->updateKingTextParticle(); //spawn in.
         $this->timerTask = $this->plugin->getScheduler()->scheduleRepeatingTask(new Gametimer($this->plugin, $this),10);
     }
 
