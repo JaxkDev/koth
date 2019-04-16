@@ -1,31 +1,99 @@
+<a href="https://tiny.cc/JaxksDC"><img src="https://discordapp.com/api/guilds/554059221847638040/embed.png" alt="Discord server"/></a>
+<a href="https://poggit.pmmp.io/p/KOTH"><img src="https://poggit.pmmp.io/shield.state/KOTH"></a>
+
 # K.O.T.H
 King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
 
-## NOTICE:
- **This plugin is in BETA, so please dont spam out comments/issues with broken things or things that you expect there and are not.**
+## NOTICE
+ **This plugin is in BETA (Pre-Release), so *please* dont spam out comments/issues with broken things or things that you expect there and are not.**
  
-
-### Features:
+## Features
+### Implemented
  - Multiple Arena's
  - Custom spawn & hill points.
  - Supports Arena's in different worlds.
  - Custom player amount, and game time.
  - Block break/place disabled during in-game (todo config)
  - Changing gamemode during a game is cancelled (todo config)
- 
-### Soon to come:
+
+### Upcoming
  - 'King' to display under/above player name.
  - Messages to be in config.
  - Default arena values to be in config.
  - Override old values of arena positions.
  - Something extra for when winner is announced ***wink***
 
-### Known Bugs:
+## About the game
+### KOTH
+King.Of.The.Hill
+
+King of the hill is a mini game most players will be familiar with, either through minecraft or by playing pretty much any other strategy game. 
+
+The aim of king of the hill is to conquer the castle, fort or anything else in the middle of the arena, the arena is usually a large map of some sort with surrounding walls.
+The top point usually on a hill with a height advantage is the throne, castle, fort whatever you call it.
+
+players all spawn into the one map/arena, and then using the equipment/items on them they take on position of king.
+They remain king for as long as they stay in the specified area/fort/castle if they die, another player in the area takes place as king or next person who goes there.
+
+The winner is announced at the end of the game (When a timer runs out), the king currently in power or the previous king will be winner.
+
+At the end the winner is given rewards and a *celebration* occurs (shortly).
+(This is not yet implemented - as of beta1)
+
+### Joining a game
+To join a game/arena the arena must meet some criteria,
+1. The arena cannot be full or not ready (you can check using `/koth list`)
+2. The arena world must exist, cannot be deleted or re-named (if so you will have to delete and re-create it)
+3. The arena must have spawn points.
+
+If the arena meets all the above you can join using `/koth join <arena name>`
+
+### Starting a game
+The game will start the pregame - counter when the minimum amount of players has joined.
+
+(In future you can force start)
+
+### Leaving a game
+As of Beta1 you can only leave by exiting the server.
+In future commands can be used.
+
+### Winning a game
+The game runs on a timer, during which anyone can move, attack and kill the king.
+However when the timer runs out the last standing king, or the previous king will be crowned.
+(And in future rewards and *other* things will be added)
+
+(Notice, players are frozen during 'presentations of the king')
+
+## Setting up
+### Creating/Removing arena(s)
+To create a new arena use the command `/koth new <arena name>` (No spaces are allowed in arena, for now)
+To remove a arena use the command `/koth rem <arena name>` (The arena cannot be in use when deleting)
+
+To check arena status type `/koth list`
+### Setting positions
+ 1. `/koth setpos1 <arena name>`
+   (Make sure you are standing on one corner of the throne/hill.)
+ 2. `/koth setpos2 <arena name>`
+   (Now stand on the opposite corner of the throne/hill.)
+ 3. `/koth setspawn <arena name>`
+   (This command can be used as many times as you like, again be standing on the spawn location you want to set.)
+
+### Editing Values
+Currently (as of beta1) there is only one option:
+1. Go into plugin_data->KOTH->arenas.yml
+2. Find the arena you wish to edit (via name)
+3. Find the value you wish to edit then change it and save the file.
+4. Reload your server for it to take effect.
+
+### Config Options
+Configurable values and messages coming soon.
+
+## Known Bugs:
  - NA
 
 To report bugs please make a issue over on [github](https://github.com/jackthehack21/koth/issues/new) and please follow the guidelines.
 
-### Credits:
+## Credits:
 _Developer:_ Jackthehack21 (aka JaxkDev)
 
 *Idea generator:* GOLDVAGE (GOLDVAGE#2712)
