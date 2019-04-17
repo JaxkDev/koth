@@ -6,7 +6,13 @@ debug: false
 
 check_updates: true
 
-language: 'eng'
+language: "eng"
+
+KingTextParticles: true
+
+nametag_enabled: true
+nametag_format: "{RED}[ {GREEN}KING {RED}]"
 
 start_countdown: 10
+forced_min_game_time: 10
 ...

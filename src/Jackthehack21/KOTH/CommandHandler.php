@@ -274,9 +274,7 @@ class CommandHandler{
             $sender->sendMessage($usage);
             return;
         }
-        $minGametime = 60; //1min, todo config.
-        $maxGametime = 300; //5min, todo config.
-        $forceMax = 20; //todo config.
+        $minGametime = $this->plugin->config["forced_min_game_time"];
 
         $name = $args[1];
         $min = $args[2];
@@ -292,7 +290,7 @@ class CommandHandler{
             $sender->sendMessage($this->prefix.C::RED."Min value must be a number.");
             return;
         }
-        if(intval($min) < 2){
+        if(intval($min) < 1){
             $sender->sendMessage($this->prefix.C::RED."minimum value must be above 2.");
             return;
         }
@@ -304,17 +302,13 @@ class CommandHandler{
             $sender->sendMessage($this->prefix.C::RED."Cant play with 1 player, make sure max value is bigger then min.");
             return;
         }
-        if(intval($max) > $forceMax){
-            $sender->sendMessage($this->prefix.C::RED."The maximum number of players cannot be above ".$forceMax);
-            return;
-        }
 
         if(!is_numeric($gameTime)){
-            $sender->sendMessage($this->prefix.C::RED."Game time has to be numbers :/");
+            $sender->sendMessage($this->prefix.C::RED."Game time has to be numeric.");
             return;
         }
-        if(intval($gameTime) < $minGametime or intval($gameTime) > $maxGametime){
-            $sender->sendMessage($this->prefix.C::RED."Game time has to be between ".$minGametime." and ".$maxGametime);
+        if(intval($gameTime) < $minGametime){
+            $sender->sendMessage($this->prefix.C::RED."Game time has to be above ".$minGametime);
             return;
         }
 

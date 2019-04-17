@@ -72,7 +72,8 @@ class Arena{
     public $spawns = []; //[[12,50,10],[],[],[]] list of spawn points.
     public $spawnCounter;
     public $hill = []; //[[20,20],[30,20]] two points corner to corner. (X,Z) no y.
-    public $players = []; //list of all players currently ingame. (lowercase names)
+    public $players = []; //list of all players currently in-game. (lowercase names)
+    public $playerOldPositions = []; //["world name",x,y,z] List of where players joined from to TP back to after finish.
     public $minPlayers;
     public $maxPlayers;
     public $name;
@@ -90,6 +91,17 @@ class Arena{
 
     public $currentKingParticle = null;
 
+    /**
+     * Arena constructor.
+     * @param Main $plugin
+     * @param string $name
+     * @param int $min
+     * @param int $max
+     * @param int $time
+     * @param array $hill
+     * @param array $spawns
+     * @param string $world
+     */
     public function __construct(Main $plugin, string $name, int $min, int $max, int $time, array $hill, array $spawns, string $world){
         $this->plugin = $plugin;
         $this->hill = $hill;
@@ -113,39 +125,64 @@ class Arena{
         $this->createKingTextParticle();
     }
 
+    /**
+     * @return string
+     */
     public function getFriendlyStatus() : string{
         return $this->statusList[$this->status];
     }
 
+    /**
+     * @return int
+     */
     public function getStatus() : int{
         return $this->status;
     }
 
+    /**
+     * @return string
+     */
     public function getName() : string{
         return $this->name;
     }
 
+    /**
+     * @param string $msg
+     */
     public function broadcastMessage(string $msg) : void{
         foreach($this->players as $player){
             $this->plugin->getServer()->getPlayerExact($player)->sendMessage($msg);
         }
     }
 
+    /**
+     * @param string $player
+     */
     public function broadcastWinner(string $player) : void{
         //todo get config.
         $this->broadcastMessage($this->plugin->prefix.$player." Has won the game !");
     }
 
+    /**
+     * @param Player $player
+     * @param string $reason
+     */
     public function broadcastQuit(Player $player, string $reason) : void{
         //todo get config.
         $this->broadcastMessage($this->plugin->prefix.$player->getName()." Has left the game, reason: ".$reason);
     }
 
+    /**
+     * @param Player $player
+     */
     public function broadcastJoin(Player $player) : void{
         //todo get config.
         $this->broadcastMessage($this->plugin->prefix.$player->getName()." Has joined the game !");
     }
 
+    /**
+     * @param bool $save
+     */
     public function checkStatus(bool $save = true) : void{
         if(count($this->hill) === 2 && count($this->spawns) >= 1){
             $this->status = self::STATUS_READY;
@@ -166,6 +203,7 @@ class Arena{
     }
 
     public function createKingTextParticle() : void{
+        if($this->plugin->config["KingTextParticles"] !== false) return;
         if($this->status !== $this::STATUS_NOT_READY and $this->currentKingParticle === null){
             //spawn king particle, as we have position of hill/throne and level.
             $pos = new Vector3(($this->hill[0][0]+$this->hill[1][0])/2,($this->hill[0][1]+$this->hill[1][1])/2,($this->hill[0][2]+$this->hill[1][2])/2);
@@ -177,9 +215,33 @@ class Arena{
         if($this->currentKingParticle !== null){
             /** @noinspection PhpUndefinedMethodInspection */
             $this->currentKingParticle->setText(C::RED."King: ".C::GOLD.($this->king === null ? "-" : $this->king));
+
+            //set name tags, its own function so others can run it without updating Particles.
+            $this->updateNameTags();
         }
     }
 
+    public function updateNameTags() : void{
+        if($this->plugin->config["nametags_enabled"] === true){
+            $format = $this->plugin->config["nametags_format"];
+            if($this->king !== null){
+                /** @noinspection PhpStrictTypeCheckingInspection */
+                $player = $this->plugin->getServer()->getPlayerExact($this->king);
+                $player->setNameTag($format."\n".$player->getNameTag());
+            } else {
+                if($this->oldKing !== null){
+                    $player = $this->plugin->getServer()->getPlayerExact($this->oldKing);
+                    if($player === null) return;
+                    $player->setNameTag($format."\n".$player->getNameTag());
+                }
+            }
+        }
+    }
+
+    /**
+     * @param Player $player
+     * @param bool $random
+     */
     public function spawnPlayer(Player $player, $random = false) : void{
         if(strtolower($player->getLevel()->getName()) !== strtolower($this->world)){
             if(!$this->plugin->getServer()->isLevelGenerated($this->world)) {
@@ -208,6 +270,9 @@ class Arena{
         }
     }
 
+    /**
+     * @param bool $freeze
+     */
     public function freezeAll(bool $freeze) : void{
         foreach($this->players as $name){
             $this->plugin->getServer()->getPlayerExact($name)->setImmobile($freeze);
@@ -232,11 +297,16 @@ class Arena{
     }
 
     public function reset() : void{
-        //todo tp all players.
-        $this->players = [];
         $this->started = false;
         $this->king = null;
 
+        foreach($this->players as $name){
+            $player = $this->plugin->getServer()->getPlayerExact($name);
+            $this->removePlayer($player, "Game over", true);
+            //TP players back to where they was before joining arena.
+        }
+
+        $this->players = [];
         $this->checkStatus();
     }
 
@@ -262,6 +332,9 @@ class Arena{
         $this->checkStatus();
     }
 
+    /**
+     * @param string $king
+     */
     public function setWinner(string $king) : void{
         if($king === "Null"){
             $this->broadcastMessage($this->plugin->prefix.C::RED."GAME OVER, No one managed to claim the hill and win the game. Better luck next time.");
@@ -274,10 +347,16 @@ class Arena{
         $this->freezeAll(false);
     }
 
+    /**
+     * @return array
+     */
     public function getPlayers() : array{
         return $this->players;
     }
 
+    /**
+     * @return array
+     */
     public function playersInBox() : array{
         $pos1 = [];
         $pos1["x"] = $this->hill[0][0];
@@ -295,9 +374,10 @@ class Arena{
         $maxZ = max($pos2["z"],$pos2["z"]);
         $list = [];
 
+        if($minY === $maxY) $maxY += 1.1; //To allow jumping, shouldn't effect what so ever.
+
         foreach($this->players as $playerName){
             $player = $this->plugin->getServer()->getPlayerExact($playerName);
-            //Y value, this does create a issue with jumping...*todo find a away around this.
             if(($minX <= $player->x && $player->x <= $maxX && $minY <= $player->y && $player->y <= $maxY && $minZ <= $player->z && $player->z <= $maxZ)){
                 $list[] = $playerName;
             }
@@ -326,6 +406,9 @@ class Arena{
         }
     }
 
+    /**
+     * @return bool
+     */
     public function checkNewKing() : bool{
         if(count($this->playersInBox()) === 0){
             return false;
@@ -343,16 +426,22 @@ class Arena{
     /**
      * @param Player $player
      * @param string $reason
+     * @param bool   $silent
      * 
      * @return void
      */
-    public function removePlayer(Player $player, string $reason) : void{
+    public function removePlayer(Player $player, string $reason, bool $silent = false) : void{
+        unset($this->players[array_search(strtolower($player->getName()), $this->players)]);
         if($this->king === $player->getLowerCaseName()){
             $this->removeKing();
         }
-        unset($this->players[array_search(strtolower($player->getName()), $this->players)]);
-        $this->broadcastQuit($player, $reason);
+        if($silent === false) $this->broadcastQuit($player, $reason);
         $this->checkStatus();
+        if($player->loggedIn !== false and $player->spawned !== false){ //check to avoid tp if player left server.
+            $pos = new Position($this->playerOldPositions[strtolower($player->getName())][1],$this->playerOldPositions[strtolower($player->getName())][2],$this->playerOldPositions[strtolower($player->getName())][3],$this->plugin->getServer()->getLevelByName($this->playerOldPositions[strtolower($player->getName())][0]));
+            $player->teleport($pos);
+            unset($this->playerOldPositions[strtolower($player->getName())]);
+        }
     }
 
     /**
@@ -379,6 +468,8 @@ class Arena{
         }
         $player->setGamemode(0);
         $this->players[] = strtolower($player->getName());
+        $this->playerOldPositions[strtolower($player->getName())] = [$player->getLevel()->getName(),$player->getX(), $player->getY(), $player->getZ()];
+        //todo test ^
         $this->broadcastJoin($player);
         $this->spawnPlayer($player);
         if(count($this->players) >= $this->minPlayers && $this->timerTask === null){

@@ -45,6 +45,8 @@ use pocketmine\utils\TextFormat as C;
 
 class Main extends PluginBase implements Listener{
 
+    private static $instance;
+
     private $arenas;
     private $CommandHandler;
     private $EventHandler;
@@ -53,10 +55,9 @@ class Main extends PluginBase implements Listener{
     private $arenaSaves;
 
     public $config;
-    public $prefix;
+    public $prefix = C::YELLOW."[".C::AQUA."KOTH".C::YELLOW."] ".C::RESET;
 
     private function init() : void{
-        $this->prefix = C::YELLOW."[".C::AQUA."KOTH".C::YELLOW."] ".C::RESET;
         $this->CommandHandler = new CommandHandler($this);
         $this->EventHandler = new EventHandler($this);
         // --- //
@@ -74,11 +75,18 @@ class Main extends PluginBase implements Listener{
 	    $this->arenaSaves = $this->arenaC->getAll();
 
 	    //todo check config+arena versions.
+
+        $languages = array("eng"); //list of all help file languages currently available.
+        $language = "eng";
+        if (in_array($this->config["language"], $languages) !== false) {
+            $language = $this->config["language"];
+        }
+        $this->saveResource("help_".$language.".txt");
     }
 
     private function startChecks() : bool{
         if($this->config["plugin_enabled"] !== true){
-            $this->getLogger()->debug("Plugin disabled, as stated in config.yml");
+            $this->debug("Plugin disabled, as stated in config.yml");
             $this->getServer()->getPluginManager()->disablePlugin($this);
             return false;
         }
@@ -92,14 +100,14 @@ class Main extends PluginBase implements Listener{
 
     private function loadArenas() : void{
         if(count($this->arenaSaves["arena_list"]) === 0){
-            $this->getLogger()->debug("0 Arena(s) loaded.");
+            $this->debug("0 Arena(s) loaded.");
             return;
         }
         foreach($this->arenaSaves["arena_list"] as $arenaC){
             $arena = new Arena($this, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["hill"], $arenaC["spawns"], $arenaC["world"]);
             $this->arenas[] = $arena;
         }
-        $this->getLogger()->debug(count($this->arenas)." Arena(s) loaded.");
+        $this->debug(count($this->arenas)." Arena(s) loaded.");
     }
 
     public function onDisable()
@@ -109,7 +117,7 @@ class Main extends PluginBase implements Listener{
     }
 
     public function onEnable() : void{
-        $this->initResources(); //todo self debug.
+        $this->initResources();
         if($this->startChecks() === false) return;
         $this->init();
 
@@ -149,6 +157,15 @@ class Main extends PluginBase implements Listener{
         }
         $this->configC->setAll($this->config);
         $this->configC->save(); //<-- took a hour to figure out why it wasn't saving :/
+    }
+
+    /**
+     * @param string $msg
+     */
+    public function debug(string $msg) : void{
+        if($this->config["debug"] === true){
+            $this->getLogger()->info(C::GRAY."[DEBUG] : ".   $msg);
+        }
     }
 
     public function inGame(string $name) : bool{
@@ -208,6 +225,13 @@ class Main extends PluginBase implements Listener{
             }
         }
         return null;
+    }
+
+    /**
+     * @return Main
+     */
+    public static function getInstance() : self{
+        return self::$instance;
     }
 
 }
