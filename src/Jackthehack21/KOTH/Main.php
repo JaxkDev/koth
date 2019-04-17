@@ -39,8 +39,9 @@ use pocketmine\event\Listener;
 use pocketmine\command\Command;
 use pocketmine\plugin\PluginBase;
 use pocketmine\command\CommandSender;
-
 use pocketmine\utils\TextFormat as C;
+
+#use JackMD\UpdateNotifier\UpdateNotifier;
 
 class Main extends PluginBase implements Listener{
 
@@ -71,6 +72,22 @@ class Main extends PluginBase implements Listener{
         $this->config = $this->configC->getAll();
         $this->arenaC = new Config($this->getDataFolder() . "arena.yml", Config::YAML, ["version" => 1, "arena_list" => []]);
 	    $this->arenaSaves = $this->arenaC->getAll();
+
+	    //todo check config+arena versions.
+    }
+
+    private function startChecks() : bool{
+        if($this->config["plugin_enabled"] !== true){
+            $this->getLogger()->debug("Plugin disabled, as stated in config.yml");
+            $this->getServer()->getPluginManager()->disablePlugin($this);
+            return false;
+        }
+
+        /*if($this->config["check_updates"] === true) {
+            Todo enable UpdateNotifier virion by JackMD. (when out of beta)
+            UpdateNotifier::checkUpdate($this, $this->getDescription()->getName(), $this->getDescription()->getVersion());
+        }*/
+        return true;
     }
 
     private function loadArenas() : void{
@@ -79,7 +96,7 @@ class Main extends PluginBase implements Listener{
             return;
         }
         foreach($this->arenaSaves["arena_list"] as $arenaC){
-            $arena = new Arena($this, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["start_countdown"], $arenaC["hill"], $arenaC["spawns"], $arenaC["world"]);
+            $arena = new Arena($this, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["hill"], $arenaC["spawns"], $arenaC["world"]);
             $this->arenas[] = $arena;
         }
         $this->getLogger()->debug(count($this->arenas)." Arena(s) loaded.");
@@ -92,7 +109,8 @@ class Main extends PluginBase implements Listener{
     }
 
     public function onEnable() : void{
-        $this->initResources(); //first to enable Debug.
+        $this->initResources(); //todo self debug.
+        if($this->startChecks() === false) return;
         $this->init();
 
     }
@@ -114,7 +132,6 @@ class Main extends PluginBase implements Listener{
                 "min_players" => $arena->minPlayers,
                 "max_players" => $arena->maxPlayers,
                 "play_time" => $arena->time,
-                "start_countdown" => $arena->countDown,
                 "hill" => $arena->hill,
                 "spawns" => $arena->spawns,
                 "world" => $arena->world

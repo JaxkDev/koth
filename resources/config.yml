@@ -4,5 +4,9 @@ version: 0
 plugin_enabled: true
 debug: false
 
+check_updates: true
 
+language: 'eng'
+
+start_countdown: 10
 ...

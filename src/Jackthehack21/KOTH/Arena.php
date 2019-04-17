@@ -90,7 +90,7 @@ class Arena{
 
     public $currentKingParticle = null;
 
-    public function __construct(Main $plugin, string $name, int $min, int $max, int $time, int $count, array $hill, array $spawns, string $world){
+    public function __construct(Main $plugin, string $name, int $min, int $max, int $time, array $hill, array $spawns, string $world){
         $this->plugin = $plugin;
         $this->hill = $hill;
         $this->minPlayers = $min;
@@ -100,7 +100,7 @@ class Arena{
         $this->spawnCounter = 0;
         $this->started = false;
         $this->time = $time;
-        $this->countDown = $count;
+        $this->countDown = $plugin->config["start_countdown"];
         $this->world = $world;
 
         $this->king = null;

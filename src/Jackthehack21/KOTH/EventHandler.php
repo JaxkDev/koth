@@ -36,6 +36,7 @@ namespace Jackthehack21\KOTH;
 
 use pocketmine\event\Listener;
 use pocketmine\event\block\{BlockBreakEvent, BlockPlaceEvent};;
+//use pocketmine\event\entity\EntityLevelChangeEvent;
 use pocketmine\event\player\{/*PlayerMoveEvent,*/PlayerRespawnEvent,PlayerQuitEvent,PlayerGameModeChangeEvent};;
 
 class EventHandler implements Listener{
@@ -77,6 +78,11 @@ class EventHandler implements Listener{
         //hmm todo, decide on this. (probably config)
         var_dump($from);
         var_dump($to);
+    }*/
+
+    /*public function onLevelChange(EntityLevelChangeEvent $event){
+        $targetLevel = $event->getTarget();
+        //todo hack for per world FTP (decide how to handle this :/ )
     }*/
 
     public function onPlayerGameModeChange(PlayerGameModeChangeEvent $event){

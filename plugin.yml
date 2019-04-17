@@ -6,9 +6,6 @@ api:
 - 3.7.0
 main: Jackthehack21\KOTH\Main
 
-softdepend:
-  - EconomyAPI
-
 commands:
   koth:
     description: "KOTH general command"

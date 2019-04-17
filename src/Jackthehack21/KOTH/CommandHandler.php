@@ -319,7 +319,7 @@ class CommandHandler{
         }
 
         //create arena
-        $arena = new Arena($this->plugin, $name, intval($min), intval($max), intval($gameTime), 10 /*todo default config.*/, [], [], "null");
+        $arena = new Arena($this->plugin, $name, intval($min), intval($max), intval($gameTime), [], [], "null");
         $result = $this->plugin->newArena($arena);
         if($result === false){
             $sender->sendMessage($this->prefix.C::RED."Failed to create arena, sorry.");
