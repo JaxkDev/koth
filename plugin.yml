@@ -22,7 +22,10 @@ permissions:
         description: "Allows player to remove a arena."
         default: op
       koth.new:
-        descripyion: "Allows player to start process of making a arena."
+        description: "Allows player to start process of making a arena."
+        default: op
+      koth.addrewards:
+        description: "Allows player to add reward commands to an arena."
         default: op
       koth.setspawns:
         description: "Allows player to set spawn points for a arena."
@@ -30,6 +33,9 @@ permissions:
       koth.setpoints:
         description: "Allows player to set points when setting up a new arena."
         default: op
+      koth.info:
+        description: "Displays more details about one specific arena."
+        default: true
       koth.list:
         description: "Allows player to see all Arena's and their status."
         default: true

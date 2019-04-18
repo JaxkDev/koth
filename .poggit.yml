@@ -4,7 +4,7 @@ branches:
 projects:
   KOTH:
     path: ""
-    icon: ""
+    icon: "resources/icon.jpg"
     #libs:
     #  - src: JackMD/UpdateNotifier/UpdateNotifier
     #    version: ^1.0.0

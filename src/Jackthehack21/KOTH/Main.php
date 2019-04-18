@@ -49,6 +49,8 @@ class Main extends PluginBase implements Listener{
 
     private static $instance;
 
+    public const ARENA_VER = 2;
+
     private $arenas;
     private $CommandHandler;
     private $EventHandler;
@@ -65,10 +67,7 @@ class Main extends PluginBase implements Listener{
         $this->CommandHandler = new CommandHandler($this);
         $this->EventHandler = new EventHandler($this);
         $this->utils = new PluginUtils();
-        // --- //
-        $this->arenas = [];
-        $this->loadArenas();
-        // --- //
+
         $this->getServer()->getPluginManager()->registerEvents($this->EventHandler, $this);
     }
 
@@ -78,10 +77,29 @@ class Main extends PluginBase implements Listener{
         $this->config = $this->configC->getAll();
 
         //TODO Big, change DB to sql (preferably before 1.0.0 release)
-        $this->arenaC = new Config($this->getDataFolder() . "arena.yml", Config::YAML, ["version" => 1, "arena_list" => []]);
+        $this->arenaC = new Config($this->getDataFolder() . "arena.yml", Config::YAML, ["version" => 2, "arena_list" => []]);
 	    $this->arenaSaves = $this->arenaC->getAll();
 
 	    //todo check config+arena versions.
+        if($this->arenaSaves["version"] !== $this::ARENA_VER){
+            //attempt to update it.
+            $this->debug("Attempting to update arena data.");
+            $old = $this->arenaSaves;
+            $new = array();
+            $new["version"] = $this::ARENA_VER;
+            $new["arena_list"] = array();
+            foreach($old["arena_list"] as $arena){
+                unset($arena["start_countdown"]);
+                $arena["rewards"] = array();
+                //and anymore changes when version3 comes along.
+                $new["arena_list"][] = $arena;
+            }
+            $this->arenaSaves = $new;
+            //todo this re-saving method is crap. need to redo save/load arena method when sqlite is implemented.
+        }
+
+        $this->arenas = [];
+        $this->loadArenas();
 
         $languages = array("eng"); //list of all help file languages currently available.
         $language = "eng";
@@ -114,9 +132,10 @@ class Main extends PluginBase implements Listener{
             return;
         }
         foreach($this->arenaSaves["arena_list"] as $arenaC){
-            $arena = new Arena($this, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["hill"], $arenaC["spawns"], $arenaC["world"]);
+            $arena = new Arena($this, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["hill"], $arenaC["spawns"], $arenaC["rewards"], $arenaC["world"]);
             $this->arenas[] = $arena;
         }
+        $this->saveArena(); //hacky fix to re-save data after attempting to update arena's
         $this->debug(count($this->arenas)." Arena(s) loaded.");
     }
 
@@ -162,9 +181,11 @@ class Main extends PluginBase implements Listener{
                 "play_time" => $arena->time,
                 "hill" => $arena->hill,
                 "spawns" => $arena->spawns,
+                "rewards" => $arena->rewards,
                 "world" => $arena->world
             ];
         }
+        $this->arenaC->set("version", $this->arenaSaves["version"]);
         $this->arenaC->set("arena_list", $save);
         $this->arenaC->save();
     }

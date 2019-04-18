@@ -60,43 +60,32 @@ class CommandHandler{
                 $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
                 return true;
             }
-            if(!isset($args[0])){
-                $sender->sendMessage($this->prefix.C::RED."Unknown Command, /koth help");
-                return true;
-            }
             if(!$sender instanceof Player){
                 $sender->sendMessage($this->prefix.C::RED."Commands can only be run in-game");
                 return true;
             }
+            if(!isset($args[0])){
+                $sender->sendMessage($this->prefix.C::RED."Unknown Command, /koth help");
+                return true;
+            }
             switch($args[0]){
-                /*case 'test':
-                    $this->plugin->getServer()->getDefaultLevel()->addParticle($this->particle);
-                    return true;
-                case 'test2':
-                    $this->particle->setTitle("New TITLE");
-                    return true;
-                case 'test3':
-                    $this->particle->setInvisible();
-                    //$this->particle->setInvisible(false);
-                    return true;
-                case 'test4':
-                    $this->particle->setInvisible(false);
-                    return true;
-                case 'update':
-                    $this->plugin->getServer()->getDefaultLevel()->addParticle($this->particle);
-                    return true;*/
                 case 'help':
                     $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." HELP".C::YELLOW."]");
                     $sender->sendMessage(C::GOLD."/koth help ".C::RESET."- Sends help :)");
                     $sender->sendMessage(C::GOLD."/koth credits ".C::RESET."- Display the credits.");
                     if($sender->hasPermission("koth.list")) $sender->sendMessage(C::GOLD."/koth list ".C::RESET."- List all arena's setup and ready to play !");
                     if($sender->hasPermission("koth.join")) $sender->sendMessage(C::GOLD."/koth join (arena name)".C::RESET." - Join a game.");
+                    if($sender->hasPermission("koth.leave")) $sender->sendMessage(C::GOLD."/koth leave ".C::RESET."- Leave a game you'r currently in.");
                     if($sender->hasPermission("koth.new")) $sender->sendMessage(C::GOLD."/koth new (arena name - no spaces) (min players) (max players) (gametime in seconds)".C::RESET." - Start the setup process of making a new arena.");
                     if($sender->hasPermission("koth.rem")) $sender->sendMessage(C::GOLD."/koth rem (arena name)".C::RESET." - Remove a area that has been setup.");
+                    if($sender->hasPermission("koth.setspawns")) $sender->sendMessage(C::GOLD."/koth setspawn (arena name) ".C::RESET."- Set a spawn point for a arena.");
+                    if($sender->hasPermission("koth.setpoints")) $sender->sendMessage(C::GOLD."/koth setpoint1 (arena name) or /koth setpoint2 (arena name> ".C::RESET."- Set king area corner to corner.");
+                    if($sender->hasPermission("koth.addrewards")) $sender->sendMessage(C::GOLD."/koth addreward (arena name) (command eg. /give {PLAYER} 20 1)");
                     return true;
                 case 'credits':
                     $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." CREDITS".C::YELLOW."]");
                     $sender->sendMessage(C::AQUA."Developer: ".C::GOLD."Jackthehack21");
+                    $sender->sendMessage(C::AQUA."Icon creator: ".C::GOLD."WowAssasin#6608");
                     return true;
                 case 'list':
                     if(!$sender->hasPermission("koth.list")){
@@ -177,6 +166,40 @@ class CommandHandler{
                         return true;
                     }
                     $arena->addPlayer($sender);
+                    return true;
+
+                case 'details':
+                case 'info':
+                    if(!$sender->hasPermission("koth.info")){
+                        $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
+                        return true;
+                    }
+                    if(count($args) !== 2){
+                        $sender->sendMessage($this->prefix.C::RED."No arena specified, /koth info (arena name)");
+                        return true;
+                    }
+
+                    $arena = $this->plugin->getArenaByName($args[1]);
+                    if($arena === null){
+                        $sender->sendMessage($this->prefix.C::RED."No arena with that name exists.");
+                        return true;
+                    }
+                    $name = $arena->getName();
+                    $status = $arena->getFriendlyStatus();
+                    $players = count($arena->players);
+                    $spawns = count($arena->spawns);
+                    $rewards = $arena->rewards;
+                    $gameTime = $arena->time;
+
+                    $sender->sendMessage($this->prefix.C::AQUA.$name." Info:");
+                    $sender->sendMessage(C::GREEN."Status  : ".C::BLUE.$status);
+                    $sender->sendMessage(C::GREEN."Gametime: ".C::BLUE.$gameTime." Seconds.");
+                    $sender->sendMessage(C::GREEN."Players : ".C::BLUE.$players);
+                    $sender->sendMessage(C::GREEN."Spawns  : ".C::BLUE.$spawns);
+                    $sender->sendMessage(C::GREEN."Rewards :");
+                    foreach($rewards as $reward){
+                        $sender->sendMessage("- ".C::AQUA.$reward);
+                    }
                     return true;
 
                 //////-----Arena Setup------///////
@@ -261,6 +284,33 @@ class CommandHandler{
                     $sender->sendMessage($this->prefix.C::GREEN."spawn position added.");
                     return true;
 
+                case 'addreward':
+                    //add reward to arena. '/koth addreward <Arena name> /command args'
+                    if(!$sender->hasPermission("koth.addreward")){
+                        $sender->sendMessage($this->prefix.C::RED."You do not have permission to use this command!");
+                        return true;
+                    }
+                    if(count($args) <= 2){
+                        $sender->sendMessage($this->prefix.C::RED."No arena/command specified. /koth addreward (arena name) (command eg. /give {PLAYER} 20 1)");
+                        return true;
+                    }
+                    $arena = $this->plugin->getArenaByName($args[1]);
+                    if($arena === null){
+                        $sender->sendMessage($this->prefix.C::RED."No arena exists under that name.");
+                        return true;
+                    }
+                    if($args[2][0] === "/"){
+                        $sender->sendMessage($this->prefix.C::RED."Command must NOT start with '/' e.g. give {PLAYER} 20 1");
+                        return true;
+                    }
+                    unset($args[0]);
+                    unset($args[1]);
+                    $cmd = array_values($args);
+                    $arena->rewards[] = implode(" ",$cmd);
+                    $this->plugin->saveArena();
+                    $sender->sendMessage($this->prefix.C::GREEN."Reward added to the ".$arena->getName()." Arena.");
+                    return true;
+
                 //////----------------------///////
 
                 default:
@@ -331,7 +381,7 @@ class CommandHandler{
         }
 
         //create arena
-        $arena = new Arena($this->plugin, $name, intval($min), intval($max), intval($gameTime), [], [], "null");
+        $arena = new Arena($this->plugin, $name, intval($min), intval($max), intval($gameTime), [], [], [], "null");
         $result = $this->plugin->newArena($arena);
         if($result === false){
             $sender->sendMessage($this->prefix.C::RED."Failed to create arena, sorry.");

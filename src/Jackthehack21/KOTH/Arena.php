@@ -35,6 +35,7 @@ namespace Jackthehack21\KOTH;
 use Jackthehack21\KOTH\Tasks\Prestart;
 use Jackthehack21\KOTH\Tasks\Gametimer;
 
+use pocketmine\command\ConsoleCommandSender;
 use pocketmine\Player;
 use pocketmine\math\Vector3;
 use pocketmine\level\Position;
@@ -81,6 +82,7 @@ class Arena{
     public $time;
     public $countDown;
     public $world;
+    public $rewards;
 
     public $oldKing;
     public $king;
@@ -100,9 +102,10 @@ class Arena{
      * @param int $time
      * @param array $hill
      * @param array $spawns
+     * @param array $rewards
      * @param string $world
      */
-    public function __construct(Main $plugin, string $name, int $min, int $max, int $time, array $hill, array $spawns, string $world){
+    public function __construct(Main $plugin, string $name, int $min, int $max, int $time, array $hill, array $spawns, array $rewards, string $world){
         $this->plugin = $plugin;
         $this->hill = $hill;
         $this->minPlayers = $min;
@@ -114,6 +117,7 @@ class Arena{
         $this->time = $time;
         $this->countDown = $plugin->config["start_countdown"];
         $this->world = $world;
+        $this->rewards = $rewards;
 
         $this->king = null;
         $this->playersInBox = [];
@@ -230,6 +234,7 @@ class Arena{
 
     public function updateNameTags() : void{
         if($this->plugin->config["nametag_enabled"] === true){
+            /** @noinspection PhpUndefinedMethodInspection */
             $format = $this->plugin->utils->colourise($this->plugin->config["nametag_format"]);
             if($this->king !== null){
                 /** @noinspection PhpStrictTypeCheckingInspection */
@@ -334,10 +339,10 @@ class Arena{
         } else {
             if($old === null){
                 $this->setWinner("Null");
-                return;
+            } else {
+                /** @noinspection PhpStrictTypeCheckingInspection */
+                $this->setWinner($old);
             }
-            /** @noinspection PhpStrictTypeCheckingInspection */
-            $this->setWinner($old);
         }
         $this->reset();
         $this->checkStatus();
@@ -353,7 +358,14 @@ class Arena{
             return;
         }
         $this->broadcastWinner($king);
-        //todo give rewards based on config.
+        $console = new ConsoleCommandSender();
+        foreach($this->rewards as $reward){
+            $reward = str_replace("{PLAYER}", $king, $reward);
+            if($this->plugin->getServer()->getCommandMap()->dispatch($console, $reward) === false){
+                $this->plugin->getLogger()->warning("Reward failed to execute. (".$reward.")");
+            };
+
+        }
         //todo particles fireworks and more for king, and X second delay before un freezing.
         $this->freezeAll(false);
     }
@@ -375,14 +387,14 @@ class Arena{
         $pos1["z"] = $this->hill[0][2];
         $pos2 = [];
         $pos2["x"] = $this->hill[1][0];
-        $pos2["y"] = $this->hill[1][1]; //for those who have a weird arena...
+        $pos2["y"] = $this->hill[1][1];
         $pos2["z"] = $this->hill[1][2];
         $minX = min($pos2["x"],$pos1["x"]);
-        $maxX = max($pos2["x"],$pos2["x"]);
+        $maxX = max($pos2["x"],$pos1["x"]); //wtf how did i miss that *facepalm*
         $minY = min($pos2["y"],$pos1["y"]);
-        $maxY = max($pos2["y"],$pos2["y"]);
+        $maxY = max($pos2["y"],$pos1["y"]);
         $minZ = min($pos2["z"],$pos1["z"]);
-        $maxZ = max($pos2["z"],$pos2["z"]);
+        $maxZ = max($pos2["z"],$pos1["z"]);
         $list = [];
 
         if($minY == $maxY){
@@ -390,8 +402,8 @@ class Arena{
         } //To allow jumping, shouldn't effect what so ever.
 
         foreach($this->players as $playerName){
-            $player = $this->plugin->getServer()->getPlayerExact($playerName);
-            if(($minX <= $player->x && $player->x <= $maxX && $minY <= $player->y && $player->y <= $maxY && $minZ <= $player->z && $player->z <= $maxZ)){
+            $player = $this->plugin->getServer()->getPlayer($playerName);
+            if(($minX <= $player->getX() && $player->getX() <= $maxX && $minY <= $player->getY() && $player->getY() <= $maxY && $minZ <= $player->getZ() && $player->getZ() <= $maxZ)){
                 $list[] = $playerName;
             }
         }

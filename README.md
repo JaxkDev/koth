@@ -15,9 +15,12 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
  - Custom player amount, and game time.
  - Block break/place disabled during in-game (todo config)
  - Changing gamemode during a game is cancelled (todo config)
+ - Rewards given to king at end of game.
+ - Leave a arena
+ - 'King' is displayed above player name. (nametag)
+ - Some values are in config.yml including a help file.
 
 ### Upcoming
- - 'King' to display under/above player name.
  - Messages to be in config.
  - Default arena values to be in config.
  - Override old values of arena positions.
@@ -54,8 +57,8 @@ The game will start the pregame - counter when the minimum amount of players has
 (In future you can force start)
 
 ### Leaving a game
-As of Beta1 you can only leave by exiting the server.
-In future commands can be used.
+As of Beta2 you can only leave by Leaving the server
+or using `/koth leave`
 
 ### Winning a game
 The game runs on a timer, during which anyone can move, attack and kill the king.
@@ -69,24 +72,42 @@ However when the timer runs out the last standing king, or the previous king wil
 To create a new arena use the command `/koth new <arena name>` (No spaces are allowed in arena, for now)
 To remove a arena use the command `/koth rem <arena name>` (The arena cannot be in use when deleting)
 
-To check arena status type `/koth list`
-### Setting positions
+To check arena status type `/koth list` or `/koth info <arena name>`
+### Setting positions/Values
  1. `/koth setpos1 <arena name>`
    (Make sure you are standing on one corner of the throne/hill.)
  2. `/koth setpos2 <arena name>`
    (Now stand on the opposite corner of the throne/hill.)
  3. `/koth setspawn <arena name>`
    (This command can be used as many times as you like, again be standing on the spawn location you want to set.)
-
+ 4. `/koth addreward <arena name> <command>`
+   example: `/koth addreward arena1 give {PLAYER} 20 1` <- this would give the winner 1 web.
+   DO NOTE THAT THERE IS NO `/`
 ### Editing Values
-Currently (as of beta1) there is only one option:
+Currently (as of beta2) there is only one option:
 1. Go into plugin_data->KOTH->arenas.yml
 2. Find the arena you wish to edit (via name)
 3. Find the value you wish to edit then change it and save the file.
 4. Reload your server for it to take effect.
 
 ### Config Options
-Configurable values and messages coming soon.
+plugin_enabled - Disable/enable the plugin.
+
+debug - Show debug messages.
+
+check_updates - Not yet used.
+
+language - Choose one ["eng"] for the correct help file.
+
+KingTextParticles - Displays KingText in middle of king area.
+
+nametag_enabled - Enable/disable nametag feature.
+
+nametag_format - NameTag format, you can use any colour code. see help file for more info.
+
+start_countdown - How long until game starts when the minimum amount of players are in-game.
+
+__For more info see the help file in plugin_data/KOTH/help_eng.txt__
 
 ## Known Bugs:
  - NA
@@ -96,7 +117,9 @@ To report bugs please make a issue over on [github](https://github.com/jacktheha
 ## Credits:
 _Developer:_ Jackthehack21 (aka JaxkDev)
 
-*Idea generator:* GOLDVAGE (GOLDVAGE#2712)
+_Icon Creator:_ WowAssasin (WowAssasin#6608)
+
+_Idea generator:_ GOLDVAGE (GOLDVAGE#2712)
 
 
 ### License:
