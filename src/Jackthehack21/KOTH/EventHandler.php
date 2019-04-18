@@ -47,6 +47,9 @@ class EventHandler implements Listener{
         $this->plugin = $plugin;
     }
 
+    /**
+     * @param PlayerQuitEvent $event
+     */
     public function onQuit(PlayerQuitEvent $event){
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
@@ -60,6 +63,9 @@ class EventHandler implements Listener{
         }
     }
 
+    /**
+     * @param PlayerRespawnEvent $event
+     */
     public function onRespawn(PlayerRespawnEvent $event){
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
@@ -85,6 +91,9 @@ class EventHandler implements Listener{
         //todo hack for per world FTP (decide how to handle this :/ )
     }*/
 
+    /**
+     * @param PlayerGameModeChangeEvent $event
+     */
     public function onPlayerGameModeChange(PlayerGameModeChangeEvent $event){
         if($this->plugin->getArenaByPlayer($event->getPlayer()->getLowerCaseName()) !== null){
             if($event->getPlayer()->isOp() === false){
@@ -95,6 +104,9 @@ class EventHandler implements Listener{
         }
     }
 
+    /**
+     * @param BlockBreakEvent $event
+     */
     public function onBlockBreak(BlockBreakEvent $event){
         if($this->plugin->getArenaByPlayer($event->getPlayer()->getLowerCaseName()) !== null){
             $event->setCancelled(true);
@@ -102,6 +114,9 @@ class EventHandler implements Listener{
         }
     }
 
+    /**
+     * @param BlockPlaceEvent $event
+     */
     public function onBlockPlace(BlockPlaceEvent $event){
         if($this->plugin->getArenaByPlayer($event->getPlayer()->getLowerCaseName()) !== null){
             $event->setCancelled(true);

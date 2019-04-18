@@ -138,8 +138,24 @@ class CommandHandler{
                         $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
                         return true;
                     }
-                    //create arena.
+                    //todo config messages.
                     $this->createArena($sender, $args);
+                    return true;
+
+                case 'quit':
+                case 'exit':
+                case 'leave':
+                    if(!$sender->hasPermission("koth.leave")){
+                        $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
+                        return true;
+                    }
+                    $arena = $this->plugin->getArenaByPlayer($sender->getLowerCaseName());
+                    if($arena === null){
+                        $sender->sendMessage($this->prefix.C::RED."You're not in a game. So how can you leave ?");
+                        return true;
+                    }
+                    //todo config messages.
+                    $arena->removePlayer($sender, "Chickened out.");
                     return true;
 
                 case 'join':
@@ -147,8 +163,12 @@ class CommandHandler{
                         $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
                         return true;
                     }
+                    if($this->plugin->getArenaByPlayer(strtolower($sender->getName())) !== null){
+                        $sender->sendMessage($this->prefix.C::RED."Your currently in a game, leave the current game to join this arena.");
+                        return true;
+                    }
                     if(count($args) !== 2){
-                        $sender->sendMessage($this->prefix.C::RED."No arena specified, /koth join (arena nzme)");
+                        $sender->sendMessage($this->prefix.C::RED."No arena specified, /koth join (arena name)");
                         return true;
                     }
                     $arena = $this->plugin->getArenaByName($args[1]);
@@ -268,13 +288,11 @@ class CommandHandler{
         //assume has perms as it got here.
 
         $usage = $this->prefix.C::RED."/koth new (arena name - no spaces) (min players) (max players) (gametime in seconds)";
-        //rest will be in config, or default for now (rem after coming out of beta)
 
         if(count($args) !== 5){
             $sender->sendMessage($usage);
             return;
         }
-        $minGametime = $this->plugin->config["forced_min_game_time"];
 
         $name = $args[1];
         $min = $args[2];
@@ -307,8 +325,8 @@ class CommandHandler{
             $sender->sendMessage($this->prefix.C::RED."Game time has to be numeric.");
             return;
         }
-        if(intval($gameTime) < $minGametime){
-            $sender->sendMessage($this->prefix.C::RED."Game time has to be above ".$minGametime);
+        if(intval($gameTime) < 5){
+            $sender->sendMessage($this->prefix.C::RED."Game time has to be above 5");
             return;
         }
 

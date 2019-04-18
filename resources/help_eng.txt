@@ -30,4 +30,72 @@
 
 This file is to help use/edit config.yml and setup arena's and edit the values possible.
 
-TODO
+========== CONFIG HELP =========
+version: 0                                  <-- DO NOT EVER TOUCH, JUST NO, NO.
+
+plugin_enabled: true                        <-- Disable/enable the plugin (true/false)
+debug: false                                <-- Show debug messages (useful when encountering problems) (true/false)
+
+check_updates: true                         <-- Check for updates on server start.
+
+language: "eng"                             <-- Language (only used for saving the correct help file relative to your lang)
+                                                Currently supported languages: "eng"
+
+KingTextParticles: true                     <-- Display FloatingText in middle of king area saying who's king.
+
+nametag_enabled: true                       <-- Place a nametag above the king.
+nametag_format: "{RED}[ {GREEN}KING {RED}]" <-- Format of the kings NameTag. (you can use any colour variable)
+
+start_countdown: 10                         <-- Amount of seconds until game starts, countdown starts when minimum amount of players are in-game.
+
+Colour variables =  {BLACK} {DARK_BLUE} {DARK_GREEN} {DARK_AQUA} {DARK_RED} {DARK_PURPLE} {GOLD} {GRAY} {DARK_GRAY} {BLUE} {GREEN} {AQUA} {RED}
+                    {LIGHT_PURPLE} {YELLOW} {WHITE} {OBFUSCATED} {BOLD} {STRIKETHROUGH} {UNDERLINE} {ITALIC} {RESET}
+
+================================
+
+========== ARENA HELP ==========
+
+Arena's are saved and loaded from plugin_data so no need to manually save anything.
+
+Creating new arena's:
+
+ - /koth new <arena name> <min players> <max players> <game time>
+   No spaces in name ^        ^ Numbers above 1 ^         ^ amount of seconds game runs for. (above 5)
+
+ - /koth setpos1 <arena name>
+   Stand on one corner of the kings area. (during this the world is auto detected.)
+
+ - /koth setpos2 <arena name>
+   Stand on the opposite corner of the kings area (Height is important if there's nothing above its advised to go a few blocks up to allow for jumping)
+
+ - /koth setspawn <area name>
+   Can be used any amount of times. (stand in the spawn location you wish to add)
+
+ If all went well, the arena status should become 'ready' (can be seen in /koth list or /koth info <arena name>)
+ and you can then join the arena.
+
+Removing an Arena:
+ - /koth rem <arena name>
+
+ You can only remove it if the arena is not in use.
+
+Joining an Arena:
+ - /koth join <arena name>
+
+ You can only join a arena if its status is Ready or Started
+ Status can be seen in /koth list (or /koth info <arena name>)
+
+Leaving an Game:
+ - /koth leave
+
+ The command will only work if your in a Arena, Alternatively leaving the server/mcpe will also make you leave the mini-game.
+
+Arena Info/Status:
+ - /koth list
+   Displays a list of all arena's created and their status.
+
+ - /koth info <arena name>
+   Displays more information on one arena.
+   (Players in game, Game time, Amount of spawns etc)
+
+================================

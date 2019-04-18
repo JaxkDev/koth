@@ -41,6 +41,8 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat as C;
 
+use Jackthehack21\KOTH\Utils as PluginUtils;
+
 #use JackMD\UpdateNotifier\UpdateNotifier;
 
 class Main extends PluginBase implements Listener{
@@ -57,9 +59,12 @@ class Main extends PluginBase implements Listener{
     public $config;
     public $prefix = C::YELLOW."[".C::AQUA."KOTH".C::YELLOW."] ".C::RESET;
 
+    public $utils;
+
     private function init() : void{
         $this->CommandHandler = new CommandHandler($this);
         $this->EventHandler = new EventHandler($this);
+        $this->utils = new PluginUtils();
         // --- //
         $this->arenas = [];
         $this->loadArenas();
@@ -71,6 +76,8 @@ class Main extends PluginBase implements Listener{
         $this->saveResource("config.yml");
         $this->configC = new Config($this->getDataFolder() . "config.yml", Config::YAML);
         $this->config = $this->configC->getAll();
+
+        //TODO Big, change DB to sql (preferably before 1.0.0 release)
         $this->arenaC = new Config($this->getDataFolder() . "arena.yml", Config::YAML, ["version" => 1, "arena_list" => []]);
 	    $this->arenaSaves = $this->arenaC->getAll();
 
@@ -84,6 +91,9 @@ class Main extends PluginBase implements Listener{
         $this->saveResource("help_".$language.".txt");
     }
 
+    /**
+     * @return bool
+     */
     private function startChecks() : bool{
         if($this->config["plugin_enabled"] !== true){
             $this->debug("Plugin disabled, as stated in config.yml");
@@ -123,11 +133,21 @@ class Main extends PluginBase implements Listener{
 
     }
 
+    /**
+     * @param CommandSender $sender
+     * @param Command $cmd
+     * @param string $label
+     * @param array $args
+     * @return bool
+     */
     public function onCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
         /** @noinspection PhpUndefinedMethodInspection */
         return $this->CommandHandler->handleCommand($sender, $cmd, $label, $args);
     }
 
+    /**
+     * @param array|null $data
+     */
     public function saveArena(array $data = null) : void{
         if($data !== null){
             $this->arenaC->set("arena_list",$data);
@@ -145,18 +165,20 @@ class Main extends PluginBase implements Listener{
                 "world" => $arena->world
             ];
         }
-        //$this->getLogger()->debug("Saving Arena data.");
         $this->arenaC->set("arena_list", $save);
-        $this->arenaC->save();  //<-- took a hour to figure out why it wasn't saving :/
+        $this->arenaC->save();
     }
 
+    /**
+     * @param array|null $data
+     */
     public function saveConfig(array $data = null) : void{
         if($data !== null){
             $this->configC->setAll($data);
             return;
         }
         $this->configC->setAll($this->config);
-        $this->configC->save(); //<-- took a hour to figure out why it wasn't saving :/
+        $this->configC->save();
     }
 
     /**
@@ -168,15 +190,25 @@ class Main extends PluginBase implements Listener{
         }
     }
 
+    /**
+     * @param string $name
+     * @return bool
+     */
     public function inGame(string $name) : bool{
         return $this->getArenaByPlayer($name) !== null;
     }
 
+    /**
+     * @param Arena $arena
+     */
     public function newArena(Arena $arena){
         $this->arenas[] = $arena;
         $this->saveArena();
     }
 
+    /**
+     * @param Arena $arena
+     */
     public function removeArena(Arena $arena) : void{
         if (($key = array_search($arena, $this->arenas)) !== false) {
             unset($this->arenas[$key]);
@@ -184,6 +216,9 @@ class Main extends PluginBase implements Listener{
         }
     }
 
+    /**
+     * @param string $name
+     */
     public function removeArenaByName(string $name) : void{
         $this->removeArena($this->getArenaByName($name));
     }

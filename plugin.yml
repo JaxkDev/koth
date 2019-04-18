@@ -36,4 +36,7 @@ permissions:
       koth.join:
         description: "Allows player to join a game."
         default: true
+      koth.leave:
+        description: "Allows players to chicken out of a game."
+        default: true
 ...

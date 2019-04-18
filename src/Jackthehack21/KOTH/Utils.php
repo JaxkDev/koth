@@ -1,5 +1,7 @@
 <?php
 
+namespace Jackthehack21\KOTH;
+
 use pocketmine\utils\TextFormat as C;
 
 class Utils{

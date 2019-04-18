@@ -45,11 +45,19 @@ class Gametimer extends Task{
     public $secondsPlayed = 0;
 
 
+    /**
+     * Gametimer constructor.
+     * @param Main $plugin
+     * @param Arena $arena
+     */
     public function __construct(Main $plugin, Arena $arena){
         $this->plugin = $plugin;
         $this->arena = $arena;
     }
 
+    /**
+     * @param int $tick
+     */
     public function onRun(int $tick){
         $this->secondsPlayed += 0.5;
         $inBox = $this->arena->playersInBox();
@@ -58,7 +66,6 @@ class Gametimer extends Task{
         } else {
             if (!in_array($this->arena->king, $inBox)) {
                 $this->arena->removeKing();
-                return;
             }
         }
 

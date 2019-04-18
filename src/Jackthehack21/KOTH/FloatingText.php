@@ -51,16 +51,25 @@ class FloatingText extends FloatingTextParticle {
         $this->position = $position;
     }
 
+    /**
+     * @param string $text
+     */
     public function setText(string $text) : void{
         $this->text = $text;
         $this->update();
     }
 
+    /**
+     * @param string $title
+     */
     public function setTitle(string $title) : void{
         $this->title = $title;
         $this->update();
     }
 
+    /**
+     * @param bool $value
+     */
     public function setInvisible(bool $value = true) : void{
         $this->invisible = $value;
         $this->update();

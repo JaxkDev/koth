@@ -44,18 +44,33 @@ class Prestart extends Task{
     private $arena;
     private $countDown;
 
+    /**
+     * Prestart constructor.
+     * @param Main $plugin
+     * @param Arena $arena
+     * @param int $count
+     */
     public function __construct(Main $plugin, Arena $arena, int $count){
         $this->plugin = $plugin;
         $this->arena = $arena;
         $this->countDown = $count;
     }
 
+    /**
+     * @param int $tick
+     */
     public function onRun(int $tick){
         if($this->countDown === 0){
             $this->arena->startGame();
             return;
         }
-        $this->arena->broadcastMessage($this->plugin->prefix.C::RED."[COUNTDOWN] : ".$this->countDown);
+        if($this->countDown <= 5){
+            $this->arena->broadcastMessage($this->plugin->prefix.C::RED."[COUNTDOWN] : ".C::GREEN.$this->countDown);
+        } else {
+            if($this->countDown%5 === 0){
+                $this->arena->broadcastMessage($this->plugin->prefix.C::RED."[COUNTDOWN] : ".C::GREEN.$this->countDown);
+            }
+        }
         $this->countDown--;
     }
 }

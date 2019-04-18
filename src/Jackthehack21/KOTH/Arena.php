@@ -203,7 +203,7 @@ class Arena{
     }
 
     public function createKingTextParticle() : void{
-        if($this->plugin->config["KingTextParticles"] !== false) return;
+        if($this->plugin->config["KingTextParticles"] === false) return;
         if($this->status !== $this::STATUS_NOT_READY and $this->currentKingParticle === null){
             //spawn king particle, as we have position of hill/throne and level.
             $pos = new Vector3(($this->hill[0][0]+$this->hill[1][0])/2,($this->hill[0][1]+$this->hill[1][1])/2,($this->hill[0][2]+$this->hill[1][2])/2);
@@ -215,15 +215,22 @@ class Arena{
         if($this->currentKingParticle !== null){
             /** @noinspection PhpUndefinedMethodInspection */
             $this->currentKingParticle->setText(C::RED."King: ".C::GOLD.($this->king === null ? "-" : $this->king));
-
-            //set name tags, its own function so others can run it without updating Particles.
-            $this->updateNameTags();
         }
+        //set name tags, its own function so others can run it without updating Particles.
+        $this->updateNameTags();
+    }
+
+    public function removeKingTextParticles() : void{
+        if($this->currentKingParticle !== null){
+            /** @noinspection PhpUndefinedMethodInspection */
+            $this->currentKingParticle->setInvisible();
+        }
+        $this->updateNameTags(); //here to revert back to original.
     }
 
     public function updateNameTags() : void{
-        if($this->plugin->config["nametags_enabled"] === true){
-            $format = $this->plugin->config["nametags_format"];
+        if($this->plugin->config["nametag_enabled"] === true){
+            $format = $this->plugin->utils->colourise($this->plugin->config["nametag_format"]);
             if($this->king !== null){
                 /** @noinspection PhpStrictTypeCheckingInspection */
                 $player = $this->plugin->getServer()->getPlayerExact($this->king);
@@ -297,8 +304,12 @@ class Arena{
     }
 
     public function reset() : void{
+        $this->removeKingTextParticles();
+
         $this->started = false;
         $this->king = null;
+        $this->oldKing = null;
+        $this->timerTask = null;
 
         foreach($this->players as $name){
             $player = $this->plugin->getServer()->getPlayerExact($name);
@@ -374,7 +385,9 @@ class Arena{
         $maxZ = max($pos2["z"],$pos2["z"]);
         $list = [];
 
-        if($minY === $maxY) $maxY += 1.1; //To allow jumping, shouldn't effect what so ever.
+        if($minY == $maxY){
+            $maxY += 1.51;
+        } //To allow jumping, shouldn't effect what so ever.
 
         foreach($this->players as $playerName){
             $player = $this->plugin->getServer()->getPlayerExact($playerName);
@@ -387,7 +400,7 @@ class Arena{
 
     public function removeKing() : void{
         if($this->king === null) return;
-        $this->broadcastMessage("The king has fallen.");
+        $this->broadcastMessage($this->plugin->prefix.C::RED."The king has fallen.");
         //todo config.
         $this->oldKing = $this->king;
         $this->king = null;
@@ -414,7 +427,7 @@ class Arena{
             return false;
         } else {
             $player = $this->playersInBox()[array_rand($this->playersInBox())]; //todo closest to middle.
-            $this->broadcastMessage($player." Has claimed the throne, how long will it last...");
+            $this->broadcastMessage($this->plugin->prefix.C::GOLD.$player.C::GREEN." Has claimed the throne, how long will it last...");
             $this->king = $player;
             $this->updateKingTextParticle();
             //todo update HUD etc.
