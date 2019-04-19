@@ -75,6 +75,7 @@ class Arena{
     public $hill = []; //[[20,20],[30,20]] two points corner to corner. (X,Z) no y.
     public $players = []; //list of all players currently in-game. (lowercase names)
     public $playerOldPositions = []; //["world name",x,y,z] List of where players joined from to TP back to after finish.
+    public $playerOldNameTags = []; //todo better method
     public $minPlayers;
     public $maxPlayers;
     public $name;
@@ -218,6 +219,8 @@ class Arena{
     public function updateKingTextParticle() : void{
         if($this->currentKingParticle !== null){
             /** @noinspection PhpUndefinedMethodInspection */
+            $this->currentKingParticle->setInvisible(false); //fix restarting games.
+            /** @noinspection PhpUndefinedMethodInspection */
             $this->currentKingParticle->setText(C::RED."King: ".C::GOLD.($this->king === null ? "-" : $this->king));
         }
         //set name tags, its own function so others can run it without updating Particles.
@@ -239,12 +242,23 @@ class Arena{
             if($this->king !== null){
                 /** @noinspection PhpStrictTypeCheckingInspection */
                 $player = $this->plugin->getServer()->getPlayerExact($this->king);
-                $player->setNameTag($format."\n".$player->getNameTag());
+                if(array_key_exists($this->king,$this->playerOldNameTags) !== true){
+                    $this->playerOldNameTags[$this->king] = $player->getNameTag();
+                }
+                $old = $this->playerOldNameTags[$player->getLowerCaseName()];
+                $player->setNameTag($format."\n".$old);
+                if($this->oldKing !== null and $this->oldKing !== $this->king){
+                    //remove nametag.
+                    $old = $this->playerOldNameTags[$this->oldKing];
+                    $p = $this->plugin->getServer()->getPlayerExact($this->oldKing);
+                    if($p === null) return;
+                    $p->setNameTag($old);
+                }
             } else {
                 if($this->oldKing !== null){
                     $player = $this->plugin->getServer()->getPlayerExact($this->oldKing);
                     if($player === null) return;
-                    $player->setNameTag($format."\n".$player->getNameTag());
+                    $player->setNameTag($this->playerOldNameTags[strtolower($player->getName())]);
                 }
             }
         }
@@ -258,7 +272,6 @@ class Arena{
         if(strtolower($player->getLevel()->getName()) !== strtolower($this->world)){
             if(!$this->plugin->getServer()->isLevelGenerated($this->world)) {
                 //todo config msg.
-                //world does not exist
                 $player->sendMessage($this->plugin->prefix.C::RED."This arena is corrupt.");
                 return;
             }
@@ -331,6 +344,8 @@ class Arena{
         }
 
         $this->players = [];
+        $this->playerOldPositions = [];
+        $this->playerOldNameTags = [];
         $this->checkStatus();
     }
 
@@ -502,7 +517,6 @@ class Arena{
         $player->setGamemode(0);
         $this->players[] = strtolower($player->getName());
         $this->playerOldPositions[strtolower($player->getName())] = [$player->getLevel()->getName(),$player->getX(), $player->getY(), $player->getZ()];
-        //todo test ^
         $this->broadcastJoin($player);
         $this->spawnPlayer($player);
         if(count($this->players) >= $this->minPlayers && $this->timerTask === null){
