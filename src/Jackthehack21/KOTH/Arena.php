@@ -51,7 +51,7 @@ NOTES:
   if someone outside the box kills him next to box is king
   if multiple people in box when next king selection, person closest to middle is crowned.
 
-- EventHandler handles all events from pmmp, then passed here.
+- EventHandler handles all events from pmmp, then passed here, or handled by values obtained from here.
 
 */
 
@@ -61,12 +61,14 @@ class Arena{
     public const STATUS_READY = 1;
     public const STATUS_STARTED = 2;
     public const STATUS_FULL = 3;
+    public const STATUS_UNKNOWN = 9;
 
     public $statusList = [
         self::STATUS_NOT_READY => "Not Ready/Setup",
         self::STATUS_READY => "Ready",
         self::STATUS_STARTED => "Started",
-        self::STATUS_FULL => "Full"
+        self::STATUS_FULL => "Full",
+        self::STATUS_UNKNOWN => "Unknown"
     ];
 
     private $plugin;
@@ -320,6 +322,7 @@ class Arena{
 
     public function startGame() : void{
         /** @noinspection PhpUndefinedMethodInspection */
+        //todo check config for broadcast on start.
         $this->timerTask->cancel();
         $this->started = true;
         $this->checkStatus();
@@ -350,6 +353,7 @@ class Arena{
     }
 
     public function endGame() : void{
+        //todo check config for broadcast on end.
         $this->freezeAll(true);
         $old = $this->oldKing; //in case of no king.
         $king = $this->king; //in case of a change in this tiny blind spot.

@@ -59,6 +59,7 @@ class Gametimer extends Task{
      * @param int $tick
      */
     public function onRun(int $tick){
+        //todo config option to broadcast countdown to entire server.
         $this->secondsPlayed += 0.5;
         $inBox = $this->arena->playersInBox();
         if($this->arena->king === null){

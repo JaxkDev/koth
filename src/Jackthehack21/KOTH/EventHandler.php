@@ -102,6 +102,8 @@ class EventHandler implements Listener{
         //todo hack for per world FTP (decide how to handle this :/ )
     }*/
 
+    //todo disable command usage (unless its /koth)
+
     /**
      * @param PlayerGameModeChangeEvent $event
      */

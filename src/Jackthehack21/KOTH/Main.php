@@ -76,13 +76,12 @@ class Main extends PluginBase implements Listener{
         $this->configC = new Config($this->getDataFolder() . "config.yml", Config::YAML);
         $this->config = $this->configC->getAll();
 
-        //TODO Big, change DB to sql (preferably before 1.0.0 release)
+        //TODO Priority: High, change DB to sqlite3 (YAML will be optional in future, for now sqlite3 will be forced as default.) (when multiple providers are implemented make base class so both have same functions to get and save data.)
         $this->arenaC = new Config($this->getDataFolder() . "arena.yml", Config::YAML, ["version" => 2, "arena_list" => []]);
 	    $this->arenaSaves = $this->arenaC->getAll();
 
 	    //todo check config+arena versions.
         if($this->arenaSaves["version"] !== $this::ARENA_VER){
-            //attempt to update it.
             $this->debug("Attempting to update arena data.");
             $old = $this->arenaSaves;
             $new = array();
@@ -120,7 +119,7 @@ class Main extends PluginBase implements Listener{
         }
 
         /*if($this->config["check_updates"] === true) {
-            Todo enable UpdateNotifier virion by JackMD. (when out of beta)
+            Todo enable UpdateNotifier virion by JackMD. (when out of beta) & test
             UpdateNotifier::checkUpdate($this, $this->getDescription()->getName(), $this->getDescription()->getVersion());
         }*/
         return true;
@@ -282,6 +281,8 @@ class Main extends PluginBase implements Listener{
         }
         return null;
     }
+
+    //TODO, Big.  Move most functions to seperate file (eg API.php) less mess in here to tidy...
 
     /**
      * @return Main

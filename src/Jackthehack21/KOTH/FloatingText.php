@@ -45,7 +45,6 @@ class FloatingText extends FloatingTextParticle {
     public function __construct(Main $plugin, Level $level, Vector3 $position, string $text, string $title = "")
     {
         parent::__construct($position, $text, $title);
-        //text and title done in parent.
         $this->plugin = $plugin;
         $this->level = $level;
         $this->position = $position;

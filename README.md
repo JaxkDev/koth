@@ -111,7 +111,7 @@ start_countdown - How long until game starts when the minimum amount of players 
 __For more info see the help file in plugin_data/KOTH/help_eng.txt__
 
 ## Known Bugs:
- - NA
+ - Permissions are given to all by default. (should only be OP’s)
 
 To report bugs please make a issue over on [github](https://github.com/jackthehack21/koth/issues/new) and please follow the guidelines.
 
