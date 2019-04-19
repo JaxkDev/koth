@@ -19,6 +19,7 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
  - Leave a arena
  - 'King' is displayed above player name. (nametag)
  - Some values are in config.yml including a help file.
+ - On death keep inventory. (todo config)
 
 ### Upcoming
  - Messages to be in config.

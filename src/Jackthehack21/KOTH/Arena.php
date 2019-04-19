@@ -267,18 +267,26 @@ class Arena{
             }
 
         }
-        if($random === true){
-            $old = array_rand($this->spawns);
-            $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getLevelByName($this->world)); //x,y,z,level;
-            $player->teleport($pos);
-        } else {
+        $player->teleport($this->getSpawn($random));
+    }
+
+    /**
+     * @param bool $random
+     * @return Position
+     */
+    public function getSpawn(bool $random = false) : Position{
+        if($random === false){
             if($this->spawnCounter >= count($this->spawns)){
                 $this->spawnCounter = 0; //reset
             }
             $old = $this->spawns[$this->spawnCounter];
             $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getLevelByName($this->world)); //x,y,z,level;
-            $player->teleport($pos);
             $this->spawnCounter++;
+            return $pos;
+        } else {
+            $old = $this->spawns[array_rand($this->spawns)]; //returns index not value :/
+            $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getLevelByName($this->world)); //x,y,z,level;
+            return $pos;
         }
     }
 

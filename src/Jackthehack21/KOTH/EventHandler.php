@@ -37,7 +37,9 @@ namespace Jackthehack21\KOTH;
 use pocketmine\event\Listener;
 use pocketmine\event\block\{BlockBreakEvent, BlockPlaceEvent};;
 //use pocketmine\event\entity\EntityLevelChangeEvent;
-use pocketmine\event\player\{/*PlayerMoveEvent,*/PlayerRespawnEvent,PlayerQuitEvent,PlayerGameModeChangeEvent};;
+use pocketmine\event\player\{PlayerDeathEvent, PlayerRespawnEvent, PlayerQuitEvent, PlayerGameModeChangeEvent};
+
+;
 
 class EventHandler implements Listener{
 
@@ -72,7 +74,16 @@ class EventHandler implements Listener{
         if($this->plugin->inGame($playerName) === true){
             //Re-spawn player in different spawn location.
             $arena = $this->plugin->getArenaByPlayer($playerName);
-            $arena->spawnPlayer($event->getPlayer(), true); //arg1 is spawn randomly? bool (optional)
+            $pos = $arena->getSpawn(true);
+            $event->setRespawnPosition($pos);
+        }
+    }
+
+    public function onDeath(PlayerDeathEvent $event){
+        $player = $event->getPlayer();
+        if($this->plugin->inGame($player->getLowerCaseName()) === true){
+            //todo config.
+            $event->setKeepInventory(true);
         }
     }
 
