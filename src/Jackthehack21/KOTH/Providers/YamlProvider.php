@@ -38,9 +38,16 @@ use pocketmine\utils\Config;
 
 class YamlProvider implements BaseProvider{
 
+    /** @var Main $plugin */
     private $plugin;
+
+    /** @var Config $dataConfig */
     public $dataConfig;
+
+    /** @var array $data */
     public $data;
+
+    private $version = 0;
 
     public function __construct(Main $plugin)
     {
@@ -49,7 +56,7 @@ class YamlProvider implements BaseProvider{
 
     public function open() : void
     {
-        $this->dataConfig = new Config($this->plugin->getDataFolder() . "arena.yml", Config::YAML, ["version" => 2, "arena_list" => []]);
+        $this->dataConfig = new Config($this->plugin->getDataFolder() . "arena.yml", Config::YAML, ["version" => $this->version, "arena_list" => []]);
         $this->data = $this->dataConfig->getAll();
         $this->plugin->debug("Arena data file opened/loaded.");
     }
@@ -68,15 +75,51 @@ class YamlProvider implements BaseProvider{
     }
 
     public function createArena(Arena $arena) : void{
-        //todo save Arena using arenaToObject util method.
+        $this->data[] = [
+            "name" => strtolower($arena->getName()),
+            "min_players" => $arena->minPlayers,
+            "max_players" => $arena->maxPlayers,
+            "play_time" => $arena->time,
+            "hill" => $arena->hill,
+            "spawns" => $arena->spawns,
+            "rewards" => $arena->rewards,
+            "world" => $arena->world
+        ];
+        $this->save();
     }
 
     public function updateArena(Arena $arena) : void{
-        //todo same as above, replacing values.
+        $key = 0;
+        while(count(array_keys($this->data)) !== $key){
+            if($this->data[$key]["name"] == strtolower($arena->getName())){
+                $this->data[$key] = [
+                    "name" => strtolower($arena->name),
+                    "min_players" => $arena->minPlayers,
+                    "max_players" => $arena->maxPlayers,
+                    "play_time" => $arena->time,
+                    "hill" => $arena->hill,
+                    "spawns" => $arena->spawns,
+                    "rewards" => $arena->rewards,
+                    "world" => $arena->world
+                ];
+            }
+        }
+        $this->save();
     }
 
-    public function deleteArena(Arena $arena) : void{
-        //todo remove arena.
+    public function deleteArena(string $arena) : void{
+        $key = 0;
+        while(count(array_keys($this->data)) !== $key){
+            if($this->data[$key]["name"] == strtolower($arena)){
+                unset($this->data[$key]);
+            }
+        }
+        $this->save();
+    }
+
+    public function getDataVersion(): int
+    {
+        return $this->data["version"];
     }
 
     public function getAllData(): array

@@ -35,6 +35,7 @@ declare(strict_types=1);
 namespace Jackthehack21\KOTH;
 
 use Jackthehack21\KOTH\Providers\SqliteProvider;
+use Jackthehack21\KOTH\Providers\YamlProvider;
 use pocketmine\utils\Config;
 use pocketmine\event\Listener;
 use pocketmine\command\Command;
@@ -56,8 +57,7 @@ class Main extends PluginBase implements Listener{
     private $CommandHandler;
     private $EventHandler;
     private $configC;
-    private $arenaC;
-    private $arenaSaves;
+    private $db;
 
     public $config;
     public $prefix = C::YELLOW."[".C::AQUA."KOTH".C::YELLOW."] ".C::RESET;
@@ -77,14 +77,7 @@ class Main extends PluginBase implements Listener{
         $this->configC = new Config($this->getDataFolder() . "config.yml", Config::YAML);
         $this->config = $this->configC->getAll();
 
-        $this->test = new SqliteProvider($this);
-        $this->test->open();
-        $this->test->close();
-        //TODO Priority: High, change DB to sqlite3 (YAML will be optional in future, for now sqlite3 will be forced as default.) (when multiple providers are implemented make base class so both have same functions to get and save data.)
-        $this->arenaC = new Config($this->getDataFolder() . "arena.yml", Config::YAML, ["version" => 2, "arena_list" => []]);
-	    $this->arenaSaves = $this->arenaC->getAll();
-
-	    //todo check config+arena versions.
+	    /*todo check config+arena versions.
         if($this->arenaSaves["version"] !== $this::ARENA_VER){
             $this->debug("Attempting to update arena data.");
             $old = $this->arenaSaves;
@@ -99,7 +92,7 @@ class Main extends PluginBase implements Listener{
             }
             $this->arenaSaves = $new;
             //todo move to BaseProvider.
-        }
+        }*/
 
         $this->arenas = [];
         $this->loadArenas();
@@ -130,15 +123,33 @@ class Main extends PluginBase implements Listener{
     }
 
     private function loadArenas() : void{
-        if(count($this->arenaSaves["arena_list"]) === 0){
+        //TODO Priority: High, change DB to sqlite3 (YAML will be optional in future, for now sqlite3 will be forced as default.) (when multiple providers are implemented make base class so both have same functions to get and save data.)
+        switch(strtolower($this->config["provider"])){
+            case 'sqlite':
+            case 'sql':
+            case 'sqlite3':
+                $this->db = new SqliteProvider($this);
+                break;
+            case 'yaml':
+                $this->db = new YamlProvider($this);
+                break;
+            default:
+                $this->db = new SqliteProvider($this);
+                $this->config["provider"] = "sqlite3";
+                $this->saveConfig();
+        }
+
+        $data = $this->db->getAllData();
+
+        if(count($data["arena_list"]) === 0){
             $this->debug("0 Arena(s) loaded.");
             return;
         }
-        foreach($this->arenaSaves["arena_list"] as $arenaC){
+        foreach($this->data["arena_list"] as $arenaC){
             $arena = new Arena($this, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["hill"], $arenaC["spawns"], $arenaC["rewards"], $arenaC["world"]);
             $this->arenas[] = $arena;
         }
-        $this->saveArena(); //hacky fix to re-save data after attempting to update arena's
+
         $this->debug(count($this->arenas)." Arena(s) loaded.");
     }
 

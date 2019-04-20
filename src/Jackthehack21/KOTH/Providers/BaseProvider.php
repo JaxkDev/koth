@@ -57,8 +57,10 @@ interface BaseProvider
 
     public function updateArena(Arena $arena) : void;
 
-    public function deleteArena(Arena $arena) : void;
+    public function deleteArena(string $name) : void;
 
+
+    public function getDataVersion() : int;
 
     public function getAllData() : array;
 

@@ -43,19 +43,29 @@ class SqliteProvider implements BaseProvider{
     /** @var SQLite3 $db */
     public $db;
 
+    private $version = 0;
+
+    private $deleteArenaCode, $createArenaCode, $updateArenaCode, $getAllDataCode;
+
     public function __construct(Main $plugin)
     {
         $this->plugin = $plugin;
-        //possibly prepare all executions ? (todo decide)
+    }
+
+    public function prepareCode() : void{
+        $this->createArenaCode = "INSERT INTO arena (name,min_players,max_players,play_time,hill,spawns,rewards,world,version) VALUES (:name, :min_payers, :max_players, :play_time, :hill, :spawns, :rewards, :world, $this->version );";
+        $this->deleteArenaCode = "DELETE from arena where name = :name;";
+        $this->updateArenaCode = "UPDATE arena SET min_players = :min_players, max_players = :max_players, play_time = :play_time, hill = :hill, spawns = :spawns, rewards = :rewards, world = :world, version = $this->version WHERE name = :name";
+        $this->getAllDataCode = "SELECT * FROM arena";
     }
 
     public function open() : void
     {
         $this->db = new SQLite3($this->plugin->getDataFolder() . "arena.db");
-        $this->db->exec("CREATE TABLE IF NOT EXISTS arena
-			(name TEXT PRIMARY KEY, min_players INTEGER, max_players INTEGER, 
-			play_time INTEGER, hill TEXT, spawns TEXT, rewards TEXT, world TEXT);");
-        $this->plugin->debug("Arena DB opened/loaded.");
+        $this->db->exec("CREATE TABLE IF NOT EXISTS arena (name TEXT PRIMARY KEY, min_players INTEGER, max_players INTEGER, play_time INTEGER, hill TEXT, spawns TEXT, rewards TEXT, world TEXT, version INTEGER);");
+        $this->plugin->debug("Arena DB opened/created/loaded.");
+        $this->prepareCode();
+        $this->plugin->debug("Prepared code execution.");
     }
 
     public function close() : void
@@ -64,30 +74,57 @@ class SqliteProvider implements BaseProvider{
         $this->plugin->debug("Arena DB closed/unloaded.");
     }
 
-    public function save(): void
-    {
-        //todo save all arena's
-    }
+    public function save(): void{} //not needed, saved on execute.
 
     public function createArena(Arena $arena) : void{
-        //todo save Arena using arenaToObject util method.
+        $code = $this->db->prepare($this->createArenaCode);
+        $code->bindValue(":name", strtolower($arena->getName()));
+        $code->bindValue(":min_players", $arena->minPlayers);
+        $code->bindValue(":max_players", $arena->maxPlayers);
+        $code->bindValue(":play_time", $arena->time);
+        $code->bindValue(":hill", "[".implode(",",$arena->hill)."]");
+        $code->bindValue(":spawns", "[".implode(",",$arena->spawns)."]");
+        $code->bindValue(":rewards", "[".implode(",", $arena->rewards)."]");
+        $code->bindValue(":world", $arena->world);
+        $code->execute();
     }
 
     public function updateArena(Arena $arena) : void{
-        //todo same as above, replacing values.
+        $code = $this->db->prepare($this->updateArenaCode);
+        $code->bindValue(":min_players", $arena->minPlayers);
+        $code->bindValue(":max_players", $arena->maxPlayers);
+        $code->bindValue(":play_time", $arena->time);
+        $code->bindValue(":hill", "[".implode(",",$arena->hill)."]");
+        $code->bindValue(":spawns", "[".implode(",",$arena->spawns)."]");
+        $code->bindValue(":rewards", "[".implode(",", $arena->rewards)."]");
+        $code->bindValue(":world", $arena->world);
+        $code->execute();
+        //almost the exact same as create...
     }
 
-    public function deleteArena(Arena $arena) : void{
-        //todo remove arena.
+    public function deleteArena(string $arena) : void{
+        $code = $this->db->prepare($this->deleteArenaCode);
+        $code->bindValue(":name", strtolower($arena));
+        $code->execute();
+    }
+
+    public function getDataVersion(): int
+    {
+        //returns version or -1 if not found.
+        $data = $this->getAllData();
+        if(count($data) === 0) return -1;
+        return $data[0]["version"];
     }
 
     public function getAllData(): array
     {
-        //todo return all the data in Array.
+        $result = $this->db->query($this->getAllDataCode)->fetchArray(1);
+        var_dump($result);
+        return $result;
     }
 
     public function setAllData(array $data): void
     {
-        //todo set all data then save()
+        //todo set all data, think about this :/
     }
 }
