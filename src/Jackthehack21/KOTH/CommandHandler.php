@@ -60,10 +60,10 @@ class CommandHandler{
                 $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
                 return true;
             }
-            if(!$sender instanceof Player){
+            /*if(!$sender instanceof Player){
                 $sender->sendMessage($this->prefix.C::RED."Commands can only be run in-game");
                 return true;
-            }
+            }*/
             if(!isset($args[0])){
                 $sender->sendMessage($this->prefix.C::RED."Unknown Command, /koth help");
                 return true;
@@ -307,7 +307,7 @@ class CommandHandler{
                     unset($args[1]);
                     $cmd = array_values($args);
                     $arena->rewards[] = implode(" ",$cmd);
-                    $this->plugin->saveArena();
+                    $this->plugin->updateArena($arena);
                     $sender->sendMessage($this->prefix.C::GREEN."Reward added to the ".$arena->getName()." Arena.");
                     return true;
 

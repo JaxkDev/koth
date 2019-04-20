@@ -46,6 +46,8 @@ interface BaseProvider
 {
     public function __construct(Main $plugin);
 
+    public function getName() : string;
+
     public function open() : void;
 
     public function close() : void;

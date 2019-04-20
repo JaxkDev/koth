@@ -45,6 +45,7 @@ class Utils{
      */
     public function arenaToObject(Arena $arena) : array{
         //todo
+        return []; //shut up phpstorm.
     }
 
     /**
@@ -54,5 +55,6 @@ class Utils{
     public function arenaToString(Arena $arena) : string{
         //todo, only used to debug.
         //NOT INTENDED TO USE FOR SAVING/LOADING ETC.
+        return "";
     }
 }

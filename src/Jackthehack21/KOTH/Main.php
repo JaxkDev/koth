@@ -52,6 +52,7 @@ class Main extends PluginBase implements Listener{
     private static $instance;
 
     public const ARENA_VER = 2;
+    public const CONFIG_VER = 1;
 
     private $arenas;
     private $CommandHandler;
@@ -93,6 +94,15 @@ class Main extends PluginBase implements Listener{
             $this->arenaSaves = $new;
             //todo move to BaseProvider.
         }*/
+	    if($this->config["version"] !== $this::CONFIG_VER){
+	        if(!isset($this->config["provider"])) $this->config["provider"] = "sqlite3";
+            if(!isset($this->config["block_commands"])) $this->config["block_commands"] = true;
+            if(!isset($this->config["prevent_place"])) $this->config["prevent_place"] = true;
+            if(!isset($this->config["prevent_break"])) $this->config["prevent_break"] = true;
+            if(!isset($this->config["prevent_gamemode_change"])) $this->config["prevent_gamemode_change"] = true;
+            $this->config["version"] = $this::CONFIG_VER;
+            $this->saveConfig();
+        }
 
         $this->arenas = [];
         $this->loadArenas();
@@ -138,14 +148,18 @@ class Main extends PluginBase implements Listener{
                 $this->config["provider"] = "sqlite3";
                 $this->saveConfig();
         }
-
+        $this->debug("Provider was set to: ".$this->db->getName());
+        $this->db->open();
         $data = $this->db->getAllData();
 
-        if(count($data["arena_list"]) === 0){
+        var_dump($data);
+
+        if(count($data) === 0){
             $this->debug("0 Arena(s) loaded.");
             return;
         }
-        foreach($this->data["arena_list"] as $arenaC){
+
+        foreach($data as $arenaC){
             $arena = new Arena($this, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["hill"], $arenaC["spawns"], $arenaC["rewards"], $arenaC["world"]);
             $this->arenas[] = $arena;
         }
@@ -155,7 +169,7 @@ class Main extends PluginBase implements Listener{
 
     public function onDisable()
     {
-        $this->saveArena();
+        $this->updateAllArenas();
         $this->saveConfig();
         //close DB
     }
@@ -180,17 +194,24 @@ class Main extends PluginBase implements Listener{
     }
 
     /**
+     * @param Arena $arena
+     */
+    public function updateArena(Arena $arena) : void{
+        $this->db->updateArena($arena);
+    }
+
+    /**
      * @param array|null $data
      */
-    public function saveArena(array $data = null) : void{
+    public function updateAllArenas(array $data = null) : void{
         if($data !== null){
-            $this->arenaC->set("arena_list",$data);
+            $this->db->setAllData($data);
             return;
         }
         $save = [];
         foreach($this->arenas as $arena) {
             $save[] = [
-                "name" => $arena->name,
+                "name" => strtolower($arena->name),
                 "min_players" => $arena->minPlayers,
                 "max_players" => $arena->maxPlayers,
                 "play_time" => $arena->time,
@@ -200,9 +221,7 @@ class Main extends PluginBase implements Listener{
                 "world" => $arena->world
             ];
         }
-        $this->arenaC->set("version", $this->arenaSaves["version"]);
-        $this->arenaC->set("arena_list", $save);
-        $this->arenaC->save();
+        $this->db->setAllData($save);
     }
 
     /**
@@ -222,7 +241,7 @@ class Main extends PluginBase implements Listener{
      */
     public function debug(string $msg) : void{
         if($this->config["debug"] === true){
-            $this->getLogger()->info(C::GRAY."[DEBUG] : ".   $msg);
+            $this->getServer()->getLogger()->info(C::GRAY."[KOTH | DEBUG] : ".   $msg);
         }
     }
 
@@ -239,7 +258,7 @@ class Main extends PluginBase implements Listener{
      */
     public function newArena(Arena $arena){
         $this->arenas[] = $arena;
-        $this->saveArena();
+        $this->db->createArena($arena);
     }
 
     /**
@@ -248,7 +267,7 @@ class Main extends PluginBase implements Listener{
     public function removeArena(Arena $arena) : void{
         if (($key = array_search($arena, $this->arenas)) !== false) {
             unset($this->arenas[$key]);
-            $this->saveArena();
+            $this->db->deleteArena(strtolower($arena->getName()));
         }
     }
 
@@ -298,7 +317,7 @@ class Main extends PluginBase implements Listener{
         return null;
     }
 
-    //TODO, Big.  Move most functions to seperate file (eg API.php) less mess in here to tidy...
+    //TODO, Big.  Move most functions to separate file (eg API.php) less mess in here to tidy...
 
     /**
      * @return Main

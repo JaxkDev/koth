@@ -10,6 +10,11 @@ check_updates: true
 
 language: "eng"
 
+block_commands: true
+prevent_place: true
+prevent_break: true
+prevent_gamemode_change: true
+
 start_countdown: 10
 
 KingTextParticles: true

@@ -195,7 +195,7 @@ class Arena{
             $this->status = self::STATUS_READY;
         } else {
             $this->status = self::STATUS_NOT_READY;
-            if($save === true) $this->plugin->saveArena();
+            if($save === true) $this->plugin->updateArena($this);
             return;
         }
         if($this->started === true){
@@ -203,10 +203,10 @@ class Arena{
         }
         if(count($this->players) >= $this->maxPlayers){
             $this->status = self::STATUS_FULL;
-            if($save === true) $this->plugin->saveArena();
+            if($save === true) $this->plugin->updateArena($this);
             return;
         }
-        if($save === true) $this->plugin->saveArena();
+        if($save === true) $this->plugin->updateArena($this);
     }
 
     public function createKingTextParticle() : void{

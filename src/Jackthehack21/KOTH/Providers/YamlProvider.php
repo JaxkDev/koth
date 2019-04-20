@@ -54,6 +54,10 @@ class YamlProvider implements BaseProvider{
         $this->plugin = $plugin;
     }
 
+    public function getName() : string{
+        return "Yaml";
+    }
+
     public function open() : void
     {
         $this->dataConfig = new Config($this->plugin->getDataFolder() . "arena.yml", Config::YAML, ["version" => $this->version, "arena_list" => []]);
@@ -124,7 +128,7 @@ class YamlProvider implements BaseProvider{
 
     public function getAllData(): array
     {
-        return $this->data;
+        return $this->data["arena_list"]; //so no collisions between both providers.
     }
 
     public function setAllData(array $data): void

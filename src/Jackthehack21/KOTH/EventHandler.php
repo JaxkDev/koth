@@ -28,6 +28,7 @@
 *   Discord :: Jackthehaxk21#8860
 *   Email   :: gangnam253@gmail.com
 */
+/** @noinspection PhpUndefinedMethodInspection */
 
 declare(strict_types=1);
 namespace Jackthehack21\KOTH;
@@ -37,7 +38,7 @@ namespace Jackthehack21\KOTH;
 use pocketmine\event\Listener;
 use pocketmine\event\block\{BlockBreakEvent, BlockPlaceEvent};;
 //use pocketmine\event\entity\EntityLevelChangeEvent;
-use pocketmine\event\player\{PlayerDeathEvent, PlayerRespawnEvent, PlayerQuitEvent, PlayerGameModeChangeEvent};
+use pocketmine\event\player\{PlayerDeathEvent, PlayerRespawnEvent, PlayerQuitEvent, PlayerGameModeChangeEvent, PlayerCommandPreprocessEvent};
 
 ;
 
@@ -59,9 +60,6 @@ class EventHandler implements Listener{
             //notify players in that arena that a player has left, adjust scoreboard.
             $arena = $this->plugin->getArenaByPlayer($playerName);
             $arena->removePlayer($event->getPlayer(), "Disconnected from server."); //arg1 is reason.
-            foreach($arena->getPlayers() as $ePlayer){
-                $this->plugin->getServer()->getPlayerExact($ePlayer)->sendMessage("Test");
-            }
         }
     }
 
@@ -79,6 +77,9 @@ class EventHandler implements Listener{
         }
     }
 
+    /**
+     * @param PlayerDeathEvent $event
+     */
     public function onDeath(PlayerDeathEvent $event){
         $player = $event->getPlayer();
         if($this->plugin->inGame($player->getLowerCaseName()) === true){
@@ -87,32 +88,30 @@ class EventHandler implements Listener{
         }
     }
 
-    /*public function onMove(PlayerMoveEvent $event){
-        $player = $event->getPlayer();
-        $playerName = strtolower($player->getName());
-        $from = $event->getFrom();
-        $to = $event->getTo();
-        //hmm todo, decide on this. (probably config)
-        var_dump($from);
-        var_dump($to);
-    }*/
-
     /*public function onLevelChange(EntityLevelChangeEvent $event){
         $targetLevel = $event->getTarget();
         //todo hack for per world FTP (decide how to handle this :/ )
     }*/
 
-    //todo disable command usage (unless its /koth)
+    /**
+     * @param PlayerCommandPreprocessEvent $event
+     */
+    public function onPlayerCommandPreprocess(PlayerCommandPreprocessEvent $event){
+        $player = $event->getPlayer();
+        if($this->plugin->inGame($player->getLowerCaseName()) === true and $this->plugin->config["block_commands"] === true and substr($event->getMessage(), 0, 5) !== "/koth"){
+            $event->setCancelled(true);
+        }
+    }
 
     /**
      * @param PlayerGameModeChangeEvent $event
      */
     public function onPlayerGameModeChange(PlayerGameModeChangeEvent $event){
-        if($this->plugin->getArenaByPlayer($event->getPlayer()->getLowerCaseName()) !== null){
-            if($event->getPlayer()->isOp() === false){
+        if($this->plugin->inGame($event->getPlayer()->getLowerCaseName()) === true){
+            if($event->getPlayer()->isOp() === false and $this->plugin->config["prevent_gamemode_change"] === true){
                 $event->setCancelled(true);
                 $this->plugin->getArenaByPlayer($event->getPlayer()->getLowerCaseName())->broadcastMessage($event->getPlayer()->getName()." Attempted to change gamemode.");
-                //todo config.
+                //todo config msg.
             }
         }
     }
@@ -121,9 +120,8 @@ class EventHandler implements Listener{
      * @param BlockBreakEvent $event
      */
     public function onBlockBreak(BlockBreakEvent $event){
-        if($this->plugin->getArenaByPlayer($event->getPlayer()->getLowerCaseName()) !== null){
+        if($this->plugin->inGame($event->getPlayer()->getLowerCaseName()) === true and $this->plugin->config["prevent_break"] === true){
             $event->setCancelled(true);
-            //todo config.
         }
     }
 
@@ -131,9 +129,8 @@ class EventHandler implements Listener{
      * @param BlockPlaceEvent $event
      */
     public function onBlockPlace(BlockPlaceEvent $event){
-        if($this->plugin->getArenaByPlayer($event->getPlayer()->getLowerCaseName()) !== null){
+        if($this->plugin->inGame($event->getPlayer()->getLowerCaseName()) === true and $this->plugin->config["prevent_place"] === true){
             $event->setCancelled(true);
-            //todo config.
         }
     }
 

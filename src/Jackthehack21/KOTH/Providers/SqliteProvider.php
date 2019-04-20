@@ -52,8 +52,12 @@ class SqliteProvider implements BaseProvider{
         $this->plugin = $plugin;
     }
 
+    public function getName() : string{
+        return "Sqlite3";
+    }
+
     public function prepareCode() : void{
-        $this->createArenaCode = "INSERT INTO arena (name,min_players,max_players,play_time,hill,spawns,rewards,world,version) VALUES (:name, :min_payers, :max_players, :play_time, :hill, :spawns, :rewards, :world, $this->version );";
+        $this->createArenaCode = "INSERT INTO arena (name,min_players,max_players,play_time,hill,spawns,rewards,world,version) VALUES (:name, :min_players, :max_players, :play_time, :hill, :spawns, :rewards, :world, $this->version );";
         $this->deleteArenaCode = "DELETE from arena where name = :name;";
         $this->updateArenaCode = "UPDATE arena SET min_players = :min_players, max_players = :max_players, play_time = :play_time, hill = :hill, spawns = :spawns, rewards = :rewards, world = :world, version = $this->version WHERE name = :name";
         $this->getAllDataCode = "SELECT * FROM arena";
@@ -118,13 +122,20 @@ class SqliteProvider implements BaseProvider{
 
     public function getAllData(): array
     {
-        $result = $this->db->query($this->getAllDataCode)->fetchArray(1);
-        var_dump($result);
-        return $result;
+        $result = $this->db->query($this->getAllDataCode);
+        $data = [];
+        $tmp = $result->fetchArray(1);
+        while($tmp !== false){
+            $data[] = $tmp;
+            $tmp = $result->fetchArray(1);
+        }
+        //todo change string arrays back into arrays here.
+        return $data;
     }
 
     public function setAllData(array $data): void
     {
+        $this->plugin->getLogger()->warning("Un finished code.");
         //todo set all data, think about this :/
     }
 }
