@@ -34,6 +34,7 @@
 declare(strict_types=1);
 namespace Jackthehack21\KOTH;
 
+use Jackthehack21\KOTH\Providers\SqliteProvider;
 use pocketmine\utils\Config;
 use pocketmine\event\Listener;
 use pocketmine\command\Command;
@@ -76,6 +77,9 @@ class Main extends PluginBase implements Listener{
         $this->configC = new Config($this->getDataFolder() . "config.yml", Config::YAML);
         $this->config = $this->configC->getAll();
 
+        $this->test = new SqliteProvider($this);
+        $this->test->open();
+        $this->test->close();
         //TODO Priority: High, change DB to sqlite3 (YAML will be optional in future, for now sqlite3 will be forced as default.) (when multiple providers are implemented make base class so both have same functions to get and save data.)
         $this->arenaC = new Config($this->getDataFolder() . "arena.yml", Config::YAML, ["version" => 2, "arena_list" => []]);
 	    $this->arenaSaves = $this->arenaC->getAll();
@@ -94,7 +98,7 @@ class Main extends PluginBase implements Listener{
                 $new["arena_list"][] = $arena;
             }
             $this->arenaSaves = $new;
-            //todo this re-saving method is crap. need to redo save/load arena method when sqlite is implemented.
+            //todo move to BaseProvider.
         }
 
         $this->arenas = [];
@@ -142,6 +146,7 @@ class Main extends PluginBase implements Listener{
     {
         $this->saveArena();
         $this->saveConfig();
+        //close DB
     }
 
     public function onEnable() : void{

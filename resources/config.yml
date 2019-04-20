@@ -1,5 +1,7 @@
 ---
-version: 0
+version: 1
+
+provider: "sqlite3"
 
 plugin_enabled: true
 debug: false
@@ -8,10 +10,13 @@ check_updates: true
 
 language: "eng"
 
+start_countdown: 10
+
 KingTextParticles: true
 
 nametag_enabled: true
 nametag_format: "{RED}[ {GREEN}KING {RED}]"
 
-start_countdown: 10
+#Todo add all messages before Beta2 release.
+#Possibly the broadcast as well.
 ...

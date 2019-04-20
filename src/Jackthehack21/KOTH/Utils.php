@@ -38,4 +38,21 @@ class Utils{
             $msg
         );
     }
+
+    /**
+     * @param Arena $arena
+     * @return array
+     */
+    public function arenaToObject(Arena $arena) : array{
+        //todo
+    }
+
+    /**
+     * @param Arena $arena
+     * @return string
+     */
+    public function arenaToString(Arena $arena) : string{
+        //todo, only used to debug.
+        //NOT INTENDED TO USE FOR SAVING/LOADING ETC.
+    }
 }
