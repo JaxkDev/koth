@@ -36,7 +36,6 @@
 declare(strict_types=1);
 namespace Jackthehack21\KOTH;
 
-use pocketmine\Player;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 
@@ -201,6 +200,22 @@ class CommandHandler{
                         $sender->sendMessage("- ".C::AQUA.$reward);
                     }
                     return true;
+
+                case 'forcestart':
+                    if(!$sender->hasPermission("koth.forcestart")){
+                        $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
+                        return true;
+                    }
+                    if(count($args) !== 2){
+                        $sender->sendMessage($this->prefix.C::RED."No arena specified, /koth forcestart (arena name)");
+                        return true;
+                    }
+
+                    $arena = $this->plugin->getArenaByName($args[1]);
+                    if($arena === null){
+                        $sender->sendMessage($this->prefix.C::RED."No arena with that name exists.");
+                        return true;
+                    }
 
                 //////-----Arena Setup------///////
                 /** @noinspection SpellCheckingInspection */

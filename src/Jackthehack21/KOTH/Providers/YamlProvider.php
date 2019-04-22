@@ -128,7 +128,7 @@ class YamlProvider implements BaseProvider{
 
     public function getAllData(): array
     {
-        return $this->data["arena_list"]; //so no collisions between both providers.
+        return $this->data["arena_list"]; //so no collisions between both providers, they both return only arena's
     }
 
     public function setAllData(array $data): void

@@ -45,7 +45,7 @@ class SqliteProvider implements BaseProvider{
 
     private $version = 0;
 
-    private $deleteArenaCode, $createArenaCode, $updateArenaCode, $getAllDataCode;
+    private $createTableCode, $deleteTableCode, $deleteArenaCode, $createArenaCode, $updateArenaCode, $getAllDataCode, $setAllDataCode;
 
     public function __construct(Main $plugin)
     {
@@ -57,19 +57,25 @@ class SqliteProvider implements BaseProvider{
     }
 
     public function prepareCode() : void{
+        $this->deleteTableCode = "DROP TABLE arena";
+        $this->createTableCode = "CREATE TABLE IF NOT EXISTS arena (name TEXT PRIMARY KEY, min_players INTEGER, max_players INTEGER, play_time INTEGER, hill TEXT, spawns TEXT, rewards TEXT, world TEXT, version INTEGER);";
+
         $this->createArenaCode = "INSERT INTO arena (name,min_players,max_players,play_time,hill,spawns,rewards,world,version) VALUES (:name, :min_players, :max_players, :play_time, :hill, :spawns, :rewards, :world, $this->version );";
         $this->deleteArenaCode = "DELETE from arena where name = :name;";
         $this->updateArenaCode = "UPDATE arena SET min_players = :min_players, max_players = :max_players, play_time = :play_time, hill = :hill, spawns = :spawns, rewards = :rewards, world = :world, version = $this->version WHERE name = :name";
+
         $this->getAllDataCode = "SELECT * FROM arena";
+        $this->setAllDataCode = "INSERT OR REPLACE INTO arena (name,min_players,max_players,play_time,hill,spawns,rewards,world,version) VALUES (:name, :min_players, :max_players, :play_time, :hill, :spawns, :rewards, :world, $this->version );";
+        $this->plugin->debug("Prepared code execution.");
     }
 
     public function open() : void
     {
         $this->db = new SQLite3($this->plugin->getDataFolder() . "arena.db");
-        $this->db->exec("CREATE TABLE IF NOT EXISTS arena (name TEXT PRIMARY KEY, min_players INTEGER, max_players INTEGER, play_time INTEGER, hill TEXT, spawns TEXT, rewards TEXT, world TEXT, version INTEGER);");
-        $this->plugin->debug("Arena DB opened/created/loaded.");
         $this->prepareCode();
-        $this->plugin->debug("Prepared code execution.");
+
+        $this->db->exec($this->createTableCode);
+        $this->plugin->debug("Arena DB opened/created/loaded.");
     }
 
     public function close() : void
@@ -86,9 +92,9 @@ class SqliteProvider implements BaseProvider{
         $code->bindValue(":min_players", $arena->minPlayers);
         $code->bindValue(":max_players", $arena->maxPlayers);
         $code->bindValue(":play_time", $arena->time);
-        $code->bindValue(":hill", "[".implode(",",$arena->hill)."]");
-        $code->bindValue(":spawns", "[".implode(",",$arena->spawns)."]");
-        $code->bindValue(":rewards", "[".implode(",", $arena->rewards)."]");
+        $code->bindValue(":hill", $this->plugin->utils->stringifyArray($arena->hill));
+        $code->bindValue(":spawns", $this->plugin->utils->stringifyArray($arena->spawns));
+        $code->bindValue(":rewards", $this->plugin->utils->stringifyArray($arena->rewards));
         $code->bindValue(":world", $arena->world);
         $code->execute();
     }
@@ -98,9 +104,9 @@ class SqliteProvider implements BaseProvider{
         $code->bindValue(":min_players", $arena->minPlayers);
         $code->bindValue(":max_players", $arena->maxPlayers);
         $code->bindValue(":play_time", $arena->time);
-        $code->bindValue(":hill", "[".implode(",",$arena->hill)."]");
-        $code->bindValue(":spawns", "[".implode(",",$arena->spawns)."]");
-        $code->bindValue(":rewards", "[".implode(",", $arena->rewards)."]");
+        $code->bindValue(":hill", $this->plugin->utils->stringifyArray($arena->hill));
+        $code->bindValue(":spawns", $this->plugin->utils->stringifyArray($arena->spawns));
+        $code->bindValue(":rewards", $this->plugin->utils->stringifyArray($arena->rewards));
         $code->bindValue(":world", $arena->world);
         $code->execute();
         //almost the exact same as create...
@@ -123,19 +129,40 @@ class SqliteProvider implements BaseProvider{
     public function getAllData(): array
     {
         $result = $this->db->query($this->getAllDataCode);
-        $data = [];
-        $tmp = $result->fetchArray(1);
-        while($tmp !== false){
-            $data[] = $tmp;
-            $tmp = $result->fetchArray(1);
+        $tmpData = [];
+        $countTmp = $result->fetchArray(1);
+        while($countTmp !== false){
+            $tmpData[] = $countTmp;
+            $countTmp = $result->fetchArray(1);
         }
-        //todo change string arrays back into arrays here.
+        $data = [];
+        foreach($tmpData as $tmp){
+            $tmp["hill"] =  $this->plugin->utils->parseArray($tmp["hill"]);
+            $tmp["spawns"] =  $this->plugin->utils->parseArray($tmp["spawns"]);
+            $tmp["rewards"] =  $this->plugin->utils->parseArray($tmp["rewards"]);
+            $data[] = $tmp;
+        }
         return $data;
     }
 
     public function setAllData(array $data): void
     {
-        $this->plugin->getLogger()->warning("Un finished code.");
-        //todo set all data, think about this :/
+        foreach($data as $arena){
+            $code = $this->db->prepare($this->setAllDataCode);
+            $code->bindValue(":name", strtolower($arena["name"]));
+            $code->bindValue(":min_players", $arena["min_players"]);
+            $code->bindValue(":max_players", $arena["max_players"]);
+            $code->bindValue(":play_time", $arena["play_time"]);
+            $code->bindValue(":hill", $this->plugin->utils->stringifyArray($arena["hill"]));
+            $code->bindValue(":spawns", $this->plugin->utils->stringifyArray($arena["spawns"]));
+            $code->bindValue(":rewards", $this->plugin->utils->stringifyArray($arena["rewards"]));
+            $code->bindValue(":world", $arena["world"]);
+            $code->execute();
+        }
+    }
+
+    public function remAllData(): void
+    {
+        $this->db->exec($this->deleteTableCode);
     }
 }

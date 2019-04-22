@@ -63,12 +63,16 @@ class Main extends PluginBase implements Listener{
     public $config;
     public $prefix = C::YELLOW."[".C::AQUA."KOTH".C::YELLOW."] ".C::RESET;
 
+    /** @var Utils */
     public $utils;
 
     private function init() : void{
         $this->CommandHandler = new CommandHandler($this);
         $this->EventHandler = new EventHandler($this);
-        $this->utils = new PluginUtils();
+        $this->utils = new PluginUtils($this);
+
+        $this->arenas = [];
+        $this->loadArenas();
 
         $this->getServer()->getPluginManager()->registerEvents($this->EventHandler, $this);
     }
@@ -78,22 +82,7 @@ class Main extends PluginBase implements Listener{
         $this->configC = new Config($this->getDataFolder() . "config.yml", Config::YAML);
         $this->config = $this->configC->getAll();
 
-	    /*todo check config+arena versions.
-        if($this->arenaSaves["version"] !== $this::ARENA_VER){
-            $this->debug("Attempting to update arena data.");
-            $old = $this->arenaSaves;
-            $new = array();
-            $new["version"] = $this::ARENA_VER;
-            $new["arena_list"] = array();
-            foreach($old["arena_list"] as $arena){
-                unset($arena["start_countdown"]);
-                $arena["rewards"] = array();
-                //and anymore changes when version3 comes along.
-                $new["arena_list"][] = $arena;
-            }
-            $this->arenaSaves = $new;
-            //todo move to BaseProvider.
-        }*/
+	    //todo check config+arena versions.
 	    if($this->config["version"] !== $this::CONFIG_VER){
 	        if(!isset($this->config["provider"])) $this->config["provider"] = "sqlite3";
             if(!isset($this->config["block_commands"])) $this->config["block_commands"] = true;
@@ -103,9 +92,6 @@ class Main extends PluginBase implements Listener{
             $this->config["version"] = $this::CONFIG_VER;
             $this->saveConfig();
         }
-
-        $this->arenas = [];
-        $this->loadArenas();
 
         $languages = array("eng"); //list of all help file languages currently available.
         $language = "eng";
@@ -189,7 +175,6 @@ class Main extends PluginBase implements Listener{
      * @return bool
      */
     public function onCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
-        /** @noinspection PhpUndefinedMethodInspection */
         return $this->CommandHandler->handleCommand($sender, $cmd, $label, $args);
     }
 
@@ -317,7 +302,7 @@ class Main extends PluginBase implements Listener{
         return null;
     }
 
-    //TODO, Big.  Move most functions to separate file (eg API.php) less mess in here to tidy...
+    //TODO, Big.  Move most functions to separate file (eg ArenaManager.php) less mess in here to tidy...
 
     /**
      * @return Main

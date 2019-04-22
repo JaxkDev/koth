@@ -6,6 +6,12 @@ use pocketmine\utils\TextFormat as C;
 
 class Utils{
 
+    public $plugin;
+
+    public function __construct(Main $plugin){
+        $this->plugin = $plugin;
+    }
+
     /**
      * @param string $search
      * @param array $arr
@@ -40,21 +46,19 @@ class Utils{
     }
 
     /**
-     * @param Arena $arena
-     * @return array
+     * @param array $data
+     * @return string
      */
-    public function arenaToObject(Arena $arena) : array{
-        //todo
-        return []; //shut up phpstorm.
+    public function stringifyArray(array $data) : string{
+        return json_encode($data);
+        //pretty pointless i guess.
     }
 
     /**
-     * @param Arena $arena
-     * @return string
+     * @param string $data
+     * @return array
      */
-    public function arenaToString(Arena $arena) : string{
-        //todo, only used to debug.
-        //NOT INTENDED TO USE FOR SAVING/LOADING ETC.
-        return "";
+    public function parseArray(string $data) : array{
+        return json_decode($data,true);
     }
 }
