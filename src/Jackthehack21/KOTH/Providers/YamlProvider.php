@@ -79,7 +79,7 @@ class YamlProvider implements BaseProvider{
     }
 
     public function createArena(Arena $arena) : void{
-        $this->data[] = [
+        $this->data["arena_list"][] = [
             "name" => strtolower($arena->getName()),
             "min_players" => $arena->minPlayers,
             "max_players" => $arena->maxPlayers,
@@ -94,9 +94,10 @@ class YamlProvider implements BaseProvider{
 
     public function updateArena(Arena $arena) : void{
         $key = 0;
-        while(count(array_keys($this->data)) !== $key){
-            if($this->data[$key]["name"] == strtolower($arena->getName())){
-                $this->data[$key] = [
+        if(count($this->data["arena_list"])==0) return;
+        while(count($this->data["arena_list"])-1 != $key){
+            if($this->data["arena_list"][$key]["name"] == strtolower($arena->getName())){
+                $this->data["arena_list"][$key] = [
                     "name" => strtolower($arena->name),
                     "min_players" => $arena->minPlayers,
                     "max_players" => $arena->maxPlayers,
@@ -107,16 +108,19 @@ class YamlProvider implements BaseProvider{
                     "world" => $arena->world
                 ];
             }
+            $key++;
         }
         $this->save();
     }
 
     public function deleteArena(string $arena) : void{
         $key = 0;
-        while(count(array_keys($this->data)) !== $key){
-            if($this->data[$key]["name"] == strtolower($arena)){
-                unset($this->data[$key]);
+        if(count($this->data) === 0) return;
+        while(count(array_keys($this->data))-1 !== $key){
+            if($this->data["arena_list"][$key]["name"] == strtolower($arena)){
+                unset($this->data["arena_list"][$key]);
             }
+            $key++;
         }
         $this->save();
     }
@@ -133,7 +137,7 @@ class YamlProvider implements BaseProvider{
 
     public function setAllData(array $data): void
     {
-        $this->data = $data;
+        $this->data["arena_list"] = $data;
         $this->save();
     }
 }

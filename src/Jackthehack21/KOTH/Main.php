@@ -45,7 +45,14 @@ use pocketmine\utils\TextFormat as C;
 
 use Jackthehack21\KOTH\Utils as PluginUtils;
 
-#use JackMD\UpdateNotifier\UpdateNotifier;
+/*
+ * [ ] Priority: High, Add all messages into messages.yml (different file as there are many customisable messages.)
+ * [ ] Priority: Medium, Move most functions to separate file (eg ArenaManager.php) less mess in here to tidy...
+ * [ ] Priority: Medium, Move around functions, into more sub files (eg ^) and add all PHPDoc for functions and variables to stop these useless warnings *frown*
+ * [ ] Priority: Medium, Add a custom(or JackMD's) Update virion. (most likely create my own to support BetaX and download links etc.)
+ * [ ] Priority: Low, Look into different methods of having addons.
+ * [ ] Priority: Low, Add the rest of the modern languages to help files. (update existing ones/commit the ones locally)
+ */
 
 class Main extends PluginBase implements Listener{
 
@@ -70,6 +77,7 @@ class Main extends PluginBase implements Listener{
         $this->CommandHandler = new CommandHandler($this);
         $this->EventHandler = new EventHandler($this);
         $this->utils = new PluginUtils($this);
+        //todo addon manager.
 
         $this->arenas = [];
         $this->loadArenas();
@@ -81,6 +89,7 @@ class Main extends PluginBase implements Listener{
         $this->saveResource("config.yml");
         $this->configC = new Config($this->getDataFolder() . "config.yml", Config::YAML);
         $this->config = $this->configC->getAll();
+        //todo message config.
 
 	    //todo check config+arena versions.
 	    if($this->config["version"] !== $this::CONFIG_VER){
@@ -111,10 +120,8 @@ class Main extends PluginBase implements Listener{
             return false;
         }
 
-        /*if($this->config["check_updates"] === true) {
-            Todo enable UpdateNotifier virion by JackMD. (when out of beta) & test
-            UpdateNotifier::checkUpdate($this, $this->getDescription()->getName(), $this->getDescription()->getVersion());
-        }*/
+        //Start async task to check for latest release info.
+
         return true;
     }
 
@@ -137,8 +144,6 @@ class Main extends PluginBase implements Listener{
         $this->debug("Provider was set to: ".$this->db->getName());
         $this->db->open();
         $data = $this->db->getAllData();
-
-        var_dump($data);
 
         if(count($data) === 0){
             $this->debug("0 Arena(s) loaded.");

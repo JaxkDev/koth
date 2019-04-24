@@ -6,6 +6,8 @@ api:
 - 3.7.0
 main: Jackthehack21\KOTH\Main
 
+extensions: [sqlite3]
+
 commands:
   koth:
     description: "KOTH general command"
