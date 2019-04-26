@@ -34,6 +34,7 @@
 declare(strict_types=1);
 namespace Jackthehack21\KOTH;
 
+use Jackthehack21\KOTH\Providers\BaseProvider;
 use Jackthehack21\KOTH\Providers\SqliteProvider;
 use Jackthehack21\KOTH\Providers\YamlProvider;
 use pocketmine\utils\Config;
@@ -46,7 +47,7 @@ use pocketmine\utils\TextFormat as C;
 use Jackthehack21\KOTH\Utils as PluginUtils;
 
 /*
- * [ ] Priority: High, Add all messages into messages.yml (different file as there are many customisable messages.)
+ * [-] Priority: High, Add all messages into messages.yml (different file as there are many customisable messages.)
  * [ ] Priority: Medium, Move most functions to separate file (eg ArenaManager.php) less mess in here to tidy...
  * [ ] Priority: Medium, Move around functions, into more sub files (eg ^) and add all PHPDoc for functions and variables to stop these useless warnings *frown*
  * [ ] Priority: Medium, Add a custom(or JackMD's) Update virion. (most likely create my own to support BetaX and download links etc.)
@@ -66,10 +67,11 @@ class Main extends PluginBase implements Listener{
     private $EventHandler;
     private $configC;
     private $messagesC;
+    /** @var BaseProvider */
     private $db;
 
     public $config;
-    public $messsages;
+    public $messages;
     public $prefix = C::YELLOW."[".C::AQUA."KOTH".C::YELLOW."] ".C::RESET;
 
     /** @var Utils */
@@ -91,9 +93,12 @@ class Main extends PluginBase implements Listener{
         $this->saveResource("config.yml");
         $this->configC = new Config($this->getDataFolder() . "config.yml", Config::YAML);
         $this->config = $this->configC->getAll();
-        //todo message config.
 
-	    //todo check config+arena versions.
+        $this->saveResource("messages.yml");
+        $this->messagesC = new Config($this->getDataFolder() . "messages.yml", Config::YAML);
+        $this->messages = $this->messagesC->getAll();
+
+	    //todo check arena versions.
 	    if($this->config["version"] !== $this::CONFIG_VER){
 	        if(!isset($this->config["provider"])) $this->config["provider"] = "sqlite3";
             if(!isset($this->config["block_commands"])) $this->config["block_commands"] = true;
@@ -104,7 +109,7 @@ class Main extends PluginBase implements Listener{
             $this->saveConfig();
         }
 
-        $languages = array("eng"); //list of all help file languages currently available.
+        $languages = array("eng");
         $language = "eng";
         if (in_array($this->config["language"], $languages) !== false) {
             $language = $this->config["language"];
@@ -117,7 +122,7 @@ class Main extends PluginBase implements Listener{
      */
     private function startChecks() : bool{
         if($this->config["plugin_enabled"] !== true){
-            $this->debug("Plugin disabled, as stated in config.yml");
+            $this->debug($this->utils->colourise($this->messages["plugin_disabled"]));
             $this->getServer()->getPluginManager()->disablePlugin($this);
             return false;
         }
@@ -128,7 +133,6 @@ class Main extends PluginBase implements Listener{
     }
 
     private function loadArenas() : void{
-        //TODO Priority: High, change DB to sqlite3 (YAML will be optional in future, for now sqlite3 will be forced as default.) (when multiple providers are implemented make base class so both have same functions to get and save data.)
         switch(strtolower($this->config["provider"])){
             case 'sqlite':
             case 'sql':
@@ -143,35 +147,29 @@ class Main extends PluginBase implements Listener{
                 $this->config["provider"] = "sqlite3";
                 $this->saveConfig();
         }
-        $this->debug("Provider was set to: ".$this->db->getName());
+        $this->debug(str_replace("{NAME}",$this->db->getName(),$this->utils->colourise($this->messages["provider"])));
         $this->db->open();
         $data = $this->db->getAllData();
-
-        if(count($data) === 0){
-            $this->debug("0 Arena(s) loaded.");
-            return;
-        }
 
         foreach($data as $arenaC){
             $arena = new Arena($this, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["hill"], $arenaC["spawns"], $arenaC["rewards"], $arenaC["world"]);
             $this->arenas[] = $arena;
         }
 
-        $this->debug(count($this->arenas)." Arena(s) loaded.");
+        $this->debug(str_replace("{AMOUNT}",count($this->arenas),$this->utils->colourise($this->messages["arenas_loaded"])));
     }
 
     public function onDisable()
     {
         $this->updateAllArenas();
         $this->saveConfig();
-        //close DB
+        $this->db->close();
     }
 
     public function onEnable() : void{
         $this->initResources();
         if($this->startChecks() === false) return;
         $this->init();
-
     }
 
     /**
