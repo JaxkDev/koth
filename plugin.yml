@@ -11,15 +11,18 @@ extensions: [sqlite3]
 commands:
   koth:
     description: "KOTH general command"
-    permission: koth
+    permission: koth.command
     usage: /koth help
     permission-message: "[KOTH] You do not have permission to use this command."
 
 permissions:
   koth:
-    default: true
+    default: false
     description: "Allows usage of /koth"
     children:
+      koth.command:
+        description: "Allows player to use /koth"
+        default: true
       koth.rem:
         description: "Allows player to remove a arena."
         default: op
@@ -32,7 +35,7 @@ permissions:
       koth.setspawns:
         description: "Allows player to set spawn points for a arena."
         default: op
-      koth.setpoints:
+      koth.setpos:
         description: "Allows player to set points when setting up a new arena."
         default: op
       koth.info:

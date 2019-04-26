@@ -55,10 +55,6 @@ class CommandHandler{
 
     public function handleCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
         if($cmd->getName() == "koth"){
-            if (!$sender->hasPermission("koth")) {
-                $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
-                return true;
-            }
             /*if(!$sender instanceof Player){
                 $sender->sendMessage($this->prefix.C::RED."Commands can only be run in-game");
                 return true;
@@ -73,12 +69,13 @@ class CommandHandler{
                     $sender->sendMessage(C::GOLD."/koth help ".C::RESET."- Sends help :)");
                     $sender->sendMessage(C::GOLD."/koth credits ".C::RESET."- Display the credits.");
                     if($sender->hasPermission("koth.list")) $sender->sendMessage(C::GOLD."/koth list ".C::RESET."- List all arena's setup and ready to play !");
+                    if($sender->hasPermission("koth.info")) $sender->sendMessage(C::GOLD."/koth list ".C::RESET."- List all arena's setup and ready to play !");
                     if($sender->hasPermission("koth.join")) $sender->sendMessage(C::GOLD."/koth join (arena name)".C::RESET." - Join a game.");
                     if($sender->hasPermission("koth.leave")) $sender->sendMessage(C::GOLD."/koth leave ".C::RESET."- Leave a game you'r currently in.");
                     if($sender->hasPermission("koth.new")) $sender->sendMessage(C::GOLD."/koth new (arena name - no spaces) (min players) (max players) (gametime in seconds)".C::RESET." - Start the setup process of making a new arena.");
                     if($sender->hasPermission("koth.rem")) $sender->sendMessage(C::GOLD."/koth rem (arena name)".C::RESET." - Remove a area that has been setup.");
                     if($sender->hasPermission("koth.setspawns")) $sender->sendMessage(C::GOLD."/koth setspawn (arena name) ".C::RESET."- Set a spawn point for a arena.");
-                    if($sender->hasPermission("koth.setpoints")) $sender->sendMessage(C::GOLD."/koth setpoint1 (arena name) or /koth setpoint2 (arena name> ".C::RESET."- Set king area corner to corner.");
+                    if($sender->hasPermission("koth.setpos")) $sender->sendMessage(C::GOLD."/koth setpos1 (arena name) or /koth setpos2 (arena name> ".C::RESET."- Set king area corner to corner.");
                     if($sender->hasPermission("koth.addrewards")) $sender->sendMessage(C::GOLD."/koth addreward (arena name) (command eg. /give {PLAYER} 20 1)");
                     return true;
                 case 'credits':

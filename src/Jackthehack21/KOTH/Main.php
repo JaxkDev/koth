@@ -65,9 +65,11 @@ class Main extends PluginBase implements Listener{
     private $CommandHandler;
     private $EventHandler;
     private $configC;
+    private $messagesC;
     private $db;
 
     public $config;
+    public $messsages;
     public $prefix = C::YELLOW."[".C::AQUA."KOTH".C::YELLOW."] ".C::RESET;
 
     /** @var Utils */
