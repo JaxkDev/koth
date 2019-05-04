@@ -84,7 +84,7 @@ class SqliteProvider implements BaseProvider{
         $this->plugin->debug("Arena DB closed/unloaded.");
     }
 
-    public function save(): void{} //not needed, saved on execute.
+    public function save(): void{}
 
     public function createArena(Arena $arena) : void{
         $code = $this->db->prepare($this->createArenaCode);
@@ -109,7 +109,6 @@ class SqliteProvider implements BaseProvider{
         $code->bindValue(":rewards", $this->plugin->utils->stringifyArray($arena->rewards));
         $code->bindValue(":world", $arena->world);
         $code->execute();
-        //almost the exact same as create...
     }
 
     public function deleteArena(string $arena) : void{

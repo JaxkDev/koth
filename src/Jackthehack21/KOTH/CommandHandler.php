@@ -45,12 +45,10 @@ class CommandHandler{
 
     private $plugin;
     private $prefix;
-    private $particle;
 
     public function __construct(Main $plugin){
         $this->plugin = $plugin;
         $this->prefix = $plugin->prefix;
-        $this->particle = new FloatingText($this->plugin, $this->plugin->getServer()->getDefaultLevel(), $this->plugin->getServer()->getDefaultLevel()->getSpawnLocation()->asVector3(), "Test text\nNew Line\nNew Line", "Test Title");
     }
 
     public function handleCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
@@ -108,8 +106,7 @@ class CommandHandler{
                         $sender->sendMessage($this->prefix.C::RED."A arena with that name does not exist.");
                         return true;
                     }
-                    if($arena->getStatus() !== Arena::STATUS_READY and $arena->getStatus() !== Arena::STATUS_NOT_READY){
-                        //in middle of game.
+                    if($arena->started === true){
                         $sender->sendMessage($this->prefix.C::RED."That arena is currently running a game, when everyone has left the arena you can then remove it.");
                         return true;
                     }
@@ -123,7 +120,6 @@ class CommandHandler{
                         $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
                         return true;
                     }
-                    //todo config messages.
                     $this->createArena($sender, $args);
                     return true;
 
@@ -213,9 +209,17 @@ class CommandHandler{
                         $sender->sendMessage($this->prefix.C::RED."No arena with that name exists.");
                         return true;
                     }
+                    if($arena->timerTask !== null){
+                        //todo get better method of checking when timers started.
+                        $sender->sendMessage($this->prefix.C::RED."That arena has already started.");
+                        return true;
+                    }
+
+                    $arena->startTimer();
+                    $sender->sendMessage($this->prefix.C::GREEN."Arena countdown started.");
+                    return true;
 
                 //////-----Arena Setup------///////
-                /** @noinspection SpellCheckingInspection */
                 case 'setpos1':
                     //Set position one of the hill.
                     if(!$sender->hasPermission("koth.setpoints")){
@@ -250,7 +254,7 @@ class CommandHandler{
                         return true;
                     }
                     $pos = $sender->getPosition();
-                    $point = [$pos->x, $pos->y, $pos->z]; //get first to avoid split second movement *shrug*
+                    $point = [$pos->x, $pos->y, $pos->z];
                     if(count($args) !== 2){
                         $sender->sendMessage($this->prefix.C::RED."No arena specified, /koth setpos2 (arenaName)");
                         return true;
@@ -333,7 +337,6 @@ class CommandHandler{
         return false;
     }
 
-    //todo API class for all the functions below.
     private function listArenas(CommandSender $sender) : void{
         $list = $this->plugin->getAllArenas();
         if(count($list) === 0){
@@ -384,11 +387,11 @@ class CommandHandler{
         }
 
         if(!is_numeric($gameTime)){
-            $sender->sendMessage($this->prefix.C::RED."Game time has to be numeric.");
+            $sender->sendMessage($this->prefix.C::RED."Game time must be a number.");
             return;
         }
         if(intval($gameTime) < 5){
-            $sender->sendMessage($this->prefix.C::RED."Game time has to be above 5");
+            $sender->sendMessage($this->prefix.C::RED."Game time has to be above 5 seconds.");
             return;
         }
 

@@ -35,11 +35,9 @@ namespace Jackthehack21\KOTH\Providers;
 use Jackthehack21\KOTH\{Main,Arena};
 
 /*
-
 NOTES:
 - I know YAML is not a DataBase but it will still be a option (same with JSON)
-- Sqlite3 will be default as its the best.
-
+- Sqlite3 is default.
 */
 
 interface BaseProvider

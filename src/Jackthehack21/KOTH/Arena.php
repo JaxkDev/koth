@@ -238,6 +238,7 @@ class Arena{
     }
 
     public function updateNameTags() : void{
+        //this makes plugins that modify your tag based on things like health,lvl etc not work while in game.
         if($this->plugin->config["nametag_enabled"] === true){
             /** @noinspection PhpUndefinedMethodInspection */
             $format = $this->plugin->utils->colourise($this->plugin->config["nametag_format"]);
@@ -315,8 +316,6 @@ class Arena{
     }
 
     public function startTimer() : void{
-        //start pre timer.
-        //schedule repeating task, delay of 20ticks to do 1 second countdown.
         $this->timerTask = $this->plugin->getScheduler()->scheduleRepeatingTask(new Prestart($this->plugin, $this, $this->countDown),20);
     }
 
@@ -417,7 +416,7 @@ class Arena{
         $pos2["y"] = $this->hill[1][1];
         $pos2["z"] = $this->hill[1][2];
         $minX = min($pos2["x"],$pos1["x"]);
-        $maxX = max($pos2["x"],$pos1["x"]); //wtf how did i miss that *facepalm*
+        $maxX = max($pos2["x"],$pos1["x"]);
         $minY = min($pos2["y"],$pos1["y"]);
         $maxY = max($pos2["y"],$pos1["y"]);
         $minZ = min($pos2["z"],$pos1["z"]);
@@ -525,6 +524,7 @@ class Arena{
         $this->spawnPlayer($player);
         if(count($this->players) >= $this->minPlayers && $this->timerTask === null){
             $this->startTimer();
+            //todo config ^ (auto-start)
         }
         $this->checkStatus();
         return true;

@@ -50,8 +50,8 @@ use Jackthehack21\KOTH\Utils as PluginUtils;
  * [-] Priority: High, Add all messages into messages.yml (different file as there are many customisable messages.)
  * [ ] Priority: Medium, Move most functions to separate file (eg ArenaManager.php) less mess in here to tidy...
  * [ ] Priority: Medium, Move around functions, into more sub files (eg ^) and add all PHPDoc for functions and variables to stop these useless warnings *frown*
- * [ ] Priority: Medium, Add a custom(or JackMD's) Update virion. (most likely create my own to support BetaX and download links etc.)
- * [ ] Priority: Low, Look into different methods of having addons.
+ * [ ] Priority: Medium, Add a custom Update class/task.
+ * [X] Priority: Low, Look into different methods of having addons.
  * [ ] Priority: Low, Add the rest of the modern languages to help files. (update existing ones/commit the ones locally)
  */
 
@@ -228,11 +228,14 @@ class Main extends PluginBase implements Listener{
 
     /**
      * @param string $msg
+     * @return bool
      */
-    public function debug(string $msg) : void{
+    public function debug(string $msg) : bool{
         if($this->config["debug"] === true){
-            $this->getServer()->getLogger()->info(C::GRAY."[KOTH | DEBUG] : ".   $msg);
+            $this->getServer()->getLogger()->info(str_replace("{MSG}",$msg,$this->utils->colourise($this->messages["debug_format"])));
+            return true;
         }
+        return false;
     }
 
     /**
@@ -245,10 +248,13 @@ class Main extends PluginBase implements Listener{
 
     /**
      * @param Arena $arena
+     * @return bool
      */
-    public function newArena(Arena $arena){
+    public function newArena(Arena $arena) : bool{
+        if($this->getArenaByName($arena->getName()) !== null) return false;
         $this->arenas[] = $arena;
         $this->db->createArena($arena);
+        return true;
     }
 
     /**
@@ -276,15 +282,13 @@ class Main extends PluginBase implements Listener{
     }
 
     /**
-	 * NOTE: This only matches by their lowercase name.
-	 *
 	 * @param string $name
 	 *
 	 * @return Arena|null
 	 */
     public function getArenaByPlayer(string $name){
         foreach($this->arenas as $arena){
-            if(in_array($name, $arena->players)){
+            if(in_array(strtolower($name), $arena->players)){
                 return $arena;
             }
         }
@@ -292,8 +296,6 @@ class Main extends PluginBase implements Listener{
     }
 
     /**
-     * NOTE: This only matches by their lowercase name.
-     *
      * @param string $name
      *
      * @return Arena|null
