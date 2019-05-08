@@ -32,6 +32,7 @@
 declare(strict_types=1);
 namespace Jackthehack21\KOTH;
 
+use Jackthehack21\KOTH\Particles\FloatingText;
 use Jackthehack21\KOTH\Tasks\Prestart;
 use Jackthehack21\KOTH\Tasks\Gametimer;
 
@@ -72,12 +73,12 @@ class Arena{
     ];
 
     private $plugin;
-    public $spawns = []; //[[12,50,10],[],[],[]] list of spawn points.
+    public $spawns = [];
     public $spawnCounter;
-    public $hill = []; //[[20,20],[30,20]] two points corner to corner. (X,Z) no y.
-    public $players = []; //list of all players currently in-game. (lowercase names)
-    public $playerOldPositions = []; //["world name",x,y,z] List of where players joined from to TP back to after finish.
-    public $playerOldNameTags = []; //todo better method
+    public $hill = [];
+    public $players = [];
+    public $playerOldPositions = [];
+    public $playerOldNameTags = [];
     public $minPlayers;
     public $maxPlayers;
     public $name;
@@ -293,15 +294,15 @@ class Arena{
     public function getSpawn(bool $random = false) : Position{
         if($random === false){
             if($this->spawnCounter >= count($this->spawns)){
-                $this->spawnCounter = 0; //reset
+                $this->spawnCounter = 0;
             }
             $old = $this->spawns[$this->spawnCounter];
-            $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getLevelByName($this->world)); //x,y,z,level;
+            $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getLevelByName($this->world));
             $this->spawnCounter++;
             return $pos;
         } else {
-            $old = $this->spawns[array_rand($this->spawns)]; //returns index not value :/
-            $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getLevelByName($this->world)); //x,y,z,level;
+            $old = $this->spawns[array_rand($this->spawns)];
+            $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getLevelByName($this->world));
             return $pos;
         }
     }
@@ -388,7 +389,7 @@ class Arena{
         foreach($this->rewards as $reward){
             $reward = str_replace("{PLAYER}", $king, $reward);
             if($this->plugin->getServer()->getCommandMap()->dispatch($console, $reward) === false){
-                $this->plugin->getLogger()->warning("Reward failed to execute. (".$reward.")");
+                $this->plugin->getLogger()->warning("Reward/command (".$reward.") failed to execute.");
             };
 
         }
@@ -440,8 +441,6 @@ class Arena{
         if($this->king === null) return;
         $this->broadcastMessage($this->plugin->prefix.C::RED."The king has fallen.");
         //todo config.
-        $this->oldKing = $this->king;
-        $this->king = null;
         $this->changeking();
     }
 
@@ -451,10 +450,6 @@ class Arena{
             $this->king = null;
         }
         $this->updateKingTextParticle();
-        if($this->checkNewKing() === false){
-            $this->broadcastMessage($this->plugin->prefix.C::GOLD."No one has claimed the throne, who will be king of the hill...");
-            return;
-        }
     }
 
     /**
@@ -468,7 +463,6 @@ class Arena{
             $this->broadcastMessage($this->plugin->prefix.C::GOLD.$player.C::GREEN." Has claimed the throne, how long will it last...");
             $this->king = $player;
             $this->updateKingTextParticle();
-            //todo update HUD etc.
             return true;
         }
     }
@@ -522,7 +516,7 @@ class Arena{
         $this->playerOldPositions[strtolower($player->getName())] = [$player->getLevel()->getName(),$player->getX(), $player->getY(), $player->getZ()];
         $this->broadcastJoin($player);
         $this->spawnPlayer($player);
-        if(count($this->players) >= $this->minPlayers && $this->timerTask === null){
+        if(count($this->players) >= $this->minPlayers && $this->timerTask === null && $this->plugin->config["auto-start"]){
             $this->startTimer();
             //todo config ^ (auto-start)
         }

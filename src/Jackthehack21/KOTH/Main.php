@@ -34,9 +34,12 @@
 declare(strict_types=1);
 namespace Jackthehack21\KOTH;
 
+use Jackthehack21\KOTH\Events\ArenaCreateEvent;
+use Jackthehack21\KOTH\Extensions\ExtensionManager;
 use Jackthehack21\KOTH\Providers\BaseProvider;
 use Jackthehack21\KOTH\Providers\SqliteProvider;
 use Jackthehack21\KOTH\Providers\YamlProvider;
+use Jackthehack21\KOTH\Tasks\ExtensionTask;
 use pocketmine\utils\Config;
 use pocketmine\event\Listener;
 use pocketmine\command\Command;
@@ -48,10 +51,10 @@ use Jackthehack21\KOTH\Utils as PluginUtils;
 
 /*
  * [-] Priority: High, Add all messages into messages.yml (different file as there are many customisable messages.)
+ * [-] Priority: Medium, Add base events and begin using them.
  * [ ] Priority: Medium, Move most functions to separate file (eg ArenaManager.php) less mess in here to tidy...
  * [ ] Priority: Medium, Move around functions, into more sub files (eg ^) and add all PHPDoc for functions and variables to stop these useless warnings *frown*
  * [ ] Priority: Medium, Add a custom Update class/task.
- * [X] Priority: Low, Look into different methods of having addons.
  * [ ] Priority: Low, Add the rest of the modern languages to help files. (update existing ones/commit the ones locally)
  */
 
@@ -59,6 +62,8 @@ class Main extends PluginBase implements Listener{
 
     private static $instance;
 
+    public const API = "1.0.0";
+    //Note to self, X.Y.Z Bumping X will break all extensions, Y adds things but keep old things (deprecated), Z simply patches things.
     public const ARENA_VER = 2;
     public const CONFIG_VER = 1;
 
@@ -77,15 +82,21 @@ class Main extends PluginBase implements Listener{
     /** @var Utils */
     public $utils;
 
+    /**
+     * @var ExtensionManager
+     */
+    public $ExtensionManager;
+
     private function init() : void{
+        $this->ExtensionManager = new ExtensionManager($this);
         $this->CommandHandler = new CommandHandler($this);
         $this->EventHandler = new EventHandler($this);
         $this->utils = new PluginUtils($this);
-        //todo addon manager.
 
         $this->arenas = [];
         $this->loadArenas();
 
+        $this->getScheduler()->scheduleTask(new ExtensionTask($this));
         $this->getServer()->getPluginManager()->registerEvents($this->EventHandler, $this);
     }
 
@@ -105,11 +116,12 @@ class Main extends PluginBase implements Listener{
             if(!isset($this->config["prevent_place"])) $this->config["prevent_place"] = true;
             if(!isset($this->config["prevent_break"])) $this->config["prevent_break"] = true;
             if(!isset($this->config["prevent_gamemode_change"])) $this->config["prevent_gamemode_change"] = true;
+            if(!isset($this->config["keep_inventory"])) $this->config["keep_inventory"] = true;
             $this->config["version"] = $this::CONFIG_VER;
             $this->saveConfig();
         }
 
-        $languages = array("eng");
+        $languages = array("eng"); //todo get files in dir and parse to get available langs.
         $language = "eng";
         if (in_array($this->config["language"], $languages) !== false) {
             $language = $this->config["language"];
@@ -251,7 +263,6 @@ class Main extends PluginBase implements Listener{
      * @return bool
      */
     public function newArena(Arena $arena) : bool{
-        if($this->getArenaByName($arena->getName()) !== null) return false;
         $this->arenas[] = $arena;
         $this->db->createArena($arena);
         return true;

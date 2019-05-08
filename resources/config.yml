@@ -15,13 +15,11 @@ prevent_place: true
 prevent_break: true
 prevent_gamemode_change: true
 
+auto_start: true
 start_countdown: 10
 
 KingTextParticles: true
 
 nametag_enabled: true
 nametag_format: "{RED}[ {GREEN}KING {RED}]"
-
-#Todo add all messages before Beta2 release.
-#Possibly the broadcast as well.
 ...

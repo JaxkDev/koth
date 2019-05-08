@@ -30,52 +30,31 @@
 */
 
 declare(strict_types=1);
-namespace Jackthehack21\KOTH;
+namespace Jackthehack21\KOTH\Tasks;
 
-use pocketmine\level\Level;
-use pocketmine\math\Vector3;
-use pocketmine\level\particle\FloatingTextParticle;
+use pocketmine\scheduler\Task;
 
-class FloatingText extends FloatingTextParticle {
+use Jackthehack21\KOTH\Main;
+
+class ExtensionTask extends Task{
 
     private $plugin;
-    private $level;
-    private $position;
 
-    public function __construct(Main $plugin, Level $level, Vector3 $position, string $text, string $title = "")
-    {
-        parent::__construct($position, $text, $title);
+
+    /**
+     * Gametimer constructor.
+     * @param Main $plugin
+     */
+    public function __construct(Main $plugin){
         $this->plugin = $plugin;
-        $this->level = $level;
-        $this->position = $position;
     }
 
     /**
-     * @param string $text
+     * @param int $tick
      */
-    public function setText(string $text) : void{
-        $this->text = $text;
-        $this->update();
+    public function onRun(int $tick){
+        //load extensions.
+        $this->plugin->ExtensionManager->loadExtensions();
+        $this->plugin->ExtensionManager->enableExtensions();
     }
-
-    /**
-     * @param string $title
-     */
-    public function setTitle(string $title) : void{
-        $this->title = $title;
-        $this->update();
-    }
-
-    /**
-     * @param bool $value
-     */
-    public function setInvisible(bool $value = true) : void{
-        $this->invisible = $value;
-        $this->update();
-    }
-
-    public function update() : void{
-        $this->level->addParticle($this);
-    }
-
 }

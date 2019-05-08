@@ -8,4 +8,9 @@ arenas_loaded: "{AMOUNT} Arena(s) loaded."
 
 no_perms: "{RED}You do not have permission to use this command!"
 in_game: "{RED}Commands can only be run in-game."
+
+bcast_winner: "{GOLD}{PLAYER} Has won the game."
+bcast_nowinner: "{RED}GAME OVER, No one managed to claim the hill and win the game. Better luck next time."
+bcast_fallenking: "{RED}The king has fallen."
+bcast_newking: "{GOLD}{PLAYER} {GREEN}Has claimed the throne, how long will it last..."
 ...

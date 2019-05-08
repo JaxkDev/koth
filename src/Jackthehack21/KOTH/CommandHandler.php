@@ -36,6 +36,7 @@
 declare(strict_types=1);
 namespace Jackthehack21\KOTH;
 
+use Jackthehack21\KOTH\Events\ArenaCreateEvent;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 
@@ -110,6 +111,7 @@ class CommandHandler{
                         $sender->sendMessage($this->prefix.C::RED."That arena is currently running a game, when everyone has left the arena you can then remove it.");
                         return true;
                     }
+
                     $this->plugin->removeArena($arena);
                     $sender->sendMessage($this->prefix.C::GREEN."Arena removed.");
                     return true;
@@ -130,12 +132,12 @@ class CommandHandler{
                         $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
                         return true;
                     }
-                    $arena = $this->plugin->getArenaByPlayer($sender->getLowerCaseName());
+                    $arena = $this->plugin->getArenaByPlayer(strtolower($sender->getName()));
                     if($arena === null){
                         $sender->sendMessage($this->prefix.C::RED."You're not in a game. So how can you leave ?");
                         return true;
                     }
-                    //todo config messages.
+                    //todo config messages. b
                     $arena->removePlayer($sender, "Chickened out.");
                     return true;
 
@@ -194,6 +196,7 @@ class CommandHandler{
                     }
                     return true;
 
+                case 'start': //todo
                 case 'forcestart':
                     if(!$sender->hasPermission("koth.forcestart")){
                         $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
@@ -395,9 +398,30 @@ class CommandHandler{
             return;
         }
 
+        if($this->plugin->getArenaByName($name) !== null){
+            $sender->sendMessage($this->prefix.C::RED."A arena with that name already exists.");
+            return;
+        }
+
+        $event = new ArenaCreateEvent($this->plugin, $sender, $name, intval($min), intval($max), intval($gameTime));
+        try {
+            $event->call();
+        } catch (\ReflectionException $e) {
+            $sender->sendMessage($this->prefix.C::RED."Event failed to execute, Arena not created.");
+            return;
+        }
+
+        if($event->isCancelled()){
+            $sender->sendMessage($this->prefix.C::RED."Arena not created, reason: Event Cancelled"); //todo configurable msg's
+            return;
+        }
+
         //create arena
-        $arena = new Arena($this->plugin, $name, intval($min), intval($max), intval($gameTime), [], [], [], "null");
+        $arena = new Arena($this->plugin, $event->getName(), $event->getMinPlayers(), $event->getMaxPlayers(), $event->getGameTime(), $event->getHillPositions(), $event->getSpawnPositions(), $event->getRewards(), $event->getWorld());
         $result = $this->plugin->newArena($arena);
+
+        //todo method to change the below.
+
         if($result === false){
             $sender->sendMessage($this->prefix.C::RED."Failed to create arena, sorry.");
             return;

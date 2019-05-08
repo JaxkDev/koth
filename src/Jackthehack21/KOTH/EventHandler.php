@@ -33,8 +33,6 @@
 declare(strict_types=1);
 namespace Jackthehack21\KOTH;
 
-
-
 use pocketmine\event\Listener;
 use pocketmine\event\block\{BlockBreakEvent, BlockPlaceEvent};;
 //use pocketmine\event\entity\EntityLevelChangeEvent;

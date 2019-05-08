@@ -44,21 +44,4 @@ class Utils{
             $msg
         );
     }
-
-    /**
-     * @param array $data
-     * @return string
-     */
-    public function stringifyArray(array $data) : string{
-        return json_encode($data);
-        //pretty pointless i guess.
-    }
-
-    /**
-     * @param string $data
-     * @return array
-     */
-    public function parseArray(string $data) : array{
-        return json_decode($data,true);
-    }
 }
