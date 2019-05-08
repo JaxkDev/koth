@@ -137,7 +137,7 @@ class CommandHandler{
                         $sender->sendMessage($this->prefix.C::RED."You're not in a game. So how can you leave ?");
                         return true;
                     }
-                    //todo config messages. b
+                    //todo config messages.
                     $arena->removePlayer($sender, "Chickened out.");
                     return true;
 

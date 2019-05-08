@@ -35,38 +35,15 @@ namespace Jackthehack21\KOTH\Extensions;
 use Jackthehack21\KOTH\Main;
 use pocketmine\Server;
 
-abstract class BaseExtension implements Extension
+interface Extension
 {
+    public function __construct(Main $plugin, string $name, string $author, string $version, string $api, array $plugin_depends = [], array $ext_depends = []);
 
-    /** @var Main */
-    public $plugin;
+    public function getExtensionData() : ExtensionData;
 
-    /** @var ExtensionData */
-    private $extensionData;
+    public function onLoad() : bool;
+    public function onEnable() : bool;
+    public function onDisable() : bool;
 
-    public function __construct(Main $plugin, $name, $author, $version, $api, $plugin_depends = [], $ext_depends = []){
-        $this->plugin = $plugin;
-        $this->extensionData = new ExtensionData($this, $name, $author, $version, $api, $plugin_depends, $ext_depends);
-    }
-
-    public function getExtensionData(): ExtensionData
-    {
-        return $this->extensionData;
-    }
-
-    public function onLoad() : bool{
-        return false;
-    }
-
-    public function onEnable() : bool{
-        return false;
-    }
-
-    public function onDisable() : bool{
-        return false;
-    }
-
-    public function getServer() : Server{
-        return $this->plugin->getServer();
-    }
+    public function getServer() : Server;
 }
