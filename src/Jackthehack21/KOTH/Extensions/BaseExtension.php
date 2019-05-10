@@ -33,23 +33,31 @@ declare(strict_types=1);
 namespace Jackthehack21\KOTH\Extensions;
 
 use Jackthehack21\KOTH\Main;
+use pocketmine\event\Listener;
 use pocketmine\Server;
 
-abstract class BaseExtension implements Extension
+abstract class BaseExtension implements Extension, Listener
 {
 
     /** @var Main */
     public $plugin;
 
-    /** @var ExtensionData */
+    /** @var ExtensionData|null */
     private $extensionData;
 
-    public function __construct(Main $plugin, $name, $author, $version, $api, $plugin_depends = [], $ext_depends = []){
+    public function __construct(Main $plugin){
         $this->plugin = $plugin;
+    }
+
+    public function setExtensionData(string $name, string $author, string $version, string $api, array $plugin_depends = [], array $ext_depends = []): void
+    {
         $this->extensionData = new ExtensionData($this, $name, $author, $version, $api, $plugin_depends, $ext_depends);
     }
 
-    public function getExtensionData(): ExtensionData
+    /**
+     * @return ExtensionData|null
+     */
+    public function getExtensionData()
     {
         return $this->extensionData;
     }

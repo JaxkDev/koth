@@ -34,7 +34,6 @@
 declare(strict_types=1);
 namespace Jackthehack21\KOTH;
 
-use Jackthehack21\KOTH\Events\ArenaCreateEvent;
 use Jackthehack21\KOTH\Extensions\ExtensionManager;
 use Jackthehack21\KOTH\Providers\BaseProvider;
 use Jackthehack21\KOTH\Providers\SqliteProvider;
@@ -117,6 +116,7 @@ class Main extends PluginBase implements Listener{
             if(!isset($this->config["prevent_break"])) $this->config["prevent_break"] = true;
             if(!isset($this->config["prevent_gamemode_change"])) $this->config["prevent_gamemode_change"] = true;
             if(!isset($this->config["keep_inventory"])) $this->config["keep_inventory"] = true;
+            if(!isset($this->config["allow_unknown_extensions"])) $this->config["allow_unknown_extensions"] = false;
             $this->config["version"] = $this::CONFIG_VER;
             $this->saveConfig();
         }

@@ -41,8 +41,9 @@ class ExtensionManager
 
     public $prefix = "[Extensions] : ";
 
-    /** @var BaseExtension[] */
+    /** @var array[]|BaseExtension[][]|int[][] */
     private $extensions = [];
+    // [0 => [BaseExtension,0]]; arg 1 (0) is its status, so 0-disabled,1-loaded,2-enabled,3-unknown.
 
     public function __construct(Main $plugin)
     {
@@ -50,35 +51,78 @@ class ExtensionManager
     }
 
     /**
-     * @return bool
+     * @param bool $allowUnknown
      */
-    public function loadExtensions() : bool{
-        $this->plugin->debug($this->prefix."Loading Extensions...");
-        //todo filter through files in dir and verify them.
-        //todo call load on all extensions.
+    public function loadExtensions(bool $allowUnknown = false) : void{
+        $this->plugin->debug($this->prefix."Loading ".($allowUnknown ? "all":"only verified")." extensions...");
+        @mkdir($this->plugin->getDataFolder()."extensions");
+        $count = 0;
+        if($allowUnknown === false) {
+            if(file_exists($this->plugin->getDataFolder()."extensions/manifest.json")){
+                $this->plugin->debug($this->prefix."Loading manifest...");
+                $manifest = json_decode(file_get_contents($this->plugin->getDataFolder()."extensions/manifest.json"), true);
+                var_dump($manifest); // print array
+            }
+        } else {
+            $content = scandir($this->plugin->getDataFolder()."extensions/");
+            for($i = 0; $i < count($content); $i++){
+                if(substr($content[$i], -4) === ".php"){
+                    $name = rtrim($content[$i],".php");
+                    $path = $this->plugin->getDataFolder()."extensions/${name}";
+                    $namespace = "Jackthehack21\\KOTH\\Extensions\\${name}";
+
+                    /** @noinspection PhpIncludeInspection */
+                    include_once $path.".php";
+
+                    if(!is_a($namespace,  BaseExtension::class, true)){
+                        $this->plugin->debug($this->prefix."Failed to load extension '${name}' as class is not valid/found.");
+                        continue;
+                    }
+
+                    $this->extensions[] = [new $namespace($this->plugin), 0];
+                    $this->plugin->debug($this->prefix."Extension '${name}' added to extensions list.");
+                }
+            }
+        }
+
+        for($i = 0; $i < count($this->extensions); $i++){
+            if($this->extensions[$i][0]->onLoad() === false){
+                $this->plugin->debug($this->prefix."Extension '".$this->extensions[$i][0]->getExtensionData()->getName()."' failed to load.");
+                $this->extensions[$i][1] = 0;
+            } else {
+                $this->plugin->debug($this->prefix."Extension '".$this->extensions[$i][0]->getExtensionData()->getName()."' loaded.");
+                $this->extensions[$i][1] = 1;
+                $count++;
+            }
+        }
         //todo in way future order of load.
-        $this->plugin->debug($this->prefix."Successfully loaded the following extensions: TODO, list of extensions that were loaded successfully.");
-        return true;
+
+        $this->plugin->debug($this->prefix."Successfully loaded ".$count." extensions.");
+        return;
     }
 
-    /**
-     * @return bool
-     */
-    public function enableExtensions() : bool{
+    public function enableExtensions() : void{
         $this->plugin->debug($this->prefix."Enabling Extensions...");
-        //todo call enable on all extensions.
-        //todo register events etc.
-        $this->plugin->debug($this->prefix."Extensions now enabled: TODO LIST");
-        return true;
+        $count = 0;
+        for($i = 0; $i < count($this->extensions); $i++){
+            if(!$this->extensions[$i][0]->onEnable()){
+                $this->plugin->debug($this->prefix."Extension '".$this->extensions[$i][0]->getExtensionData()->getName()."' failed to enable.");
+                $this->extensions[$i][1] = 0;
+            } else {
+                $this->plugin->debug($this->prefix."Extension '".$this->extensions[$i][0]->getExtensionData()->getName()."' Enabled.");
+                $this->extensions[$i][1] = 2;
+                $count++;
+            }
+        }
+        $this->extensions = array_values($this->extensions); //reset index's
+        $this->plugin->debug($this->prefix."Successfully enabled ".$count." extensions.");
+        return;
     }
 
-    /**
-     * @return bool
-     */
-    public function disableExtensions() : bool{
+    public function disableExtensions() : void{
         $this->plugin->debug($this->prefix."Disabling Extensions...");
         //todo call disable on all extensions.
         $this->plugin->debug($this->prefix."All extensions now disabled.");
-        return true;
+        return;
     }
 }

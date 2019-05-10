@@ -37,9 +37,10 @@ use pocketmine\Server;
 
 interface Extension
 {
-    public function __construct(Main $plugin, string $name, string $author, string $version, string $api, array $plugin_depends = [], array $ext_depends = []);
+    public function __construct(Main $plugin);
 
-    public function getExtensionData() : ExtensionData;
+    public function setExtensionData(string $name, string $author, string $version, string $api, array $plugin_depends = [], array $ext_depends = []) : void;
+    public function getExtensionData();
 
     public function onLoad() : bool;
     public function onEnable() : bool;

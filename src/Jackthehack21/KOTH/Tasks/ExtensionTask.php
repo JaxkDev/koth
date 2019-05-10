@@ -53,8 +53,7 @@ class ExtensionTask extends Task{
      * @param int $tick
      */
     public function onRun(int $tick){
-        //load extensions.
-        $this->plugin->ExtensionManager->loadExtensions();
+        $this->plugin->ExtensionManager->loadExtensions($this->plugin->config["allow_unknown_extensions"]);
         $this->plugin->ExtensionManager->enableExtensions();
     }
 }
