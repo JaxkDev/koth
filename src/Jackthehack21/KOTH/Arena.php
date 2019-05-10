@@ -36,6 +36,7 @@ use Jackthehack21\KOTH\Particles\FloatingText;
 use Jackthehack21\KOTH\Tasks\Prestart;
 use Jackthehack21\KOTH\Tasks\Gametimer;
 
+use pocketmine\command\CommandSender;
 use pocketmine\command\ConsoleCommandSender;
 use pocketmine\Player;
 use pocketmine\math\Vector3;
@@ -469,7 +470,7 @@ class Arena{
 
 
     /**
-     * @param Player $player
+     * @param Player|CommandSender $player
      * @param string $reason
      * @param bool   $silent
      * 
@@ -492,7 +493,7 @@ class Arena{
     /**
      * NOTE: Returns false if player cannot join.
      * 
-     * @param Player $player
+     * @param Player|CommandSender $player
      * 
      * @return bool
      */

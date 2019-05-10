@@ -38,7 +38,9 @@ use Jackthehack21\KOTH\Extensions\ExtensionManager;
 use Jackthehack21\KOTH\Providers\BaseProvider;
 use Jackthehack21\KOTH\Providers\SqliteProvider;
 use Jackthehack21\KOTH\Providers\YamlProvider;
-use Jackthehack21\KOTH\Tasks\ExtensionTask;
+use Jackthehack21\KOTH\Tasks\ExtensionStartTask;
+use Jackthehack21\KOTH\Utils as PluginUtils;
+
 use pocketmine\utils\Config;
 use pocketmine\event\Listener;
 use pocketmine\command\Command;
@@ -46,11 +48,9 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat as C;
 
-use Jackthehack21\KOTH\Utils as PluginUtils;
-
 /*
  * [-] Priority: High, Add all messages into messages.yml (different file as there are many customisable messages.)
- * [-] Priority: Medium, Add base events and begin using them.
+ * [X] Priority: Medium, Add base events and begin using them.
  * [ ] Priority: Medium, Move most functions to separate file (eg ArenaManager.php) less mess in here to tidy...
  * [ ] Priority: Medium, Move around functions, into more sub files (eg ^) and add all PHPDoc for functions and variables to stop these useless warnings *frown*
  * [ ] Priority: Medium, Add a custom Update class/task.
@@ -95,7 +95,7 @@ class Main extends PluginBase implements Listener{
         $this->arenas = [];
         $this->loadArenas();
 
-        $this->getScheduler()->scheduleTask(new ExtensionTask($this));
+        $this->getScheduler()->scheduleTask(new ExtensionStartTask($this));
         $this->getServer()->getPluginManager()->registerEvents($this->EventHandler, $this);
     }
 
@@ -173,6 +173,7 @@ class Main extends PluginBase implements Listener{
 
     public function onDisable()
     {
+        $this->ExtensionManager->disableExtensions();
         $this->updateAllArenas();
         $this->saveConfig();
         $this->db->close();

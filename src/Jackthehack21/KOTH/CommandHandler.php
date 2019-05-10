@@ -41,6 +41,7 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 
 use pocketmine\utils\TextFormat as C;
+use ReflectionException;
 
 class CommandHandler{
 
@@ -229,6 +230,7 @@ class CommandHandler{
                         $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
                         return true;
                     }
+                    /** @noinspection PhpUndefinedMethodInspection */
                     $pos = $sender->getPosition();
                     $point = [$pos->x, $pos->y, $pos->z]; //get first to avoid split second movement *shrug*
                     if(count($args) !== 2){
@@ -245,17 +247,18 @@ class CommandHandler{
                         return true;
                     }
                     $arena->hill[] = $point;
+                    /** @noinspection PhpUndefinedMethodInspection */
                     $arena->world = $sender->getLevel()->getName();
                     $sender->sendMessage($this->prefix.C::GREEN."Position 1 set, be sure to do /koth setpos2 ".$arena->getName());
                     return true;
 
-                /** @noinspection SpellCheckingInspection */
                 case 'setpos2':
                     //Set position two of the hill.
                     if(!$sender->hasPermission("koth.setpoints")){
                         $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
                         return true;
                     }
+                    /** @noinspection PhpUndefinedMethodInspection */
                     $pos = $sender->getPosition();
                     $point = [$pos->x, $pos->y, $pos->z];
                     if(count($args) !== 2){
@@ -280,13 +283,13 @@ class CommandHandler{
                     $sender->sendMessage($this->prefix.C::GREEN."Position 2 set, be sure to setup some spawn point '/koth setspawn ".$arena->getName());
                     return true;
 
-                /** @noinspection SpellCheckingInspection */
                 case 'setspawn':
                     //Set a spawn position
                     if(!$sender->hasPermission("koth.setspawns")){
                         $sender->sendMessage($this->prefix.C::RED ."You do not have permission to use this command!");
                         return true;
                     }
+                    /** @noinspection PhpUndefinedMethodInspection */
                     $pos = $sender->getPosition();
                     $point = [$pos->x, $pos->y, $pos->z]; //get first to avoid split second movement *shrug*
                     if(count($args) !== 2){
@@ -406,7 +409,7 @@ class CommandHandler{
         $event = new ArenaCreateEvent($this->plugin, $sender, $name, intval($min), intval($max), intval($gameTime));
         try {
             $event->call();
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException $e) {
             $sender->sendMessage($this->prefix.C::RED."Event failed to execute, Arena not created.");
             return;
         }

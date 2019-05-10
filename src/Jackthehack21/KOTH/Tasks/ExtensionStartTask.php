@@ -36,7 +36,7 @@ use pocketmine\scheduler\Task;
 
 use Jackthehack21\KOTH\Main;
 
-class ExtensionTask extends Task{
+class ExtensionStartTask extends Task{
 
     private $plugin;
 
