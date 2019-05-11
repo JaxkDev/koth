@@ -60,6 +60,7 @@ class ExtensionDownloadTask extends AsyncTask
 
         $ch = curl_init($this->url);
         curl_setopt($ch, CURLOPT_FILE, $fp);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_TIMEOUT, 60); //your internet is crap if it cant handle a couple of kb in a min.
         curl_exec($ch);
 
@@ -83,7 +84,7 @@ class ExtensionDownloadTask extends AsyncTask
         $result = $this->getResult();
         if($result["error"] !== ""){
             $path = $this->url;
-            $plugin->debug("[Download Task] : Failed to get url '${$path}' message > ".$result["error"]);
+            $plugin->debug("[Download Task] : Failed to get url '${path}' message > ".$result["error"]);
         }
         $plugin->ExtensionManager->handleDownloaded($this->fileName);
     }

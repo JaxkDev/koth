@@ -33,8 +33,10 @@ declare(strict_types=1);
 namespace Jackthehack21\KOTH\Extensions;
 
 use Jackthehack21\KOTH\Main;
+use Jackthehack21\KOTH\Tasks\ExtensionDownloadTask;
 use Jackthehack21\KOTH\Tasks\ExtensionReleasesTask;
 use pocketmine\command\CommandSender;
+use pocketmine\utils\TextFormat as C;
 use Throwable;
 
 class ExtensionManager
@@ -73,6 +75,28 @@ class ExtensionManager
     }
 
     public function handleCommand(CommandSender $sender, array $args) : bool{
+        array_shift($args);
+        if(count($args) === 0){
+            $sender->sendMessage(C::RED."Unknown command, try /koth extensions help");
+            return true;
+        }
+        switch ($args[0]){
+            case '?':
+            case 'help':
+                $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." Extensions Help".C::YELLOW."]");
+                $sender->sendMessage(C::RED." ----- Coming soon -----");
+                $sender->sendMessage(C::GOLD."/koth extensions help ".C::RESET."- Sends extensions help.");
+                $sender->sendMessage(C::GOLD."/koth extensions list ".C::RESET."- Sends list of extensions and their status.");
+                $sender->sendMessage(C::GOLD."/koth extensions search (extension name) ".C::RESET."- Search our official repo for verified extensions.");
+                $sender->sendMessage(C::GOLD."/koth extensions install (extension name) ".C::RESET."- Install a verified extension from our repo.");
+                $sender->sendMessage(C::GOLD."/koth extensions uninstall (extension name) ".C::RESET."- Uninstall a extension (deleting it from disk)");
+                return true;
+            case 'test':
+                $sender->sendMessage(C::GOLD."Downloading demo. (check console for info)");
+                $this->plugin->getServer()->getAsyncPool()->submitTask(new ExtensionDownloadTask("https://raw.githubusercontent.com/jackthehack21/koth-extensions/master/Example.php","Example.php",$this->plugin->getDataFolder()."extensions/Example.php"));
+                return true;
+        }
+        $sender->sendMessage(C::RED."Unknown command, try /koth extensions help");
         return true;
     }
 
