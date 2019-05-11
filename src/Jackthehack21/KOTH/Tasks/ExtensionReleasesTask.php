@@ -87,6 +87,6 @@ class ExtensionReleasesTask extends AsyncTask
             return;
         }
         $plugin->debug("[Releases Task] : Success, received the following data ${data}");
-        $plugin->ExtensionManager->updateExtensionReleases($dataJ);
+        $plugin->ExtensionManager->setExtensionReleases($dataJ);
     }
 }

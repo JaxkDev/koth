@@ -44,7 +44,7 @@ interface Extension
 
     public function onLoad() : bool;
     public function onEnable() : bool;
-    public function onDisable() : bool;
+    public function onDisable() : void;
 
     public function getServer() : Server;
 }

@@ -52,7 +52,7 @@ abstract class BaseExtension implements Extension, Listener
     public function setExtensionData(string $name, string $author, string $version, string $api, array $plugin_depends = [], array $ext_depends = []): void
     {
         $this->extensionData = new ExtensionData($this, $name, $author, $version, $api, $plugin_depends, $ext_depends);
-    }
+    } //todo look at https://github.com/pmmp/PocketMine-MP/blob/3.8.0/src/pocketmine/plugin/ScriptPluginLoader.php#L63
 
     /**
      * @return ExtensionData|null
@@ -70,8 +70,8 @@ abstract class BaseExtension implements Extension, Listener
         return false;
     }
 
-    public function onDisable() : bool{
-        return false;
+    public function onDisable() : void{
+        return;
     }
 
     public function getServer() : Server{

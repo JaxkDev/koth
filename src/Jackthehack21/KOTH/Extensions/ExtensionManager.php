@@ -34,6 +34,8 @@ namespace Jackthehack21\KOTH\Extensions;
 
 use Jackthehack21\KOTH\Main;
 use Jackthehack21\KOTH\Tasks\ExtensionReleasesTask;
+use pocketmine\command\CommandSender;
+use Throwable;
 
 class ExtensionManager
 {
@@ -55,11 +57,23 @@ class ExtensionManager
     }
 
     /**
+     * @return array
+     */
+    public function getExtensionReleases(): array
+    {
+        return $this->extensionReleases;
+    }
+
+    /**
      * @param array $data
      */
-    public function updateExtensionReleases(array $data): void
+    public function setExtensionReleases(array $data): void
     {
         $this->extensionReleases = $data;
+    }
+
+    public function handleCommand(CommandSender $sender, array $args) : bool{
+        return true;
     }
 
     /**
@@ -94,37 +108,55 @@ class ExtensionManager
             $path = $this->plugin->getDataFolder() . "extensions/${name}";
             $namespace = "Jackthehack21\\KOTH\\Extensions\\${name}";
 
-            if($mustBeVerified) {
-                if(!file_exists($this->plugin->getDataFolder()."extensions/manifest.json")) return false;
-                $manifest = json_decode(file_get_contents($this->plugin->getDataFolder() . "extensions/manifest.json"), true);
-                if ($manifest === null) {
-                    $this->plugin->debug($this->prefix . "manifest.json for extensions is corrupt, file is deleted now but all installed extensions via /koth extensions will have to be re-installed, or in config.yml set allow_unknown_extensions to true.");
-                    unlink($this->plugin->getDataFolder() . "extensions/manifest.json");
+            try{
+
+                if($mustBeVerified) {
+                    if(!file_exists($this->plugin->getDataFolder()."extensions/manifest.json")) return false;
+                    $manifest = json_decode(file_get_contents($this->plugin->getDataFolder() . "extensions/manifest.json"), true);
+                    if ($manifest === null) {
+                        $this->plugin->debug($this->prefix . "manifest.json for extensions is corrupt, file is deleted now but all installed extensions via /koth extensions will have to be re-installed, or in config.yml set allow_unknown_extensions to true.");
+                        unlink($this->plugin->getDataFolder() . "extensions/manifest.json");
+                        return false;
+                    }
+
+                    if (!in_array($name, $manifest["verified_extensions"])) {
+                        return false;
+                    }
+                }
+
+                /** @noinspection PhpIncludeInspection */
+                include_once $path . ".php";
+
+                if (!is_a($namespace, BaseExtension::class, true)) {
+                    $this->plugin->debug($this->prefix . "Failed to load extension '${name}' as class is not valid/found.");
                     return false;
                 }
 
-                if (!in_array($name, $manifest["verified_extensions"])) {
-                    return false;
+                foreach ($this->extensions as $extension) {
+                    if ($extension[0]->getExtensionData()->getName() === $name) {
+                        $this->plugin->debug($this->prefix . "Failed to load extension '${name}' as the extension already exists. (or has same name)");
+                        return false;
+                    }
                 }
-            }
 
-            /** @noinspection PhpIncludeInspection */
-            include_once $path . ".php";
+                $this->extensions[] = [new $namespace($this->plugin), 0];
 
-            if (!is_a($namespace, BaseExtension::class, true)) {
-                $this->plugin->debug($this->prefix . "Failed to load extension '${name}' as class is not valid/found.");
+                for($i = 0; $i < count($this->extensions); $i++){
+                    if($this->extensions[$i][0]->getExtensionData()->getName() === $name){
+                        if($this->extensions[$i][0]->onLoad()){
+                            $this->extensions[$i][1] = 1;
+                            $this->plugin->debug($this->prefix . "Extension '${name}' successfully loaded.");
+                            return true;
+                        }
+                    }
+                }
+            } catch (Throwable $error){
+                $this->plugin->getLogger()->error($this->prefix . "While loading extension '${name}' this error occurred:");
+                $this->plugin->getLogger()->logException($error);
                 return false;
             }
 
-            foreach ($this->extensions as $extension) {
-                if ($extension[0]->getExtensionData()->getName() === $name) {
-                    $this->plugin->debug($this->prefix . "Failed to load extension '${name}' as the extension already exists. (or has same name)");
-                    return false;
-                }
-            }
-
-            $this->extensions[] = [new $namespace($this->plugin), 0];
-            $this->plugin->debug($this->prefix . "Extension '${name}' added to extensions list.");
+            $this->plugin->debug($this->prefix . "Extension '${name}' added to extensions list, but failed to load.");
             return true;
         }
         return false;
@@ -135,61 +167,66 @@ class ExtensionManager
      */
     public function loadExtensions(bool $allowUnknown = false) : void{
         $this->plugin->debug($this->prefix."Loading ".($allowUnknown ? "all":"only verified")." extensions...");
-        @mkdir($this->plugin->getDataFolder()."extensions");
+        if(!is_dir($this->plugin->getDataFolder()."extensions")) @mkdir($this->plugin->getDataFolder()."extensions");
         $count = 0;
         $content = scandir($this->plugin->getDataFolder()."extensions/");
         for($i = 0; $i < count($content); $i++){
-            $this->loadExtension($content[$i], !$allowUnknown);
-        }
-
-        for($i = 0; $i < count($this->extensions); $i++){
-            if($this->extensions[$i][0]->onLoad() === false){
-                $this->plugin->debug($this->prefix."Extension '".$this->extensions[$i][0]->getExtensionData()->getName()."' failed to load.");
-                $this->extensions[$i][1] = 0;
-            } else {
-                $this->plugin->debug($this->prefix."Extension '".$this->extensions[$i][0]->getExtensionData()->getName()."' loaded.");
-                $this->extensions[$i][1] = 1;
+            if($this->loadExtension($content[$i], !$allowUnknown) === true){
                 $count++;
             }
         }
+
         //todo in way future order of load.
 
-        $this->plugin->debug($this->prefix."Successfully loaded ".$count." extensions.");
+        $this->plugin->debug($this->prefix."Successfully loaded ${count} extensions.");
         return;
     }
 
     /**
      * @param string $name
+     * @return bool
      */
-    public function enableExtension(string $name): void{
-        //todo
-        return;
+    public function enableExtension(string $name): bool{
+        for($i = 0; $i < count($this->extensions); $i++){
+            try {
+                if ($this->extensions[$i][1] != 1) continue;
+                if ($this->extensions[$i][0]->getExtensionData()->getName() !== $name) continue;
+                if ($this->extensions[$i][0]->onEnable() === false) {
+                    $this->plugin->debug($this->prefix . "Extension '${name}' failed to enable.");
+                    return false;
+                } else {
+                    $this->plugin->debug($this->prefix . "Extension '${name}' Enabled.");
+                    $this->plugin->getServer()->getPluginManager()->registerEvents($this->extensions[$i][0], $this->plugin);
+                    $this->extensions[$i][1] = 2;
+                    return true;
+                }
+            } catch (Throwable $error){
+                $this->plugin->getLogger()->error($this->prefix . "While enabling extension '${name}' this error occurred: ");
+                $this->plugin->getLogger()->logException($error);
+                return false;
+            }
+        }
+        return false;
     }
 
     public function enableExtensions() : void{
-        $this->plugin->debug($this->prefix."Enabling Extensions...");
+        $this->plugin->debug($this->prefix."Enabling all extensions...");
         $count = 0;
         for($i = 0; $i < count($this->extensions); $i++){
-            if(!$this->extensions[$i][0]->onEnable()){
-                $this->plugin->debug($this->prefix."Extension '".$this->extensions[$i][0]->getExtensionData()->getName()."' failed to enable.");
-                $this->extensions[$i][1] = 0;
-            } else {
-                $this->plugin->debug($this->prefix."Extension '".$this->extensions[$i][0]->getExtensionData()->getName()."' Enabled.");
-                $this->plugin->getServer()->getPluginManager()->registerEvents($this->extensions[$i][0], $this->plugin);
-                $this->extensions[$i][1] = 2;
+            if($this->enableExtension($this->extensions[$i][0]->getExtensionData()->getName()) === true){
                 $count++;
             }
         }
-        $this->extensions = array_values($this->extensions); //reset index's
-        $this->plugin->debug($this->prefix."Successfully enabled ".$count." extensions.");
+        $this->plugin->debug($this->prefix."Successfully enabled ${count} extensions.");
         return;
     }
 
     public function disableExtensions() : void{
         $this->plugin->debug($this->prefix."Disabling Extensions...");
-        foreach($this->extensions as $extension){
-            if($extension[1] == 0) continue;
-            $extension[0]->onDisable();
+        for($i = 0; $i < count($this->extensions); $i++){
+            if($this->extensions[$i][1] == 0) continue;
+            $this->extensions[$i][0]->onDisable();
+            $this->extensions[$i][1] = 0;
         }
         $this->plugin->debug($this->prefix."All extensions now disabled.");
         $this->extensions = [];
