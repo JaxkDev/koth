@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace Jackthehack21\KOTH\Extensions;
 
 use Jackthehack21\KOTH\Main;
+use Jackthehack21\KOTH\Tasks\ExtensionReleasesTask;
 
 class ExtensionManager
 {
@@ -45,9 +46,88 @@ class ExtensionManager
     private $extensions = [];
     // [0 => [BaseExtension,0]]; arg 1 (0) is its status, so 0-disabled,1-loaded,2-enabled,3-unknown.
 
+    private $extensionReleases = [];
+
     public function __construct(Main $plugin)
     {
         $this->plugin = $plugin;
+        $this->plugin->getServer()->getAsyncPool()->submitTask(new ExtensionReleasesTask("https://raw.githubusercontent.com/jackthehack21/koth-extensions/release/release.json"));
+    }
+
+    /**
+     * @param array $data
+     */
+    public function updateExtensionReleases(array $data): void
+    {
+        $this->extensionReleases = $data;
+    }
+
+    /**
+     * @param string $fileName
+     */
+    public function handleDownloaded(string $fileName): void{
+        if(file_exists($this->plugin->getDataFolder())) {
+            $manifest = json_decode(file_get_contents($this->plugin->getDataFolder() . "extensions/manifest.json"), true);
+            if ($manifest === null) {
+                $manifest = ["version" => 0, "verified_extensions" => []];
+            }
+        } else {
+            $manifest = ["version" => 0, "verified_extensions" => []];
+        }
+        $manifest["verified_extensions"][] = rtrim($fileName, ".php");
+        file_put_contents($this->plugin->getDataFolder() . "extensions/manifest.json", json_encode($manifest));
+
+        $this->loadExtension($fileName, true);
+        $this->enableExtension(rtrim($fileName, ".php"));
+    }
+
+    /**
+     * @param string $fileName
+     * @param bool $mustBeVerified
+     * @return bool
+     *
+     * @internal
+     */
+    public function loadExtension(string $fileName, bool $mustBeVerified) : bool{
+        if(substr($fileName, -4) === ".php") {
+            $name = rtrim($fileName, ".php");
+            $path = $this->plugin->getDataFolder() . "extensions/${name}";
+            $namespace = "Jackthehack21\\KOTH\\Extensions\\${name}";
+
+            if($mustBeVerified) {
+                if(!file_exists($this->plugin->getDataFolder()."extensions/manifest.json")) return false;
+                $manifest = json_decode(file_get_contents($this->plugin->getDataFolder() . "extensions/manifest.json"), true);
+                if ($manifest === null) {
+                    $this->plugin->debug($this->prefix . "manifest.json for extensions is corrupt, file is deleted now but all installed extensions via /koth extensions will have to be re-installed, or in config.yml set allow_unknown_extensions to true.");
+                    unlink($this->plugin->getDataFolder() . "extensions/manifest.json");
+                    return false;
+                }
+
+                if (!in_array($name, $manifest["verified_extensions"])) {
+                    return false;
+                }
+            }
+
+            /** @noinspection PhpIncludeInspection */
+            include_once $path . ".php";
+
+            if (!is_a($namespace, BaseExtension::class, true)) {
+                $this->plugin->debug($this->prefix . "Failed to load extension '${name}' as class is not valid/found.");
+                return false;
+            }
+
+            foreach ($this->extensions as $extension) {
+                if ($extension[0]->getExtensionData()->getName() === $name) {
+                    $this->plugin->debug($this->prefix . "Failed to load extension '${name}' as the extension already exists. (or has same name)");
+                    return false;
+                }
+            }
+
+            $this->extensions[] = [new $namespace($this->plugin), 0];
+            $this->plugin->debug($this->prefix . "Extension '${name}' added to extensions list.");
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -57,59 +137,9 @@ class ExtensionManager
         $this->plugin->debug($this->prefix."Loading ".($allowUnknown ? "all":"only verified")." extensions...");
         @mkdir($this->plugin->getDataFolder()."extensions");
         $count = 0;
-        if($allowUnknown === false) {
-            if(file_exists($this->plugin->getDataFolder()."extensions/manifest.json")){
-                $this->plugin->debug($this->prefix."Loading manifest...");
-                $manifest = json_decode(file_get_contents($this->plugin->getDataFolder()."extensions/manifest.json"), true);
-                if($manifest === null){
-                    $this->plugin->debug($this->prefix."manifest.json for extensions is corrupt, file is deleted now but all installed extensions via /koth extensions will have to be re-installed.");
-                    unlink($this->plugin->getDataFolder()."extensions/manifest.json");
-                    return;
-                }
-                $content = scandir($this->plugin->getDataFolder()."extensions/");
-                for($i = 0; $i < count($content); $i++){
-                    if(substr($content[$i], -4) === ".php"){
-                        $name = rtrim($content[$i],".php");
-                        $path = $this->plugin->getDataFolder()."extensions/${name}";
-                        $namespace = "Jackthehack21\\KOTH\\Extensions\\${name}";
-
-                        if(!in_array($name,$manifest["verified_extensions"])){
-                            continue;
-                        }
-
-                        /** @noinspection PhpIncludeInspection */
-                        include_once $path.".php";
-
-                        if(!is_a($namespace,  BaseExtension::class, true)){
-                            $this->plugin->debug($this->prefix."Failed to load extension '${name}' as class is not valid/found.");
-                            continue;
-                        }
-
-                        $this->extensions[] = [new $namespace($this->plugin), 0];
-                        $this->plugin->debug($this->prefix."Extension '${name}' added to extensions list.");
-                    }
-                }
-            }
-        } else {
-            $content = scandir($this->plugin->getDataFolder()."extensions/");
-            for($i = 0; $i < count($content); $i++){
-                if(substr($content[$i], -4) === ".php"){
-                    $name = rtrim($content[$i],".php");
-                    $path = $this->plugin->getDataFolder()."extensions/${name}";
-                    $namespace = "Jackthehack21\\KOTH\\Extensions\\${name}";
-
-                    /** @noinspection PhpIncludeInspection */
-                    include_once $path.".php";
-
-                    if(!is_a($namespace,  BaseExtension::class, true)){
-                        $this->plugin->debug($this->prefix."Failed to load extension '${name}' as class is not valid/found.");
-                        continue;
-                    }
-
-                    $this->extensions[] = [new $namespace($this->plugin), 0];
-                    $this->plugin->debug($this->prefix."Extension '${name}' added to extensions list.");
-                }
-            }
+        $content = scandir($this->plugin->getDataFolder()."extensions/");
+        for($i = 0; $i < count($content); $i++){
+            $this->loadExtension($content[$i], !$allowUnknown);
         }
 
         for($i = 0; $i < count($this->extensions); $i++){
@@ -125,6 +155,14 @@ class ExtensionManager
         //todo in way future order of load.
 
         $this->plugin->debug($this->prefix."Successfully loaded ".$count." extensions.");
+        return;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function enableExtension(string $name): void{
+        //todo
         return;
     }
 

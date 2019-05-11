@@ -1,3 +1,4 @@
+[![HitCount](http://hits.dwyl.io/Jackthehack21/KOTH.svg)](http://hits.dwyl.io/Jackthehack21/KOTH)
 <a href="https://tiny.cc/JaxksDC"><img src="https://discordapp.com/api/guilds/554059221847638040/embed.png" alt="Discord server"/></a>
 <a href="https://poggit.pmmp.io/p/KOTH"><img src="https://poggit.pmmp.io/shield.state/KOTH"></a>
 
@@ -9,20 +10,22 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
  
 ## Features
 ### Implemented
- - Multiple Arena's
+ - Messages are customisable.
+ - Extensions (Customise your KOTH even more) !
+ - Download verified extensions via command.
+ - Multiple Arena's.
  - Custom spawn & hill points.
  - Supports Arena's in different worlds.
  - Custom player amount, and game time.
- - Block break/place disabled during in-game (todo config)
- - Changing gamemode during a game is cancelled (todo config)
+ - Block break/place disabled during in-game.
+ - Changing gamemode during a game is cancelled.
  - Rewards given to king at end of game.
- - Leave a arena
+ - Leave a arena.
  - 'King' is displayed above player name. (nametag)
  - Some values are in config.yml including a help file.
  - On death keep inventory. (todo config)
 
 ### Upcoming
- - Messages to be in config.
  - Default arena values to be in config.
  - Override old values of arena positions.
  - Something extra for when winner is announced ***wink***
@@ -109,6 +112,9 @@ nametag_format - NameTag format, you can use any colour code. see help file for 
 start_countdown - How long until game starts when the minimum amount of players are in-game.
 
 __For more info see the help file in plugin_data/KOTH/help_eng.txt__
+
+## Extensions:
+ - TODO write it up...
 
 ## Known Bugs:
  - Permissions are given to all by default. (should only be OP’s)
