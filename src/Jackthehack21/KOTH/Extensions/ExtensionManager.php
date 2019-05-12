@@ -35,8 +35,10 @@ namespace Jackthehack21\KOTH\Extensions;
 use Jackthehack21\KOTH\Main;
 use Jackthehack21\KOTH\Tasks\ExtensionDownloadTask;
 use Jackthehack21\KOTH\Tasks\ExtensionReleasesTask;
+
 use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat as C;
+use pocketmine\event\HandlerList;
 use Throwable;
 
 class ExtensionManager
@@ -52,10 +54,12 @@ class ExtensionManager
 
     private $extensionReleases = [];
 
+    public const BASE_URL = "https://raw.githubusercontent.com/jackthehack21/koth-extensions/release/";
+
     public function __construct(Main $plugin)
     {
         $this->plugin = $plugin;
-        $this->plugin->getServer()->getAsyncPool()->submitTask(new ExtensionReleasesTask("https://raw.githubusercontent.com/jackthehack21/koth-extensions/release/release.json"));
+        $this->plugin->getServer()->getAsyncPool()->submitTask(new ExtensionReleasesTask($this::BASE_URL."release.json"));
     }
 
     /**
@@ -74,6 +78,11 @@ class ExtensionManager
         $this->extensionReleases = $data;
     }
 
+    /**
+     * @param CommandSender $sender
+     * @param array $args
+     * @return bool
+     */
     public function handleCommand(CommandSender $sender, array $args) : bool{
         array_shift($args);
         if(count($args) === 0){
@@ -84,16 +93,76 @@ class ExtensionManager
             case '?':
             case 'help':
                 $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." Extensions Help".C::YELLOW."]");
-                $sender->sendMessage(C::RED." ----- Coming soon -----");
                 $sender->sendMessage(C::GOLD."/koth extensions help ".C::RESET."- Sends extensions help.");
                 $sender->sendMessage(C::GOLD."/koth extensions list ".C::RESET."- Sends list of extensions and their status.");
                 $sender->sendMessage(C::GOLD."/koth extensions search (extension name) ".C::RESET."- Search our official repo for verified extensions.");
                 $sender->sendMessage(C::GOLD."/koth extensions install (extension name) ".C::RESET."- Install a verified extension from our repo.");
                 $sender->sendMessage(C::GOLD."/koth extensions uninstall (extension name) ".C::RESET."- Uninstall a extension (deleting it from disk)");
                 return true;
-            case 'test':
-                $sender->sendMessage(C::GOLD."Downloading demo. (check console for info)");
-                $this->plugin->getServer()->getAsyncPool()->submitTask(new ExtensionDownloadTask("https://raw.githubusercontent.com/jackthehack21/koth-extensions/master/Example.php","Example.php",$this->plugin->getDataFolder()."extensions/Example.php"));
+            case 'list':
+                $codes = ["Disabled", "Loaded", "Enabled"];
+                $sender->sendMessage(C::GOLD."Extension Name | Status");
+                foreach($this->extensions as $extension){
+                    $sender->sendMessage($extension[0]->getExtensionData()->getName()." | ".$codes[$extension[1]]);
+                }
+                return true;
+            case 'search':
+                array_shift($args);
+                if(count($args) === 0){
+                    $sender->sendMessage(C::RED."Usage: /koth extensions search (extension name)");
+                    return true;
+                }
+                $count = 0;
+                $name = strtolower(join(" ",$args));
+                $nameList = array_keys($this->getExtensionReleases());
+                $sender->sendMessage(C::GREEN."Searching repo with key word '${name}'");
+                foreach($nameList as $ext){
+                    if(strpos(strtolower($ext), $name) !== false){
+                        $sender->sendMessage(C::AQUA."> ".$ext);
+                        $count++;
+                    }
+                }
+                $sender->sendMessage(C::GOLD."Found ${count} results.");
+                return true;
+            case 'add':
+            case 'install':
+                array_shift($args);
+                if(count($args) === 0){
+                    $sender->sendMessage(C::RED."Usage: /koth extensions install (extension name)");
+                    return true;
+                }
+                $name = strtolower(join(" ",$args));
+                $nameList = array_keys($this->getExtensionReleases());
+                $sender->sendMessage(C::GREEN."Searching repo for '${name}' extension...");
+                foreach($nameList as $ext){
+                    if(strtolower($ext) === $name){
+                        $sender->sendMessage(C::AQUA."Found it, beginning download of '${ext}'");
+                        $this->plugin->getServer()->getAsyncPool()->submitTask(new ExtensionDownloadTask($this::BASE_URL."{$ext}.php", "${ext}.php", $this->plugin->getDataFolder()."extensions/${ext}.php"));
+                        return true;
+                    }
+                }
+                $sender->sendMessage(C::RED."Couldn't find '${name}' try using `/koth extensions search` first.");
+                return true;
+            case 'delete':
+            case 'uninstall':
+            case 'remove':
+                array_shift($args);
+                if(count($args) === 0){
+                    $sender->sendMessage(C::RED."Usage: /koth extensions uninstall (extension name)");
+                    return true;
+                }
+                $name = strtolower(join(" ",$args));
+                for($i = 0; $i < count($this->extensions); $i++){
+                    if(strtolower($this->extensions[$i][0]->getExtensionData()->getName()) == $name){
+                        $sender->sendMessage(C::GREEN."Uninstalling extension ${name}...");
+                        $this->disableExtension($this->extensions[$i][0]->getExtensionData()->getName());
+                        unlink($this->plugin->getDataFolder()."extensions/".$this->extensions[$i][0]->getExtensionData()->getName().".php");
+                        $this->plugin->debug($this->prefix."Deleting extension ${name} from disk.");
+                        unset($this->extensions[$i]);
+                        $this->extensions = array_values($this->extensions); //reset index's
+                        $sender->sendMessage(C::GOLD."Extension ${name} has been disabled & removed.");
+                    }
+                }
                 return true;
         }
         $sender->sendMessage(C::RED."Unknown command, try /koth extensions help");
@@ -104,7 +173,8 @@ class ExtensionManager
      * @param string $fileName
      */
     public function handleDownloaded(string $fileName): void{
-        if(file_exists($this->plugin->getDataFolder())) {
+        $this->plugin->debug($this->prefix."Handling downloaded extension '${fileName}'");
+        if(file_exists($this->plugin->getDataFolder()."extensions/manifest.json")) {
             $manifest = json_decode(file_get_contents($this->plugin->getDataFolder() . "extensions/manifest.json"), true);
             if ($manifest === null) {
                 $manifest = ["version" => 0, "verified_extensions" => []];
@@ -112,7 +182,7 @@ class ExtensionManager
         } else {
             $manifest = ["version" => 0, "verified_extensions" => []];
         }
-        $manifest["verified_extensions"][] = rtrim($fileName, ".php");
+        if(in_array(rtrim($fileName, ".php"), $manifest["verified_extensions"], true) === false) $manifest["verified_extensions"][] = rtrim($fileName, ".php");
         file_put_contents($this->plugin->getDataFolder() . "extensions/manifest.json", json_encode($manifest));
 
         $this->loadExtension($fileName, true);
@@ -123,8 +193,6 @@ class ExtensionManager
      * @param string $fileName
      * @param bool $mustBeVerified
      * @return bool
-     *
-     * @internal
      */
     public function loadExtension(string $fileName, bool $mustBeVerified) : bool{
         if(substr($fileName, -4) === ".php") {
@@ -144,6 +212,7 @@ class ExtensionManager
                     }
 
                     if (!in_array($name, $manifest["verified_extensions"])) {
+                        $this->plugin->debug($this->prefix."Skipped extension '${name}' as it is not verified.");
                         return false;
                     }
                 }
@@ -245,15 +314,43 @@ class ExtensionManager
         return;
     }
 
-    public function disableExtensions() : void{
-        $this->plugin->debug($this->prefix."Disabling Extensions...");
+    /**
+     * @param string $name
+     */
+    public function disableExtension(string $name) : void{
+        $this->plugin->debug($this->prefix."Disabling extension ${name}...");
         for($i = 0; $i < count($this->extensions); $i++){
             if($this->extensions[$i][1] == 0) continue;
+            if($this->extensions[$i][0]->getExtensionData()->getName() != $name) continue;
             $this->extensions[$i][0]->onDisable();
             $this->extensions[$i][1] = 0;
+            HandlerList::unregisterAll($this->extensions[$i][0]); //unregister events. (something i completely forgot to do.)
+            $this->plugin->debug($this->prefix."Extension ${name} disabled, cleaning manifest.json");
+
+            if(file_exists($this->plugin->getDataFolder()."extensions/manifest.json")) {
+                $manifest = json_decode(file_get_contents($this->plugin->getDataFolder() . "extensions/manifest.json"), true);
+                if ($manifest === null) {
+                    return;
+                }
+            } else {
+                return;
+            }
+            if (($key = array_search($this->extensions[$i][0]->getExtensionData()->getName(), $manifest["verified_extensions"])) !== false) {
+                unset($manifest["verified_extensions"][$key]);
+                $manifest["verified_extensions"] = array_values($manifest["verified_extensions"]);
+            }
+            file_put_contents($this->plugin->getDataFolder() . "extensions/manifest.json", json_encode($manifest));
+            return;
+        }
+    }
+
+    public function disableExtensions() : void{
+        $this->plugin->debug($this->prefix."Disabling Extensions...");
+        foreach ($this->extensions as $ext){
+            $this->disableExtension($ext[0]->getExtensionData()->getName());
         }
         $this->plugin->debug($this->prefix."All extensions now disabled.");
-        $this->extensions = [];
+        $this->extensions = []; //todo
         return;
     }
 }

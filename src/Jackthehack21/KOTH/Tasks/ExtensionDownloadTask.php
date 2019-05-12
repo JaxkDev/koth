@@ -69,6 +69,10 @@ class ExtensionDownloadTask extends AsyncTask
             return;
         }
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if($statusCode != 200){
+            $this->setResult(["response" => "Failed", "error" => "Failed, Status code: ${statusCode}"]);
+            return;
+        }
         curl_close($ch);
         fclose($fp);
 
@@ -85,6 +89,9 @@ class ExtensionDownloadTask extends AsyncTask
         if($result["error"] !== ""){
             $path = $this->url;
             $plugin->debug("[Download Task] : Failed to get url '${path}' message > ".$result["error"]);
+            $plugin->debug("[Download Task] : Cleaning files...");
+            unlink($this->savePath);
+            return;
         }
         $plugin->ExtensionManager->handleDownloaded($this->fileName);
     }
