@@ -37,6 +37,7 @@ namespace Jackthehack21\KOTH;
 use Jackthehack21\KOTH\Providers\BaseProvider;
 use Jackthehack21\KOTH\Providers\SqliteProvider;
 use Jackthehack21\KOTH\Providers\YamlProvider;
+use Jackthehack21\KOTH\Tasks\GetUpdateInfo;
 use Jackthehack21\KOTH\Utils as PluginUtils;
 
 use pocketmine\utils\Config;
@@ -51,11 +52,12 @@ use pocketmine\utils\TextFormat as C;
  * [X] Priority: Medium, Add base events and begin using them.
  * [ ] Priority: Medium, Move most functions to separate file (eg ArenaManager.php) less mess in here to tidy...
  * [ ] Priority: Medium, Move around functions, into more sub files (eg ^) and add all PHPDoc for functions and variables to stop these useless warnings *frown*
- * [ ] Priority: Medium, Add a custom Update class/task.
+ * [X] Priority: Medium, Add a custom Update class/task.
  * [ ] Priority: Low, Add the rest of the modern languages to help files. (update existing ones/commit the ones locally)
  */
 
-class Main extends PluginBase implements Listener{
+class Main extends PluginBase implements Listener
+{
 
     private static $instance;
 
@@ -72,23 +74,29 @@ class Main extends PluginBase implements Listener{
 
     public $config;
     public $messages;
-    public $prefix = C::YELLOW."[".C::AQUA."KOTH".C::YELLOW."] ".C::RESET;
+    public $prefix = C::YELLOW . "[" . C::AQUA . "KOTH" . C::YELLOW . "] " . C::RESET;
 
     /** @var Utils */
     public $utils;
 
-    private function init() : void{
+    private function init(): void
+    {
+        $this->arenas = [];
+        $this->loadArenas();
+        $this->getServer()->getPluginManager()->registerEvents($this->EventHandler, $this);
+
+        if ($this->config["check_updates"]) {
+            $this->debug("Starting update check task...");
+            $this->getServer()->getAsyncPool()->submitTask(new GetUpdateInfo($this, $this->config["update_check_url"]));
+        }
+    }
+
+    private function initResources(): void
+    {
         $this->CommandHandler = new CommandHandler($this);
         $this->EventHandler = new EventHandler($this);
         $this->utils = new PluginUtils($this);
 
-        $this->arenas = [];
-        $this->loadArenas();
-
-        $this->getServer()->getPluginManager()->registerEvents($this->EventHandler, $this);
-    }
-
-    private function initResources() : void{
         $this->saveResource("config.yml");
         $this->configC = new Config($this->getDataFolder() . "config.yml", Config::YAML);
         $this->config = $this->configC->getAll();
@@ -97,18 +105,17 @@ class Main extends PluginBase implements Listener{
         $this->messagesC = new Config($this->getDataFolder() . "messages.yml", Config::YAML);
         $this->messages = $this->messagesC->getAll();
 
-	    //todo check arena versions.
-	    if($this->config["version"] !== $this::CONFIG_VER){
-	        if(!isset($this->config["provider"])) $this->config["provider"] = "sqlite3";
-            if(!isset($this->config["block_commands"])) $this->config["block_commands"] = true;
-            if(!isset($this->config["prevent_place"])) $this->config["prevent_place"] = true;
-            if(!isset($this->config["prevent_break"])) $this->config["prevent_break"] = true;
-            if(!isset($this->config["prevent_gamemode_change"])) $this->config["prevent_gamemode_change"] = true;
-            if(!isset($this->config["keep_inventory"])) $this->config["keep_inventory"] = true;
-            if(!isset($this->config["allow_unknown_extensions"])) $this->config["allow_unknown_extensions"] = false;
-            if(!isset($this->config["show_updates"])) $this->config["show_updates"] = true;
-            if(!isset($this->config["check_updates"])) $this->config["check_updates"] = true;
-            if(!isset($this->config["update_check_url"])) $this->config["update_check_url"] = "https://raw.githubusercontent.com/jackthehack21/koth/master/github/updates.json";
+        //todo check arena versions.
+        if ($this->config["version"] !== $this::CONFIG_VER) {
+            if (!isset($this->config["provider"])) $this->config["provider"] = "sqlite3";
+            if (!isset($this->config["block_commands"])) $this->config["block_commands"] = true;
+            if (!isset($this->config["prevent_place"])) $this->config["prevent_place"] = true;
+            if (!isset($this->config["prevent_break"])) $this->config["prevent_break"] = true;
+            if (!isset($this->config["prevent_gamemode_change"])) $this->config["prevent_gamemode_change"] = true;
+            if (!isset($this->config["keep_inventory"])) $this->config["keep_inventory"] = true;
+            if (!isset($this->config["show_updates"])) $this->config["show_updates"] = true;
+            if (!isset($this->config["check_updates"])) $this->config["check_updates"] = true;
+            if (!isset($this->config["update_check_url"])) $this->config["update_check_url"] = "https://raw.githubusercontent.com/jackthehack21/koth/master/github/updates.json";
             $this->config["version"] = $this::CONFIG_VER;
             $this->saveConfig();
         }
@@ -118,36 +125,40 @@ class Main extends PluginBase implements Listener{
         if (in_array($this->config["language"], $languages) !== false) {
             $language = $this->config["language"];
         }
-        $this->saveResource("help_".$language.".txt");
+        $this->saveResource("help_" . $language . ".txt");
     }
 
     /**
      * @param array $data
      */
-    public function handleUpdateInfo(Array $data) : void{
+    public function handleUpdateInfo(Array $data): void
+    {
         $this->debug("Handling latest update info.");
-        var_dump($data);
-        if($data["Error"] !== ''){
-            $this->getLogger()->warning("Failed to get latest update info, Error: ".$data["Error"]." Code: ".$data["httpCode"]);
+        if ($data["Error"] !== '') {
+            $this->getLogger()->warning("Failed to get latest update info, Error: " . $data["Error"] . " Code: " . $data["httpCode"]);
             return;
         }
-        if(array_key_exists("version",$data["Response"]) && array_key_exists("time", $data["Response"]) && array_key_exists("link",$data["Response"])){
+        if (array_key_exists("version", $data["Response"]) && array_key_exists("time", $data["Response"]) && array_key_exists("link", $data["Response"])) {
             $update = $this->utils->compareVersions($this->getDescription()->getVersion(), $data["Response"]["version"]);
-            if($update == 0){
-                $this->getLogger()->debug($this->prefix."Plugin up-to-date !");
+            if ($update == 0) {
+                $this->getLogger()->debug("Plugin up-to-date !");
                 return;
             }
-            if($this->config["show_updates"] === false) return;
-            if($update > 0){
+            if ($this->config["show_updates"] === false) return;
+            if ($update > 0) {
                 //todo *did someone say auto-update*...
+                $lines = explode("\n", $data["Response"]["patch_notes"]);
                 $this->getLogger()->warning("--- UPDATE AVAILABLE ---");
-                $this->getLogger()->warning(" Version     :: ".$data["Response"]["version"]);
-                $this->getLogger()->warning(" Released on :: ".date("d-m-Y", ($data["Response"]["time"]/100)));
-                $this->getLogger()->warning(" Patch Notes ::");
-                foreach(explode("\n",$data["Response"]["patch_notes"]) as $line){
-                    $this->getLogger()->warning("               ".$line);
+                $this->getLogger()->warning(C::RED . " Version     :: " . $data["Response"]["version"]);
+                $this->getLogger()->warning(C::AQUA . " Released on :: " . date("d-m-Y", intval($data["Response"]["time"] / 1000)));
+                $this->getLogger()->warning(C::GREEN . " Patch Notes :: " . $lines[0]);
+                for ($i = 1; $i < sizeof($lines); $i++) {
+                    $this->getLogger()->warning("                " . C::GREEN . $lines[$i]);
                 }
-                $this->getLogger()->warning(" Update Link :: ".$data["Response"]["link"]);
+                $this->getLogger()->warning(C::LIGHT_PURPLE . " Update Link :: " . $data["Response"]["link"]);
+                return;
+            } else {
+                $this->getLogger()->debug("Running a build not yet released.");
                 return;
             }
         } else {
@@ -156,19 +167,9 @@ class Main extends PluginBase implements Listener{
         }
     }
 
-    /**
-     * @return bool
-     */
-    private function startChecks() : bool{
-        if($this->config["check_updates"]){
-            $this->debug($this->prefix."Starting update check...");
-            $this->getServer()->getAsyncPool()->submitTask(new Tasks\GetUpdateInfo($this, $this->config["update_check_url"]));
-        }
-        return true;
-    }
-
-    private function loadArenas() : void{
-        switch(strtolower($this->config["provider"])){
+    private function loadArenas(): void
+    {
+        switch (strtolower($this->config["provider"])) {
             case 'sqlite':
             case 'sql':
             case 'sqlite3':
@@ -182,16 +183,16 @@ class Main extends PluginBase implements Listener{
                 $this->config["provider"] = "sqlite3";
                 $this->saveConfig();
         }
-        $this->debug(str_replace("{NAME}",$this->db->getName(),$this->utils->colourise($this->messages["provider"])));
+        $this->debug(str_replace("{NAME}", $this->db->getName(), $this->utils->colourise($this->messages["provider"])));
         $this->db->open();
         $data = $this->db->getAllData();
 
-        foreach($data as $arenaC){
+        foreach ($data as $arenaC) {
             $arena = new Arena($this, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["hill"], $arenaC["spawns"], $arenaC["rewards"], $arenaC["world"]);
             $this->arenas[] = $arena;
         }
 
-        $this->debug(str_replace("{AMOUNT}",count($this->arenas),$this->utils->colourise($this->messages["arenas_loaded"])));
+        $this->debug(str_replace("{AMOUNT}", count($this->arenas), $this->utils->colourise($this->messages["arenas_loaded"])));
     }
 
     public function onDisable()
@@ -201,9 +202,9 @@ class Main extends PluginBase implements Listener{
         $this->db->close();
     }
 
-    public function onEnable() : void{
+    public function onEnable(): void
+    {
         $this->initResources();
-        if($this->startChecks() === false) return;
         $this->init();
     }
 
@@ -214,27 +215,30 @@ class Main extends PluginBase implements Listener{
      * @param array $args
      * @return bool
      */
-    public function onCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
+    public function onCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool
+    {
         return $this->CommandHandler->handleCommand($sender, $cmd, $label, $args);
     }
 
     /**
      * @param Arena $arena
      */
-    public function updateArena(Arena $arena) : void{
+    public function updateArena(Arena $arena): void
+    {
         $this->db->updateArena($arena);
     }
 
     /**
      * @param array|null $data
      */
-    public function updateAllArenas(array $data = null) : void{
-        if($data !== null){
+    public function updateAllArenas(array $data = null): void
+    {
+        if ($data !== null) {
             $this->db->setAllData($data);
             return;
         }
         $save = [];
-        foreach($this->arenas as $arena) {
+        foreach ($this->arenas as $arena) {
             $save[] = [
                 "name" => strtolower($arena->name),
                 "min_players" => $arena->minPlayers,
@@ -252,8 +256,9 @@ class Main extends PluginBase implements Listener{
     /**
      * @param array|null $data
      */
-    public function saveConfig(array $data = null) : void{
-        if($data !== null){
+    public function saveConfig(array $data = null): void
+    {
+        if ($data !== null) {
             $this->configC->setAll($data);
             return;
         }
@@ -265,9 +270,10 @@ class Main extends PluginBase implements Listener{
      * @param string $msg
      * @return bool
      */
-    public function debug(string $msg) : bool{
-        if($this->config["debug"] === true){
-            $this->getServer()->getLogger()->info(str_replace("{MSG}",$msg,$this->utils->colourise($this->messages["debug_format"])));
+    public function debug(string $msg): bool
+    {
+        if ($this->config["debug"] === true) {
+            $this->getServer()->getLogger()->info(str_replace("{MSG}", $msg, $this->utils->colourise($this->messages["debug_format"])));
             return true;
         }
         return false;
@@ -277,7 +283,8 @@ class Main extends PluginBase implements Listener{
      * @param string $name
      * @return bool
      */
-    public function inGame(string $name) : bool{
+    public function inGame(string $name): bool
+    {
         return $this->getArenaByPlayer($name) !== null;
     }
 
@@ -285,7 +292,8 @@ class Main extends PluginBase implements Listener{
      * @param Arena $arena
      * @return bool
      */
-    public function newArena(Arena $arena) : bool{
+    public function newArena(Arena $arena): bool
+    {
         $this->arenas[] = $arena;
         $this->db->createArena($arena);
         return true;
@@ -294,7 +302,8 @@ class Main extends PluginBase implements Listener{
     /**
      * @param Arena $arena
      */
-    public function removeArena(Arena $arena) : void{
+    public function removeArena(Arena $arena): void
+    {
         if (($key = array_search($arena, $this->arenas)) !== false) {
             unset($this->arenas[$key]);
             $this->db->deleteArena(strtolower($arena->getName()));
@@ -304,25 +313,28 @@ class Main extends PluginBase implements Listener{
     /**
      * @param string $name
      */
-    public function removeArenaByName(string $name) : void{
+    public function removeArenaByName(string $name): void
+    {
         $this->removeArena($this->getArenaByName($name));
     }
 
     /**
      * @return Arena[]
      */
-    public function getAllArenas() : array{
+    public function getAllArenas(): array
+    {
         return $this->arenas;
     }
 
     /**
-	 * @param string $name
-	 *
-	 * @return Arena|null
-	 */
-    public function getArenaByPlayer(string $name){
-        foreach($this->arenas as $arena){
-            if(in_array(strtolower($name), $arena->players)){
+     * @param string $name
+     *
+     * @return Arena|null
+     */
+    public function getArenaByPlayer(string $name)
+    {
+        foreach ($this->arenas as $arena) {
+            if (in_array(strtolower($name), $arena->players)) {
                 return $arena;
             }
         }
@@ -334,9 +346,10 @@ class Main extends PluginBase implements Listener{
      *
      * @return Arena|null
      */
-    public function getArenaByName(string $name){
-        foreach($this->arenas as $arena){
-            if(strtolower($arena->getName()) == strtolower($name)){
+    public function getArenaByName(string $name)
+    {
+        foreach ($this->arenas as $arena) {
+            if (strtolower($arena->getName()) == strtolower($name)) {
                 return $arena;
             }
         }
@@ -348,8 +361,8 @@ class Main extends PluginBase implements Listener{
     /**
      * @return Main
      */
-    public static function getInstance() : self{
+    public static function getInstance(): self
+    {
         return self::$instance;
     }
-
 }

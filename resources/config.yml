@@ -3,7 +3,6 @@ version: 1
 
 provider: "sqlite3"
 
-allow_unknown_extensions: false
 debug: false
 
 show_updates: true

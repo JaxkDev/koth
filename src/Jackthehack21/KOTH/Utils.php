@@ -52,7 +52,7 @@ class Utils{
                 if(intval($baseParts[3]) > intval($newParts[3])){
                     return -1;
                 }
-                if(intval($baseParts[3]) < intval($baseParts[3])){
+                if(intval($baseParts[3]) < intval($newParts[3])){
                     return 1;
                 }
             } else {
