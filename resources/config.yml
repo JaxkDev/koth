@@ -4,10 +4,11 @@ version: 1
 provider: "sqlite3"
 
 allow_unknown_extensions: false
-plugin_enabled: true
 debug: false
 
+show_updates: true
 check_updates: true
+update_check_url: "https://raw.githubusercontent.com/jackthehack21/koth/master/github/updates.json"
 
 language: "eng"
 

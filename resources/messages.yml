@@ -2,7 +2,6 @@
 colour_codes: "All colour codes: {BLACK} {DARK_BLUE} {DARK_GREEN} {DARK_AQUA} {DARK_RED} {DARK_PURPLE} {GOLD} {GRAY} {DARK_GRAY} {BLUE} {GREEN} {AQUA} {RED} {LIGHT_PURPLE} {YELLOW} {WHITE} {OBFUSCATED} {BOLD} {STRIKETHROUGH} {UNDERLINE} {ITALIC} {RESET}"
 
 debug_format: "{GRAY}[KOTH | DEBUG] : {MSG}"
-plugin_disabled: "{RED}Plugin disabled, as stated in config.yml"
 provider: "Provider was set to: {NAME}"
 arenas_loaded: "{AMOUNT} Arena(s) loaded."
 

@@ -11,8 +11,6 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
 ## Features
 ### Implemented
  - Messages are customisable.
- - Extensions (Customise your KOTH even more) !
- - Download verified extensions via command.
  - Multiple Arena's.
  - Custom spawn & hill points.
  - Supports Arena's in different worlds.
@@ -114,7 +112,7 @@ start_countdown - How long until game starts when the minimum amount of players 
 __For more info see the help file in plugin_data/KOTH/help_eng.txt__
 
 ## Extensions:
- - TODO write it up...
+ - TODO add link to repo...
 
 ## Known Bugs:
  - Permissions are given to all by default. (should only be OP’s)

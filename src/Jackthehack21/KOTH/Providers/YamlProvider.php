@@ -36,6 +36,8 @@ namespace Jackthehack21\KOTH\Providers;
 use Jackthehack21\KOTH\{Main,Arena};
 use pocketmine\utils\Config;
 
+// TODO: Major, remove Yaml and swap to JSON.
+
 class YamlProvider implements BaseProvider{
 
     /** @var Main $plugin */

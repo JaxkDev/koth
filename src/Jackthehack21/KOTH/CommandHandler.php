@@ -68,7 +68,6 @@ class CommandHandler{
                     $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." HELP".C::YELLOW."]");
                     $sender->sendMessage(C::GOLD."/koth help ".C::RESET."- Sends help :)");
                     $sender->sendMessage(C::GOLD."/koth credits ".C::RESET."- Display the credits.");
-                    $sender->sendMessage(C::GOLD."/koth extensions ".C::RESET."- General extensions command.");
                     if($sender->hasPermission("koth.list")) $sender->sendMessage(C::GOLD."/koth list ".C::RESET."- List all arena's setup and ready to play !");
                     if($sender->hasPermission("koth.info")) $sender->sendMessage(C::GOLD."/koth list ".C::RESET."- List all arena's setup and ready to play !");
                     if($sender->hasPermission("koth.join")) $sender->sendMessage(C::GOLD."/koth join (arena name)".C::RESET." - Join a game.");
@@ -84,8 +83,6 @@ class CommandHandler{
                     $sender->sendMessage(C::AQUA."Developer: ".C::GOLD."Jackthehack21");
                     $sender->sendMessage(C::AQUA."Icon creator: ".C::GOLD."WowAssasin#6608");
                     return true;
-                case 'extensions':
-                    return $this->plugin->ExtensionManager->handleCommand($sender, $args);
                 case 'list':
                     if(!$sender->hasPermission("koth.list")){
                         $sender->sendMessage($this->prefix.C::RED."You do not have permission to use this command!");

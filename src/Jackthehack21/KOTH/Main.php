@@ -34,11 +34,9 @@
 declare(strict_types=1);
 namespace Jackthehack21\KOTH;
 
-use Jackthehack21\KOTH\Extensions\ExtensionManager;
 use Jackthehack21\KOTH\Providers\BaseProvider;
 use Jackthehack21\KOTH\Providers\SqliteProvider;
 use Jackthehack21\KOTH\Providers\YamlProvider;
-use Jackthehack21\KOTH\Tasks\ExtensionStartTask;
 use Jackthehack21\KOTH\Utils as PluginUtils;
 
 use pocketmine\utils\Config;
@@ -61,8 +59,6 @@ class Main extends PluginBase implements Listener{
 
     private static $instance;
 
-    public const API = "1.0.0";
-    //Note to self, X.Y.Z Bumping X will break all extensions, Y adds things but keep old things (deprecated), Z simply patches things.
     public const ARENA_VER = 2;
     public const CONFIG_VER = 1;
 
@@ -81,13 +77,7 @@ class Main extends PluginBase implements Listener{
     /** @var Utils */
     public $utils;
 
-    /**
-     * @var ExtensionManager
-     */
-    public $ExtensionManager;
-
     private function init() : void{
-        $this->ExtensionManager = new ExtensionManager($this);
         $this->CommandHandler = new CommandHandler($this);
         $this->EventHandler = new EventHandler($this);
         $this->utils = new PluginUtils($this);
@@ -95,7 +85,6 @@ class Main extends PluginBase implements Listener{
         $this->arenas = [];
         $this->loadArenas();
 
-        $this->getScheduler()->scheduleTask(new ExtensionStartTask($this));
         $this->getServer()->getPluginManager()->registerEvents($this->EventHandler, $this);
     }
 
@@ -117,6 +106,9 @@ class Main extends PluginBase implements Listener{
             if(!isset($this->config["prevent_gamemode_change"])) $this->config["prevent_gamemode_change"] = true;
             if(!isset($this->config["keep_inventory"])) $this->config["keep_inventory"] = true;
             if(!isset($this->config["allow_unknown_extensions"])) $this->config["allow_unknown_extensions"] = false;
+            if(!isset($this->config["show_updates"])) $this->config["show_updates"] = true;
+            if(!isset($this->config["check_updates"])) $this->config["check_updates"] = true;
+            if(!isset($this->config["update_check_url"])) $this->config["update_check_url"] = "https://raw.githubusercontent.com/jackthehack21/koth/master/github/updates.json";
             $this->config["version"] = $this::CONFIG_VER;
             $this->saveConfig();
         }
@@ -130,17 +122,48 @@ class Main extends PluginBase implements Listener{
     }
 
     /**
+     * @param array $data
+     */
+    public function handleUpdateInfo(Array $data) : void{
+        $this->debug("Handling latest update info.");
+        var_dump($data);
+        if($data["Error"] !== ''){
+            $this->getLogger()->warning("Failed to get latest update info, Error: ".$data["Error"]." Code: ".$data["httpCode"]);
+            return;
+        }
+        if(array_key_exists("version",$data["Response"]) && array_key_exists("time", $data["Response"]) && array_key_exists("link",$data["Response"])){
+            $update = $this->utils->compareVersions($this->getDescription()->getVersion(), $data["Response"]["version"]);
+            if($update == 0){
+                $this->getLogger()->debug($this->prefix."Plugin up-to-date !");
+                return;
+            }
+            if($this->config["show_updates"] === false) return;
+            if($update > 0){
+                //todo *did someone say auto-update*...
+                $this->getLogger()->warning("--- UPDATE AVAILABLE ---");
+                $this->getLogger()->warning(" Version     :: ".$data["Response"]["version"]);
+                $this->getLogger()->warning(" Released on :: ".date("d-m-Y", ($data["Response"]["time"]/100)));
+                $this->getLogger()->warning(" Patch Notes ::");
+                foreach(explode("\n",$data["Response"]["patch_notes"]) as $line){
+                    $this->getLogger()->warning("               ".$line);
+                }
+                $this->getLogger()->warning(" Update Link :: ".$data["Response"]["link"]);
+                return;
+            }
+        } else {
+            $this->getLogger()->warning("Failed to verify update info from github.com");
+            return;
+        }
+    }
+
+    /**
      * @return bool
      */
     private function startChecks() : bool{
-        if($this->config["plugin_enabled"] !== true){
-            $this->debug($this->utils->colourise($this->messages["plugin_disabled"]));
-            $this->getServer()->getPluginManager()->disablePlugin($this);
-            return false;
+        if($this->config["check_updates"]){
+            $this->debug($this->prefix."Starting update check...");
+            $this->getServer()->getAsyncPool()->submitTask(new Tasks\GetUpdateInfo($this, $this->config["update_check_url"]));
         }
-
-        //Start async task to check for latest release info.
-
         return true;
     }
 
@@ -173,7 +196,6 @@ class Main extends PluginBase implements Listener{
 
     public function onDisable()
     {
-        $this->ExtensionManager->disableExtensions();
         $this->updateAllArenas();
         $this->saveConfig();
         $this->db->close();
