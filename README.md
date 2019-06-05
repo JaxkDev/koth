@@ -10,6 +10,7 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
  
 ## Features
 ### Implemented
+ - Check for updates on server start !
  - Messages are customisable.
  - Multiple Arena's.
  - Custom spawn & hill points.
@@ -24,8 +25,11 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
  - On death keep inventory. (todo config)
 
 ### Upcoming
+ - Change of game rules.
+ - option to download update (but not install, too many security issues there)
+ - Much more events for other developers to be able to customise the game EVEN MORE !
+ - HouseCleaning and a load of testing to release v1.0.0 :)
  - Default arena values to be in config.
- - Override old values of arena positions.
  - Something extra for when winner is announced ***wink***
 
 ## About the game
@@ -63,6 +67,8 @@ As of Beta2 you can only leave by Leaving the server
 or using `/koth leave`
 
 ### Winning a game
+**NOTICE: THIS IS PLANNED TO CHANGE IN BETA4/5**
+
 The game runs on a timer, during which anyone can move, attack and kill the king.
 However when the timer runs out the last standing king, or the previous king will be crowned.
 (And in future rewards and *other* things will be added)
@@ -84,13 +90,10 @@ To check arena status type `/koth list` or `/koth info <arena name>`
    (This command can be used as many times as you like, again be standing on the spawn location you want to set.)
  4. `/koth addreward <arena name> <command>`
    example: `/koth addreward arena1 give {PLAYER} 20 1` <- this would give the winner 1 web.
-   DO NOTE THAT THERE IS NO `/`
 ### Editing Values
-Currently (as of beta2) there is only one option:
-1. Go into plugin_data->KOTH->arenas.yml
-2. Find the arena you wish to edit (via name)
-3. Find the value you wish to edit then change it and save the file.
-4. Reload your server for it to take effect.
+If your provider is yaml feel free to edit the data file but any damaged caused is directly your fault.
+
+You can use commands to modify some but not all data (as of beta3) check /koth help
 
 ### Config Options
 plugin_enabled - Disable/enable the plugin.
@@ -112,10 +115,10 @@ start_countdown - How long until game starts when the minimum amount of players 
 __For more info see the help file in plugin_data/KOTH/help_eng.txt__
 
 ## Extensions:
- - TODO add link to repo...
+ - <https://github.com/jackthehack21/koth-extensions>
 
 ## Known Bugs:
- - Permissions are given to all by default. (should only be OP’s)
+ - NA
 
 To report bugs please make a issue over on [github](https://github.com/jackthehack21/koth/issues/new) and please follow the guidelines.
 

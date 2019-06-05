@@ -51,7 +51,7 @@ use pocketmine\utils\TextFormat as C;
  * [-] Priority: High, Add all messages into messages.yml (different file as there are many customisable messages.)
  * [X] Priority: Medium, Add base events and begin using them.
  * [ ] Priority: Medium, Move most functions to separate file (eg ArenaManager.php) less mess in here to tidy...
- * [ ] Priority: Medium, Move around functions, into more sub files (eg ^) and add all PHPDoc for functions and variables to stop these useless warnings *frown*
+ * [X] Priority: Medium, Move around functions, into more sub files (eg ^) and add all PHPDoc for functions and variables to stop these useless warnings *frown*
  * [X] Priority: Medium, Add a custom Update class/task.
  * [ ] Priority: Low, Add the rest of the modern languages to help files. (update existing ones/commit the ones locally)
  */
@@ -63,6 +63,7 @@ class Main extends PluginBase implements Listener
 
     public const ARENA_VER = 2;
     public const CONFIG_VER = 1;
+    public const MESSAGE_VER = 0;
 
     private $arenas;
     private $CommandHandler;
@@ -89,6 +90,10 @@ class Main extends PluginBase implements Listener
             $this->debug("Starting update check task...");
             $this->getServer()->getAsyncPool()->submitTask(new GetUpdateInfo($this, $this->config["update_check_url"]));
         }
+
+        if (!$this->isPhar()){
+            $this->getLogger()->warning("You are not running a phar, instead using source code which is heavily suggested NOT TO DO.");
+        }
     }
 
     private function initResources(): void
@@ -105,8 +110,12 @@ class Main extends PluginBase implements Listener
         $this->messagesC = new Config($this->getDataFolder() . "messages.yml", Config::YAML);
         $this->messages = $this->messagesC->getAll();
 
-        //todo check arena versions.
+        if ($this->messages["version"] !== $this::MESSAGE_VER) {
+            // Once updated insert here.
+            $this->getLogger()->emergency("DO NOT MODIFY DATA THAT IS NOT MEANT TO BE MODIFIED.");
+        }
         if ($this->config["version"] !== $this::CONFIG_VER) {
+            if (isset($this->config["language"])) unset($this->config["language"]);
             if (!isset($this->config["provider"])) $this->config["provider"] = "sqlite3";
             if (!isset($this->config["block_commands"])) $this->config["block_commands"] = true;
             if (!isset($this->config["prevent_place"])) $this->config["prevent_place"] = true;
@@ -121,11 +130,7 @@ class Main extends PluginBase implements Listener
         }
 
         $languages = array("eng"); //todo get files in dir and parse to get available langs.
-        $language = "eng";
-        if (in_array($this->config["language"], $languages) !== false) {
-            $language = $this->config["language"];
-        }
-        $this->saveResource("help_" . $language . ".txt");
+        foreach($languages as $language) $this->saveResource("help_" . $language . ".txt");
     }
 
     /**
@@ -139,14 +144,13 @@ class Main extends PluginBase implements Listener
             return;
         }
         if (array_key_exists("version", $data["Response"]) && array_key_exists("time", $data["Response"]) && array_key_exists("link", $data["Response"])) {
-            $update = $this->utils->compareVersions($this->getDescription()->getVersion(), $data["Response"]["version"]);
+            $update = $this->utils->compareVersions(strtolower($this->getDescription()->getVersion()), strtolower($data["Response"]["version"]));
             if ($update == 0) {
                 $this->getLogger()->debug("Plugin up-to-date !");
                 return;
             }
             if ($this->config["show_updates"] === false) return;
             if ($update > 0) {
-                //todo *did someone say auto-update*...
                 $lines = explode("\n", $data["Response"]["patch_notes"]);
                 $this->getLogger()->warning("--- UPDATE AVAILABLE ---");
                 $this->getLogger()->warning(C::RED . " Version     :: " . $data["Response"]["version"]);
@@ -158,11 +162,11 @@ class Main extends PluginBase implements Listener
                 $this->getLogger()->warning(C::LIGHT_PURPLE . " Update Link :: " . $data["Response"]["link"]);
                 return;
             } else {
-                $this->getLogger()->debug("Running a build not yet released.");
+                $this->debug("Running a build not yet released, this can cause un intended side effects (including possible data loss)");
                 return;
             }
         } else {
-            $this->getLogger()->warning("Failed to verify update info from github.com");
+            $this->getLogger()->warning("Failed to verify update info received from github.com");
             return;
         }
     }
@@ -183,7 +187,7 @@ class Main extends PluginBase implements Listener
                 $this->config["provider"] = "sqlite3";
                 $this->saveConfig();
         }
-        $this->debug(str_replace("{NAME}", $this->db->getName(), $this->utils->colourise($this->messages["provider"])));
+        $this->debug(str_replace("{NAME}", $this->db->getName(), $this->utils->colourise($this->messages["general"]["provider"])));
         $this->db->open();
         $data = $this->db->getAllData();
 
@@ -192,7 +196,7 @@ class Main extends PluginBase implements Listener
             $this->arenas[] = $arena;
         }
 
-        $this->debug(str_replace("{AMOUNT}", count($this->arenas), $this->utils->colourise($this->messages["arenas_loaded"])));
+        $this->debug(str_replace("{AMOUNT}", count($this->arenas), $this->utils->colourise($this->messages["arenas"]["loaded"])));
     }
 
     public function onDisable()
@@ -273,7 +277,7 @@ class Main extends PluginBase implements Listener
     public function debug(string $msg): bool
     {
         if ($this->config["debug"] === true) {
-            $this->getServer()->getLogger()->info(str_replace("{MSG}", $msg, $this->utils->colourise($this->messages["debug_format"])));
+            $this->getServer()->getLogger()->info(str_replace("{MSG}", $msg, $this->utils->colourise($this->messages["general"]["debug_format"])));
             return true;
         }
         return false;
@@ -355,8 +359,6 @@ class Main extends PluginBase implements Listener
         }
         return null;
     }
-
-    //TODO, Big.  Move most functions to separate file (eg ArenaManager.php) less mess in here to tidy...
 
     /**
      * @return Main

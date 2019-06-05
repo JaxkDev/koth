@@ -193,7 +193,7 @@ class Arena{
      * @param bool $save
      */
     public function checkStatus(bool $save = true) : void{
-        if(count($this->hill) === 2 && count($this->spawns) >= 1){
+        if(count($this->hill) === 2 && count($this->spawns) >= 1 && $this->plugin->getServer()->getLevelByName($this->world) !== null){
             $this->status = self::STATUS_READY;
         } else {
             $this->status = self::STATUS_NOT_READY;
@@ -344,7 +344,6 @@ class Arena{
         foreach($this->players as $name){
             $player = $this->plugin->getServer()->getPlayerExact($name);
             $this->removePlayer($player, "Game over", true);
-            //TP players back to where they was before joining arena.
         }
 
         $this->players = [];
@@ -491,7 +490,7 @@ class Arena{
     }
 
     /**
-     * NOTE: Returns false if player cannot join.
+     * Returns false if player cannot join.
      * 
      * @param Player|CommandSender $player
      * 
@@ -517,9 +516,8 @@ class Arena{
         $this->playerOldPositions[strtolower($player->getName())] = [$player->getLevel()->getName(),$player->getX(), $player->getY(), $player->getZ()];
         $this->broadcastJoin($player);
         $this->spawnPlayer($player);
-        if(count($this->players) >= $this->minPlayers && $this->timerTask === null && $this->plugin->config["auto-start"]){
+        if(count($this->players) >= $this->minPlayers && $this->timerTask === null && $this->plugin->config["auto-start"] === true){
             $this->startTimer();
-            //todo config ^ (auto-start)
         }
         $this->checkStatus();
         return true;

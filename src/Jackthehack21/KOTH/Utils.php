@@ -20,14 +20,14 @@ class Utils{
      */
     public function compareVersions(string $base, string $new) : int{
         $baseParts = explode(".",$base);
-        $baseParts[2] = explode("-Beta",$baseParts[2])[0];
-        if(sizeof(explode("-Beta",explode(".",$base)[2])) >1){
-            $baseParts[3] = explode("-Beta",explode(".",$base)[2])[1];
+        $baseParts[2] = explode("-beta",$baseParts[2])[0];
+        if(sizeof(explode("-beta",explode(".",$base)[2])) >1){
+            $baseParts[3] = explode("-beta",explode(".",$base)[2])[1];
         }
         $newParts = explode(".",$new);
-        $newParts[2] = explode("-Beta",$newParts[2])[0];
-        if(sizeof(explode("-Beta",explode(".",$new)[2])) >1){
-            $newParts[3] = explode("-Beta",explode(".",$new)[2])[1];
+        $newParts[2] = explode("-beta",$newParts[2])[0];
+        if(sizeof(explode("-beta",explode(".",$new)[2])) >1){
+            $newParts[3] = explode("-beta",explode(".",$new)[2])[1];
         }
         if(intval($newParts[0]) > intval($baseParts[0])){
             return 1;
@@ -86,8 +86,8 @@ class Utils{
      * @return string
      */
     public function colourise(string $msg) : string{
-        $colour = array("{BLACK}","{DARK_BLUE}","{DARK_GREEN}","{DARK_AQUA}","{DARK_RED}","{DARK_PURPLE}","{GOLD}","{GRAY}","{DARK_GRAY}","{BLUE}","{GREEN}","{AQUA}","{RED}","{LIGHT_PURPLE}","{YELLOW}","{WHITE}","{OBFUSCATED}","{BOLD}","{STRIKETHROUGH}","{UNDERLINE}","{ITALIC}","{RESET}");
-        $keys = array(C::BLACK, C::DARK_BLUE, C::DARK_GREEN, C::DARK_AQUA, C::DARK_RED, C::DARK_PURPLE, C::GOLD, C::GRAY, C::DARK_GRAY, C::BLUE, C::GREEN, C::AQUA, C::RED, C::LIGHT_PURPLE, C::YELLOW, C::WHITE, C::OBFUSCATED, C::BOLD, C::STRIKETHROUGH, C::UNDERLINE, C::ITALIC, C::RESET);
+        $colour = array("{PREFIX}","{BLACK}","{DARK_BLUE}","{DARK_GREEN}","{DARK_AQUA}","{DARK_RED}","{DARK_PURPLE}","{GOLD}","{GRAY}","{DARK_GRAY}","{BLUE}","{GREEN}","{AQUA}","{RED}","{LIGHT_PURPLE}","{YELLOW}","{WHITE}","{OBFUSCATED}","{BOLD}","{STRIKETHROUGH}","{UNDERLINE}","{ITALIC}","{RESET}");
+        $keys = array($this->plugin->prefix, C::BLACK, C::DARK_BLUE, C::DARK_GREEN, C::DARK_AQUA, C::DARK_RED, C::DARK_PURPLE, C::GOLD, C::GRAY, C::DARK_GRAY, C::BLUE, C::GREEN, C::AQUA, C::RED, C::LIGHT_PURPLE, C::YELLOW, C::WHITE, C::OBFUSCATED, C::BOLD, C::STRIKETHROUGH, C::UNDERLINE, C::ITALIC, C::RESET);
         return str_replace(
             $colour,
             $keys,

@@ -36,9 +36,8 @@ namespace Jackthehack21\KOTH;
 use pocketmine\event\Listener;
 use pocketmine\event\block\{BlockBreakEvent, BlockPlaceEvent};;
 //use pocketmine\event\entity\EntityLevelChangeEvent;
-use pocketmine\event\player\{PlayerDeathEvent, PlayerRespawnEvent, PlayerQuitEvent, PlayerGameModeChangeEvent, PlayerCommandPreprocessEvent};
+use pocketmine\event\player\{PlayerDeathEvent, PlayerRespawnEvent, PlayerQuitEvent, PlayerGameModeChangeEvent, PlayerCommandPreprocessEvent};;
 
-;
 
 class EventHandler implements Listener{
 
@@ -55,9 +54,9 @@ class EventHandler implements Listener{
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
         if($this->plugin->inGame($playerName) === true){
-            //notify players in that arena that a player has left, adjust scoreboard.
+            //adjust scoreboard.
             $arena = $this->plugin->getArenaByPlayer($playerName);
-            $arena->removePlayer($event->getPlayer(), "Disconnected from server."); //arg1 is reason.
+            $arena->removePlayer($event->getPlayer(), "Disconnected from server.");
         }
     }
 
@@ -68,7 +67,6 @@ class EventHandler implements Listener{
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
         if($this->plugin->inGame($playerName) === true){
-            //Re-spawn player in different spawn location.
             $arena = $this->plugin->getArenaByPlayer($playerName);
             $pos = $arena->getSpawn(true);
             $event->setRespawnPosition($pos);
@@ -80,8 +78,7 @@ class EventHandler implements Listener{
      */
     public function onDeath(PlayerDeathEvent $event){
         $player = $event->getPlayer();
-        if($this->plugin->inGame($player->getLowerCaseName()) === true){
-            //todo config.
+        if($this->plugin->inGame($player->getLowerCaseName()) === true and $this->plugin->config["keep_inventory"] === true){
             $event->setKeepInventory(true);
         }
     }
@@ -108,8 +105,6 @@ class EventHandler implements Listener{
         if($this->plugin->inGame($event->getPlayer()->getLowerCaseName()) === true){
             if($event->getPlayer()->isOp() === false and $this->plugin->config["prevent_gamemode_change"] === true){
                 $event->setCancelled(true);
-                $this->plugin->getArenaByPlayer($event->getPlayer()->getLowerCaseName())->broadcastMessage($event->getPlayer()->getName()." Attempted to change gamemode.");
-                //todo config msg.
             }
         }
     }

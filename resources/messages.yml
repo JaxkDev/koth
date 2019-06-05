@@ -1,15 +1,28 @@
 ---
-colour_codes: "All colour codes: {BLACK} {DARK_BLUE} {DARK_GREEN} {DARK_AQUA} {DARK_RED} {DARK_PURPLE} {GOLD} {GRAY} {DARK_GRAY} {BLUE} {GREEN} {AQUA} {RED} {LIGHT_PURPLE} {YELLOW} {WHITE} {OBFUSCATED} {BOLD} {STRIKETHROUGH} {UNDERLINE} {ITALIC} {RESET}"
+colour_codes: "All colour codes: {PREFIX} {BLACK} {DARK_BLUE} {DARK_GREEN} {DARK_AQUA} {DARK_RED} {DARK_PURPLE} {GOLD} {GRAY} {DARK_GRAY} {BLUE} {GREEN} {AQUA} {RED} {LIGHT_PURPLE} {YELLOW} {WHITE} {OBFUSCATED} {BOLD} {STRIKETHROUGH} {UNDERLINE} {ITALIC} {RESET}"
+version: 0
 
-debug_format: "{GRAY}[KOTH | DEBUG] : {MSG}"
-provider: "Provider was set to: {NAME}"
-arenas_loaded: "{AMOUNT} Arena(s) loaded."
+general:
+  debug_format: "{GRAY}[KOTH | DEBUG] : {MSG}"
+  provider: "Provider was set to: {NAME}"
 
-no_perms: "{RED}You do not have permission to use this command!"
-in_game: "{RED}Commands can only be run in-game."
+arenas:
+  loaded: "{AMOUNT} Arena(s) loaded."
+  leave_message: "Chickened Out."
 
-bcast_winner: "{GOLD}{PLAYER} Has won the game."
-bcast_nowinner: "{RED}GAME OVER, No one managed to claim the hill and win the game. Better luck next time."
-bcast_fallenking: "{RED}The king has fallen."
-bcast_newking: "{GOLD}{PLAYER} {GREEN}Has claimed the throne, how long will it last..."
+commands:
+  unknown: "{PREFIX}{RED}Unknown command, try /koth help"
+  no_perms: "{PREFIX}{RED}You do not have permission to use this command!"
+  in_game: "{PREFIX}{RED}Commands can only be run in-game."
+  usage: "{PREFIX}{RED}Usage incorrect, {USAGE}"
+  not_exist: "{PREFIX}{RED}The specified arena does not exist."
+  not_while_running: "{PREFIX}{RED}That arena is currently running, please stop it first."
+  not_in_game_leave: "{PREFIX}{RED}Your not in a game, so how can you leave a game..."
+  in_game_join: "{PREFIX}{RED}Your currently in a game, please leave the game using /koth leave to join another one."
+
+broadcasts:
+  winner: "{PREFIX}{GOLD}{PLAYER} Has won the game in the {ARENA} Arena !"
+  nowinner: "{PREFIX}{RED}GAME OVER, No one managed to claim the hill and win the game. Better luck next time."
+  fallen_king: "{PREFIX}{RED}The king has fallen."
+  new_king: "{PREFIX}{GOLD}{PLAYER} {GREEN}Has claimed the throne, how long will it last..."
 ...
