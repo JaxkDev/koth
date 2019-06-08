@@ -92,9 +92,9 @@ class SqliteProvider implements BaseProvider{
         $code->bindValue(":min_players", $arena->minPlayers);
         $code->bindValue(":max_players", $arena->maxPlayers);
         $code->bindValue(":play_time", $arena->time);
-        $code->bindValue(":hill", $this->plugin->utils->stringifyArray($arena->hill));
-        $code->bindValue(":spawns", $this->plugin->utils->stringifyArray($arena->spawns));
-        $code->bindValue(":rewards", $this->plugin->utils->stringifyArray($arena->rewards));
+        $code->bindValue(":hill", json_encode($arena->hill));
+        $code->bindValue(":spawns", json_encode($arena->spawns));
+        $code->bindValue(":rewards", json_encode($arena->rewards));
         $code->bindValue(":world", $arena->world);
         $code->execute();
     }
@@ -104,9 +104,9 @@ class SqliteProvider implements BaseProvider{
         $code->bindValue(":min_players", $arena->minPlayers);
         $code->bindValue(":max_players", $arena->maxPlayers);
         $code->bindValue(":play_time", $arena->time);
-        $code->bindValue(":hill", $this->plugin->utils->stringifyArray($arena->hill));
-        $code->bindValue(":spawns", $this->plugin->utils->stringifyArray($arena->spawns));
-        $code->bindValue(":rewards", $this->plugin->utils->stringifyArray($arena->rewards));
+        $code->bindValue(":hill", json_encode($arena->hill));
+        $code->bindValue(":spawns", json_encode($arena->spawns));
+        $code->bindValue(":rewards", json_encode($arena->rewards));
         $code->bindValue(":world", $arena->world);
         $code->execute();
     }
@@ -136,9 +136,9 @@ class SqliteProvider implements BaseProvider{
         }
         $data = [];
         foreach($tmpData as $tmp){
-            $tmp["hill"] =  $this->plugin->utils->parseArray($tmp["hill"]);
-            $tmp["spawns"] =  $this->plugin->utils->parseArray($tmp["spawns"]);
-            $tmp["rewards"] =  $this->plugin->utils->parseArray($tmp["rewards"]);
+            $tmp["hill"] =  json_decode($tmp["hill"], true);
+            $tmp["spawns"] =  json_decode($tmp["spawns"], true);
+            $tmp["rewards"] =  json_decode($tmp["rewards"], true);
             $data[] = $tmp;
         }
         return $data;
@@ -152,9 +152,9 @@ class SqliteProvider implements BaseProvider{
             $code->bindValue(":min_players", $arena["min_players"]);
             $code->bindValue(":max_players", $arena["max_players"]);
             $code->bindValue(":play_time", $arena["play_time"]);
-            $code->bindValue(":hill", $this->plugin->utils->stringifyArray($arena["hill"]));
-            $code->bindValue(":spawns", $this->plugin->utils->stringifyArray($arena["spawns"]));
-            $code->bindValue(":rewards", $this->plugin->utils->stringifyArray($arena["rewards"]));
+            $code->bindValue(":hill", json_encode($arena["hill"]));
+            $code->bindValue(":spawns", json_encode($arena["spawns"]));
+            $code->bindValue(":rewards", json_encode($arena["rewards"]));
             $code->bindValue(":world", $arena["world"]);
             $code->execute();
         }

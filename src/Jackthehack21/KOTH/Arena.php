@@ -91,10 +91,10 @@ class Arena{
 
     public $oldKing;
     public $king;
-    public $playersInBox;
+    public $playersInBox = [];
 
-    public $timerTask;
-    public $status;
+    public $timerTask = null;
+    public $status = -1;
 
     public $currentKingParticle = null;
 
@@ -138,7 +138,7 @@ class Arena{
      * @return string
      */
     public function getFriendlyStatus() : string{
-        return $this->statusList[$this->status];
+        return isset($this->statusList[$this->status]) ? $this->statusList[$this->status] : $this->statusList[$this::STATUS_UNKNOWN];
     }
 
     /**
@@ -168,8 +168,7 @@ class Arena{
      * @param string $player
      */
     public function broadcastWinner(string $player) : void{
-        //todo get config.
-        $this->broadcastMessage($this->plugin->prefix.$player." Has won the game !");
+        $this->broadcastMessage(str_replace(["{ARENA}", "{PLAYER}"], [$this->name, $player], $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["winner"])));
     }
 
     /**
@@ -177,16 +176,14 @@ class Arena{
      * @param string $reason
      */
     public function broadcastQuit(Player $player, string $reason) : void{
-        //todo get config.
-        $this->broadcastMessage($this->plugin->prefix.$player->getName()." Has left the game, reason: ".$reason);
+        $this->broadcastMessage(str_replace(["{REASON}", "{PLAYER}"], [$reason, $player], $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["player_quit"])));
     }
 
     /**
      * @param Player $player
      */
     public function broadcastJoin(Player $player) : void{
-        //todo get config.
-        $this->broadcastMessage($this->plugin->prefix.$player->getName()." Has joined the game !");
+        $this->broadcastMessage(str_replace("{PLAYER}", $player, $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["player_join"])));
     }
 
     /**
@@ -214,7 +211,7 @@ class Arena{
     public function createKingTextParticle() : void{
         if($this->plugin->config["KingTextParticles"] === false) return;
         if($this->status !== $this::STATUS_NOT_READY and $this->currentKingParticle === null){
-            //spawn king particle, as we have position of hill/throne and level.
+            // TODO investigate, 1/2 issues reported in crash archive of level being undefined/null.
             $pos = new Vector3(($this->hill[0][0]+$this->hill[1][0])/2,($this->hill[0][1]+$this->hill[1][1])/2,($this->hill[0][2]+$this->hill[1][2])/2);
             $this->currentKingParticle = new FloatingText($this->plugin, $this->plugin->getServer()->getLevelByName($this->world), $pos, C::RED."King: ".C::GOLD."-");
         }
@@ -439,8 +436,7 @@ class Arena{
 
     public function removeKing() : void{
         if($this->king === null) return;
-        $this->broadcastMessage($this->plugin->prefix.C::RED."The king has fallen.");
-        //todo config.
+        $this->broadcastMessage(str_replace("{PLAYER}", $this->king, $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["fallen_king"])));
         $this->changeking();
     }
 
@@ -460,7 +456,7 @@ class Arena{
             return false;
         } else {
             $player = $this->playersInBox()[array_rand($this->playersInBox())]; //todo closest to middle.
-            $this->broadcastMessage($this->plugin->prefix.C::GOLD.$player.C::GREEN." Has claimed the throne, how long will it last...");
+            $this->broadcastMessage(str_replace("{PLAYER}", $player, $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["new_king"])));
             $this->king = $player;
             $this->updateKingTextParticle();
             return true;

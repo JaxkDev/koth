@@ -48,7 +48,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat as C;
 
 /*
- * [-] Priority: High, Add all messages into messages.yml (different file as there are many customisable messages.)
+ * [X] Priority: High, Add all major messages into messages.yml (different file as there are many customisable messages.)
  * [X] Priority: Medium, Add base events and begin using them.
  * [ ] Priority: Medium, Move most functions to separate file (eg ArenaManager.php) less mess in here to tidy...
  * [X] Priority: Medium, Move around functions, into more sub files (eg ^) and add all PHPDoc for functions and variables to stop these useless warnings *frown*
@@ -92,7 +92,7 @@ class Main extends PluginBase implements Listener
         }
 
         if (!$this->isPhar()){
-            $this->getLogger()->warning("You are not running a phar, instead using source code which is heavily suggested NOT TO DO.");
+            $this->getLogger()->warning("You are using source code which is heavily suggested NOT TO DO, please consider using production phar's pre built for you.");
         }
     }
 

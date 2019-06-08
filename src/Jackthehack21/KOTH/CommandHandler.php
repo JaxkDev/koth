@@ -55,11 +55,11 @@ class CommandHandler{
     }
 
     public function handleCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
-        if($cmd->getName() == "koth"){
-            /*if(!$sender instanceof Player){
+        if($cmd->getName() == "koth"){ //Is this really done server side ?? (if i only register /koth ?)
+            if(!$sender instanceof Player and $this->plugin->getServer()->getMotd() !== "Jacks-Test-Server"){  //To help me debug faster.
                 $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
                 return true;
-            }*/
+            }
             if(!isset($args[0])){
                 $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["unknown"]));
                 return true;
@@ -114,7 +114,7 @@ class CommandHandler{
                     }
 
                     $this->plugin->removeArena($arena);
-                    $sender->sendMessage($this->prefix.C::GREEN."Arena removed.");
+                    $sender->sendMessage($this->prefix.C::GREEN."Arena Removed.");
                     return true;
                 case 'create':
                 case 'make':
@@ -213,12 +213,12 @@ class CommandHandler{
                         return true;
                     }
                     if($arena->timerTask !== null){
-                        $sender->sendMessage($this->prefix.C::RED."That arena has already started.");
+                        $sender->sendMessage($this->prefix.C::RED."Arena already started.");
                         return true;
                     }
 
                     $arena->startTimer();
-                    $sender->sendMessage($this->prefix.C::GREEN."Arena countdown started.");
+                    $sender->sendMessage($this->prefix.C::GREEN."Arena starting now...");
                     return true;
 
                 //////-----Arena Setup------///////
@@ -303,11 +303,10 @@ class CommandHandler{
                     }
                     $arena->spawns[] = $point;
                     $arena->checkStatus();
-                    $sender->sendMessage($this->prefix.C::GREEN."spawn position added.");
+                    $sender->sendMessage($this->prefix.C::GREEN."Spawn position added.");
                     return true;
 
                 case 'addreward':
-                    //add reward to arena. '/koth addreward <Arena name> command args'
                     if(!$sender->hasPermission("koth.addreward")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return true;
@@ -409,7 +408,7 @@ class CommandHandler{
         try {
             $event->call();
         } catch (ReflectionException $e) {
-            $sender->sendMessage($this->prefix.C::RED."Event failed to execute, Arena not created.");
+            $sender->sendMessage($this->prefix.C::RED."Event failed, Arena not created.");
             return;
         }
 

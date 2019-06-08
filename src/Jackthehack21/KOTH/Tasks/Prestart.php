@@ -65,7 +65,7 @@ class Prestart extends Task{
             return;
         }
         if($this->countDown <= 5){
-            $this->arena->broadcastMessage($this->plugin->prefix.C::RED."[COUNTDOWN] : ".C::GREEN.$this->countDown); //todo config.
+            $this->arena->broadcastMessage($this->plugin->prefix.C::RED."[COUNTDOWN] : ".C::GREEN.$this->countDown); //todo config server wide broadcast.
         } else {
             if($this->countDown%5 === 0){
                 $this->arena->broadcastMessage($this->plugin->prefix.C::RED."[COUNTDOWN] : ".C::GREEN.$this->countDown);

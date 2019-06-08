@@ -5,8 +5,11 @@
 # K.O.T.H
 King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
 
-## NOTICE
+## NOTICE'S
  **This plugin is in BETA (Pre-Release), so *please* dont spam out comments/issues with broken things or things that you expect there and are not.**
+ 
+ *Just because its the only plugin released, doesnt mean its the best one.*
+ 
  
 ## Features
 ### Implemented
