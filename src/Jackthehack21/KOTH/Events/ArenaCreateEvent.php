@@ -37,6 +37,13 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\ConsoleCommandSender;
 use pocketmine\Player;
 
+/*
+ * Note: The event is only used when the command /koth remove/delete is used,
+ * NOT when the plugins removeArena is called (so it will not work if plugins call the function)
+ *
+ * You have been warned.
+ */
+
 class ArenaCreateEvent extends KothEvent{
 
     private $creator;

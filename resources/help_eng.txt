@@ -3,6 +3,7 @@ Colour variables =  {BLACK} {DARK_BLUE} {DARK_GREEN} {DARK_AQUA} {DARK_RED} {DAR
 
                     ^^^ these can be put in any messages ^^^
 
+//todo update this before Beta3
 
 ========== CONFIG HELP =========
 version: 0                                  <-- DO NOT EVER TOUCH, JUST NO, NO.

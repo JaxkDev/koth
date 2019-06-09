@@ -67,9 +67,7 @@ class EventHandler implements Listener{
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
         if($this->plugin->inGame($playerName) === true){
-            $arena = $this->plugin->getArenaByPlayer($playerName);
-            $pos = $arena->getSpawn(true);
-            $event->setRespawnPosition($pos);
+            $event->setRespawnPosition($this->plugin->getArenaByPlayer($playerName)->getSpawn(true));
         }
     }
 
@@ -85,7 +83,7 @@ class EventHandler implements Listener{
 
     /*public function onLevelChange(EntityLevelChangeEvent $event){
         $targetLevel = $event->getTarget();
-        //todo hack for per world FTP (decide how to handle this :/ )
+        //todo hack for per world FTP (decide how to handle this :/ ) (Beta4)
     }*/
 
     /**

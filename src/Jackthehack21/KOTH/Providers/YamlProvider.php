@@ -36,7 +36,7 @@ namespace Jackthehack21\KOTH\Providers;
 use Jackthehack21\KOTH\{Main,Arena};
 use pocketmine\utils\Config;
 
-// TODO: Major, remove Yaml and swap to JSON.
+// TODO: Major, remove Config and use YAML raw or remove.
 
 class YamlProvider implements BaseProvider{
 
@@ -64,14 +64,14 @@ class YamlProvider implements BaseProvider{
     {
         $this->dataConfig = new Config($this->plugin->getDataFolder() . "arena.yml", Config::YAML, ["version" => $this->version, "arena_list" => []]);
         $this->data = $this->dataConfig->getAll();
-        $this->plugin->debug("Arena data file opened/loaded.");
+        $this->plugin->debug("Arena data file opened.");
     }
 
     public function close() : void
     {
         unset($this->data);
         unset($this->dataConfig);
-        $this->plugin->debug("Arena data file closed/unloaded.");
+        $this->plugin->debug("Arena data file closed.");
     }
 
     public function save(): void

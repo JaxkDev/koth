@@ -32,6 +32,9 @@
 declare(strict_types=1);
 namespace Jackthehack21\KOTH;
 
+use Jackthehack21\KOTH\Events\ArenaEndEvent;
+use Jackthehack21\KOTH\Events\ArenaPreStartEvent;
+use Jackthehack21\KOTH\Events\ArenaStartEvent;
 use Jackthehack21\KOTH\Particles\FloatingText;
 use Jackthehack21\KOTH\Tasks\Prestart;
 use Jackthehack21\KOTH\Tasks\Gametimer;
@@ -42,7 +45,9 @@ use pocketmine\Player;
 use pocketmine\math\Vector3;
 use pocketmine\level\Position;
 
+use pocketmine\scheduler\TaskHandler;
 use pocketmine\utils\TextFormat as C;
+use ReflectionException;
 
 
 /*
@@ -93,7 +98,9 @@ class Arena{
     public $king;
     public $playersInBox = [];
 
-    public $timerTask = null;
+    /** @var null|TaskHandler */
+    public $timerTask;
+
     public $status = -1;
 
     public $currentKingParticle = null;
@@ -120,7 +127,7 @@ class Arena{
         $this->spawnCounter = 0;
         $this->started = false;
         $this->time = $time;
-        $this->countDown = $plugin->config["start_countdown"];
+        $this->countDown = $plugin->config["countdown"];
         $this->world = $world;
         $this->rewards = $rewards;
 
@@ -273,8 +280,7 @@ class Arena{
     public function spawnPlayer(Player $player, $random = false) : void{
         if(strtolower($player->getLevel()->getName()) !== strtolower($this->world)){
             if(!$this->plugin->getServer()->isLevelGenerated($this->world)) {
-                //todo config msg.
-                $player->sendMessage($this->plugin->prefix.C::RED."This arena is corrupt.");
+                $player->sendMessage($this->plugin->prefix.C::RED."World set for '".$this->name."' does not exist.");
                 return;
             }
             if(!$this->plugin->getServer()->isLevelLoaded($this->world)) {
@@ -309,25 +315,57 @@ class Arena{
      * @param bool $freeze
      */
     public function freezeAll(bool $freeze) : void{
+        $this->plugin->debug("setting players ".$freeze ? "immobile" : "mobile");
         foreach($this->players as $name){
             $this->plugin->getServer()->getPlayerExact($name)->setImmobile($freeze);
         }
     }
 
-    public function startTimer() : void{
-        $this->timerTask = $this->plugin->getScheduler()->scheduleRepeatingTask(new Prestart($this->plugin, $this, $this->countDown),20);
+    /** @return null|string */
+    public function startTimer(){
+        $event = new ArenaPreStartEvent($this->plugin, $this);
+        try {
+            $event->call();
+        } catch (ReflectionException $e) {
+            return $this->plugin->prefix.C::RED."Event failed, Arena countdown not started.";
+        }
+
+        if($event->isCancelled()){
+            return $event->getReason();
+        }
+        $this->timerTask = $this->plugin->getScheduler()->scheduleRepeatingTask(new Prestart($this->plugin, $this, $event->getCountDown()),20);
+        $this->plugin->debug("Started Prestart task for arena '".$this->name."'.");
+        return null;
     }
 
     public function startGame() : void{
         /** @noinspection PhpUndefinedMethodInspection */
-        //todo check config for broadcast on start.
+        $event = new ArenaStartEvent($this->plugin, $this);
+        try {
+            $event->call();
+        } catch (ReflectionException $e) {
+            $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Event failed, Arena not started.");
+            return;
+        }
+
+        if($event->isCancelled()){
+            $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Cant start game because: ".$event->getReason());
+            return;
+        }
+        $this->plugin->debug("Starting arena '".$this->name."'...");
         $this->timerTask->cancel();
         $this->started = true;
         $this->checkStatus();
-        $this->broadcastMessage($this->plugin->prefix.C::GOLD."Game On !");
+        $msg = str_replace("{ARENA}", $this->name, $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["start"]));
+        if($this->plugin->config["start_bcast_serverwide"] === true){
+            $this->plugin->getServer()->broadcastMessage($msg);
+        } else {
+            $this->broadcastMessage($msg);
+        }
         $this->createKingTextParticle(); //in case it was never made on startup as it was first made.
-        $this->updateKingTextParticle(); //spawn in.
+        $this->updateKingTextParticle(); //spawn in here.
         $this->timerTask = $this->plugin->getScheduler()->scheduleRepeatingTask(new Gametimer($this->plugin, $this),10);
+        $this->plugin->debug("Started arena '".$this->name."'.");
     }
 
     public function reset() : void{
@@ -350,24 +388,38 @@ class Arena{
     }
 
     public function endGame() : void{
-        //todo check config for broadcast on end.
-        $this->freezeAll(true);
-        $old = $this->oldKing; //in case of no king.
-        $king = $this->king; //in case of a change in this tiny blind spot.
-        /** @noinspection PhpUndefinedMethodInspection */
-        $this->timerTask->cancel();
-        //todo events.
-        if($king !== null){
-            /** @noinspection PhpStrictTypeCheckingInspection */
-            $this->setWinner($king);
+        $event = new ArenaEndEvent($this->plugin, $this);
+        try {
+            $event->call();
+        } catch (ReflectionException $e) {
+            $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Event failed, Arena not ended.");
+            return;
+        }
+
+        if($event->isCancelled()){
+            /** @noinspection PhpUndefinedFieldInspection */
+            $this->timerTask->getTask()->secondsLeft = $event;
+            $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Arena '".$this->name."' not ended, reason: ".$event->getReason());
+            return;
+        }
+        $msg = str_replace("{ARENA}", $this->name, $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["end"]));
+        if($this->plugin->config["end_bcast_serverwide"] === true){
+            $this->plugin->getServer()->broadcastMessage($msg);
         } else {
-            if($old === null){
-                $this->setWinner("Null");
-            } else {
-                /** @noinspection PhpStrictTypeCheckingInspection */
-                $this->setWinner($old);
+            $this->broadcastMessage($msg);
+        }
+        $this->plugin->debug("Arena '".$this->name."' ended.");
+        $this->freezeAll(true);
+        $king = "Null";
+        $this->timerTask->cancel();
+        if($this->king !== null){
+            $king = $this->king;
+        } else {
+            if($this->oldKing !== null){
+                $king = $this->oldKing;
             }
         }
+        $this->setWinner($king);
         $this->reset();
         $this->checkStatus();
     }
@@ -377,7 +429,7 @@ class Arena{
      */
     public function setWinner(string $king) : void{
         if($king === "Null"){
-            $this->broadcastMessage($this->plugin->prefix.C::RED."GAME OVER, No one managed to claim the hill and win the game. Better luck next time.");
+            $this->broadcastMessage($this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["no_winner"]));
             $this->freezeAll(false);
             return;
         }
@@ -390,7 +442,7 @@ class Arena{
             };
 
         }
-        //todo particles fireworks and more for king, and X second delay before un freezing.
+        //todo particles fireworks and more for king, and X second delay before un freezing, Beta4
         $this->freezeAll(false);
     }
 
@@ -455,7 +507,7 @@ class Arena{
         if(count($this->playersInBox()) === 0){
             return false;
         } else {
-            $player = $this->playersInBox()[array_rand($this->playersInBox())]; //todo closest to middle.
+            $player = $this->playersInBox()[array_rand($this->playersInBox())]; //todo closest to middle, Beta4
             $this->broadcastMessage(str_replace("{PLAYER}", $player, $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["new_king"])));
             $this->king = $player;
             $this->updateKingTextParticle();

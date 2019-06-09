@@ -36,7 +36,7 @@
 declare(strict_types=1);
 namespace Jackthehack21\KOTH;
 
-use Jackthehack21\KOTH\Events\ArenaCreateEvent;
+use Jackthehack21\KOTH\Events\{ArenaCreateEvent, ArenaDeleteEvent};;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 
@@ -99,22 +99,7 @@ class CommandHandler{
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return true;
                     }
-                    if(count($args) !== 2){
-                        $sender->sendMessage(str_replace("{USAGE}", "/koth rem (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
-                        return true;
-                    }
-                    $arena = $this->plugin->getArenaByName($args[1]);
-                    if($arena === null){
-                        $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
-                        return true;
-                    }
-                    if($arena->started === true){
-                        $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_while_running"]));
-                        return true;
-                    }
-
-                    $this->plugin->removeArena($arena);
-                    $sender->sendMessage($this->prefix.C::GREEN."Arena Removed.");
+                    $this->deleteArena($sender, $args);
                     return true;
                 case 'create':
                 case 'make':
@@ -217,7 +202,11 @@ class CommandHandler{
                         return true;
                     }
 
-                    $arena->startTimer();
+                    $result = $arena->startTimer();
+                    if($result !== null){
+                        $sender->sendMessage($this->prefix.C::RED."Arena not started because: ".C::RESET.$result);
+                        return true;
+                    }
                     $sender->sendMessage($this->prefix.C::GREEN."Arena starting now...");
                     return true;
 
@@ -344,13 +333,46 @@ class CommandHandler{
     private function listArenas(CommandSender $sender) : void{
         $list = $this->plugin->getAllArenas();
         if(count($list) === 0){
-            $sender->sendMessage($this->prefix.C::RED."No arenas are currently setup.");
+            $sender->sendMessage($this->prefix.C::RED."There are no arena's");
             return;
         }
         $sender->sendMessage($this->prefix.C::RED.count($list).C::GOLD." Arena(s) - ".C::RED."Arena Name | Arena Status");
         foreach($list as $arena){
             $sender->sendMessage(C::GREEN.$arena->getName().C::RED." | ".C::AQUA.$arena->getFriendlyStatus());
         }
+    }
+
+    private function deleteArena(CommandSender $sender, array $args) : void{
+        if(count($args) !== 2){
+            $sender->sendMessage(str_replace("{USAGE}", "/koth rem (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
+            return;
+        }
+        $arena = $this->plugin->getArenaByName($args[1]);
+        if($arena === null){
+            $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
+            return;
+        }
+        if($arena->started === true){
+            $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_while_running"]));
+            return;
+        }
+
+        $event = new ArenaDeleteEvent($this->plugin, $sender, $arena);
+        try {
+            $event->call();
+        } catch (ReflectionException $e) {
+            $sender->sendMessage($this->prefix.C::RED."Event failed, Arena not removed.");
+            return;
+        }
+
+        if($event->isCancelled()){
+            $sender->sendMessage($this->prefix.C::RED."Arena not removed, reason: ".$event->getReason());
+            return;
+        }
+
+        $this->plugin->removeArena($arena);
+        $sender->sendMessage($this->prefix.C::GREEN."Arena Removed.");
+        return;
     }
 
     private function createArena(CommandSender $sender, array $args) : void{
@@ -368,7 +390,6 @@ class CommandHandler{
         $max = $args[3];
         $gameTime = $args[4];
 
-        //verify data:
         if($this->plugin->getArenaByName($name) !== null){
             $sender->sendMessage($this->prefix.C::RED."A arena with that name already exists.");
             return;
@@ -377,7 +398,7 @@ class CommandHandler{
             $sender->sendMessage($this->prefix.C::RED."Min value must be a number.");
             return;
         }
-        if(intval($min) < 1){
+        if(intval($min) < 1){ //todo change back when finished testing, (<=)
             $sender->sendMessage($this->prefix.C::RED."minimum value must be above 2.");
             return;
         }
@@ -400,7 +421,7 @@ class CommandHandler{
         }
 
         if($this->plugin->getArenaByName($name) !== null){
-            $sender->sendMessage($this->prefix.C::RED."A arena with that name already exists.");
+            $sender->sendMessage($this->prefix.C::RED."A arena under that name already exists.");
             return;
         }
 
@@ -413,20 +434,13 @@ class CommandHandler{
         }
 
         if($event->isCancelled()){
-            $sender->sendMessage($this->prefix.C::RED."Arena not created, reason: Event Cancelled"); //todo configurable event msg's
+            $sender->sendMessage($this->prefix.C::RED."Arena not created, reason: ".$event->getReason());
             return;
         }
 
-        //create arena
         $arena = new Arena($this->plugin, $event->getName(), $event->getMinPlayers(), $event->getMaxPlayers(), $event->getGameTime(), $event->getHillPositions(), $event->getSpawnPositions(), $event->getRewards(), $event->getWorld());
-        $result = $this->plugin->newArena($arena);
+        $this->plugin->newArena($arena);
 
-        //todo method to change the below, failing without reason doesnt seem good enough right now.
-
-        if($result === false){
-            $sender->sendMessage($this->prefix.C::RED."Failed to create arena, sorry.");
-            return;
-        }
         $sender->sendMessage($this->prefix.C::GREEN."Nice one, ".$name." arena is almost fully setup, to complete the arena setup be sure to do '/koth setpos1 (arena name)' when standing on pos 1, and '/koth setpos2 (arena name)' when standing in the opposite corner.");
         $sender->sendMessage(C::GREEN."You then setup spawn points, any amount of spawn points, set one by using the command '/koth setspawn (arena name)' when standing on the spawn point.");
         return;

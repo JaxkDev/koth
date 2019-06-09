@@ -33,16 +33,21 @@ declare(strict_types=1);
 namespace Jackthehack21\KOTH\Tasks;
 
 use pocketmine\scheduler\Task;
-use pocketmine\utils\TextFormat as C;
 
 use Jackthehack21\KOTH\Main;
 use Jackthehack21\KOTH\Arena;
 
 class Prestart extends Task{
 
+    /** @var Main */
     private $plugin;
+
+    /** @var Arena */
     private $arena;
+
+    /** @var int */
     private $countDown;
+    private $serverBcast;
 
     /**
      * Prestart constructor.
@@ -54,6 +59,7 @@ class Prestart extends Task{
         $this->plugin = $plugin;
         $this->arena = $arena;
         $this->countDown = $count;
+        $this->serverBcast = $this->plugin->config["countdown_bcast_serverwide"] === true;
     }
 
     /**
@@ -64,11 +70,22 @@ class Prestart extends Task{
             $this->arena->startGame();
             return;
         }
-        if($this->countDown <= 5){
-            $this->arena->broadcastMessage($this->plugin->prefix.C::RED."[COUNTDOWN] : ".C::GREEN.$this->countDown); //todo config server wide broadcast.
-        } else {
-            if($this->countDown%5 === 0){
-                $this->arena->broadcastMessage($this->plugin->prefix.C::RED."[COUNTDOWN] : ".C::GREEN.$this->countDown);
+        if($this->plugin->config["countdown_bcast"] === true) {
+            $msg = str_replace(["{COUNT}","{ARENA}"],[$this->countDown, $this->arena->getName()], $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["countdown"]));
+            if ($this->countDown <= 5) {
+                if(!$this->serverBcast){
+                    $this->arena->broadcastMessage($msg);
+                } else{
+                    $this->plugin->getServer()->broadcastMessage($msg);
+                }
+            } else {
+                if (($this->countDown % $this->plugin->config["countdown_bcast_interval"]) === 0) {
+                    if(!$this->serverBcast){
+                        $this->arena->broadcastMessage($msg);
+                    } else {
+                        $this->plugin->getServer()->broadcastMessage($msg);
+                    }
+                }
             }
         }
         $this->countDown--;

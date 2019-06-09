@@ -70,7 +70,6 @@ class Utils{
      */
     public function getClosest(string $search, array $arr) : int{
         //https://stackoverflow.com/a/5464961 - Thanks :)
-        //todo implement this when multiple users in king area when choosing next king.
         $closest = null;
         foreach ($arr as $item) {
             if ($closest === null || abs($search - $closest) > abs($item - $search)) {

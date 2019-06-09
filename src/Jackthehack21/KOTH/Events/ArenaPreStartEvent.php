@@ -30,48 +30,48 @@
 */
 
 declare(strict_types=1);
-namespace Jackthehack21\KOTH\Tasks;
+namespace Jackthehack21\KOTH\Events;
 
-use pocketmine\scheduler\Task;
-
-use Jackthehack21\KOTH\Main;
 use Jackthehack21\KOTH\Arena;
+use Jackthehack21\KOTH\Main;
 
-class Gametimer extends Task{
+/*
+ * Note: The event is only used when the command /koth remove/delete is used,
+ * NOT when the plugins removeArena is called (so it will not work if plugins call the function)
+ *
+ * You have been warned.
+ */
 
-    private $plugin;
+class ArenaPreStartEvent extends KothEvent{
+
+    /** @var Arena */
     private $arena;
 
-    public $secondsLeft;
+    /** @var int */
+    public $countdown;
 
-
-    /**
-     * Gametimer constructor.
-     * @param Main $plugin
-     * @param Arena $arena
-     */
     public function __construct(Main $plugin, Arena $arena){
-        $this->plugin = $plugin;
         $this->arena = $arena;
-        $this->secondsLeft = $arena->time;
+        $this->countdown = $arena->countDown;
+        parent::__construct($plugin);
+    }
+
+    /** @return int */
+    public function getCountdown(): int{
+        return $this->countdown;
+    }
+
+    /** @var int
+     *  Notice, Does not change Arena->countDown.
+     */
+    public function setCountdown(int $countdown): void{
+        $this->countdown = $countdown;
     }
 
     /**
-     * @param int $tick
+     * @return Arena
      */
-    public function onRun(int $tick){
-        $this->secondsLeft -= 0.5;
-        $inBox = $this->arena->playersInBox();
-        if($this->arena->king === null){
-            $this->arena->checkNewKing();
-        } else {
-            if (!in_array($this->arena->king, $inBox)) {
-                $this->arena->removeKing();
-            }
-        }
-
-        if($this->secondsLeft <= 0){
-            $this->arena->endGame();
-        }
+    public function getArena(): Arena{
+        return $this->arena;
     }
 }

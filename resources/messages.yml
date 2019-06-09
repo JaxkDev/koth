@@ -22,9 +22,13 @@ commands:
 
 broadcasts:
   winner: "{PREFIX}{GOLD}{PLAYER} Has won the game in the {ARENA} Arena !"
-  nowinner: "{PREFIX}{RED}GAME OVER, No one managed to claim the hill and win the game. Better luck next time."
+  no_winner: "{PREFIX}{RED}GAME OVER, No one managed to claim the hill and win the game. Better luck next time."
   fallen_king: "{PREFIX}{RED}The king {AQUA}'{PLAYER}'{RED} has fallen."
   new_king: "{PREFIX}{GOLD}{PLAYER} {GREEN}Has claimed the throne, how long will it last..."
   player_quit: "{PREFIX}{GOLD}{PLAYER} {AQUA}Has left the game, reason: {RED}{REASON}"
   player_join: "{PREFIX}{GOLD}{PLAYER} {GREEN}Has joined the game !"
+
+  countdown: "{PREFIX}{GOLD}[{ARENA}|COUNTDOWN] {RED}: {GREEN}{COUNT}"
+  start: "{PREFIX}{GOLD}[{ARENA}] {GREEN}Has Started !"
+  end: "{PREFIX}{GOLD}[{ARENA}] {GREEN}Has Ended."
 ...

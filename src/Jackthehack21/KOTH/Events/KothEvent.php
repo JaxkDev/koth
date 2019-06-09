@@ -37,8 +37,19 @@ use pocketmine\event\Cancellable;
 use pocketmine\event\plugin\PluginEvent;
 
 abstract class KothEvent extends PluginEvent implements Cancellable{
-    public function __construct(Main $plugin)
+
+    private $reason = "Event Cancelled";
+
+    public function __construct( Main $plugin)
     {
         parent::__construct($plugin);
+    }
+
+    public function getReason(): string{
+        return $this->reason;
+    }
+
+    public function setReason(string $reason): void{
+        $this->reason = $reason;
     }
 }

@@ -121,7 +121,7 @@ __For more info see the help file in plugin_data/KOTH/help_eng.txt__
  - <https://github.com/jackthehack21/koth-extensions>
 
 ## Known Bugs:
- - NA
+ - Floating Text Particles will appear in every world but at same position.
 
 To report bugs please make a issue over on [github](https://github.com/jackthehack21/koth/issues/new) and please follow the guidelines.
 

@@ -3,7 +3,7 @@ version: 1
 
 provider: "sqlite3"
 
-debug: false
+debug: true
 
 show_updates: true
 check_updates: true
@@ -16,7 +16,14 @@ prevent_gamemode_change: true
 keep_inventory: true
 
 auto_start: true
-start_countdown: 10
+
+countdown: 30
+countdown_bcast: true
+countdown_bcast_interval: 5
+countdown_bcast_serverwide: false
+
+start_bcast_serverwide: false
+end_bcast_serverwide: false
 
 KingTextParticles: true
 

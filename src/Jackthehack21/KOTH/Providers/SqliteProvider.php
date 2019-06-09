@@ -75,13 +75,13 @@ class SqliteProvider implements BaseProvider{
         $this->prepareCode();
 
         $this->db->exec($this->createTableCode);
-        $this->plugin->debug("Arena DB opened/created/loaded.");
+        $this->plugin->debug("Arena DB opened/created.");
     }
 
     public function close() : void
     {
         $this->db->close();
-        $this->plugin->debug("Arena DB closed/unloaded.");
+        $this->plugin->debug("Arena DB closed.");
     }
 
     public function save(): void{}

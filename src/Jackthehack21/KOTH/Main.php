@@ -53,7 +53,7 @@ use pocketmine\utils\TextFormat as C;
  * [ ] Priority: Medium, Move most functions to separate file (eg ArenaManager.php) less mess in here to tidy...
  * [X] Priority: Medium, Move around functions, into more sub files (eg ^) and add all PHPDoc for functions and variables to stop these useless warnings *frown*
  * [X] Priority: Medium, Add a custom Update class/task.
- * [ ] Priority: Low, Add the rest of the modern languages to help files. (update existing ones/commit the ones locally)
+ * [-] Priority: Low, Add the rest of the modern languages to help files. (update existing ones/commit the ones locally)
  */
 
 class Main extends PluginBase implements Listener
@@ -112,9 +112,22 @@ class Main extends PluginBase implements Listener
 
         if ($this->messages["version"] !== $this::MESSAGE_VER) {
             // Once updated insert here.
-            $this->getLogger()->emergency("DO NOT MODIFY DATA THAT IS NOT MEANT TO BE MODIFIED.");
+            $this->getLogger()->emergency("DO NOT MODIFY DATA THAT IS NOT MEANT TO BE MODIFIED, YOU HAVE BEEN WARNED.");
         }
         if ($this->config["version"] !== $this::CONFIG_VER) {
+            if (isset($this->config["start_countdown"])){
+                $this->config["countdown"] = $this->config["start_countdown"];
+                unset($this->config["start_countdown"]);
+            } else {
+                if(!isset($this->config["countdown"])){
+                    $this->config["countdown"] = 30;
+                }
+            }
+            if (!isset($this->config["countdown_bcast"])) $this->config["countdown_bcast"] = true;
+            if (!isset($this->config["countdown_bcast_interval"])) $this->config["countdown_bcast_interval"] = 5;
+            if (!isset($this->config["countdown_bcast_serverwide"])) $this->config["countdown_bcast_serverwide"] = false;
+            if (!isset($this->config["start_bcast_serverwide"])) $this->config["start_bcast_serverwide"] = false;
+            if (!isset($this->config["end_bcast_serverwide"])) $this->config["end_bcast_serverwide"] = false;
             if (isset($this->config["language"])) unset($this->config["language"]);
             if (!isset($this->config["provider"])) $this->config["provider"] = "sqlite3";
             if (!isset($this->config["block_commands"])) $this->config["block_commands"] = true;
@@ -129,8 +142,7 @@ class Main extends PluginBase implements Listener
             $this->saveConfig();
         }
 
-        $languages = array("eng"); //todo get files in dir and parse to get available langs.
-        foreach($languages as $language) $this->saveResource("help_" . $language . ".txt");
+        foreach(array("eng") as $language) $this->saveResource("help_" . $language . ".txt");
     }
 
     /**
@@ -294,13 +306,12 @@ class Main extends PluginBase implements Listener
 
     /**
      * @param Arena $arena
-     * @return bool
      */
-    public function newArena(Arena $arena): bool
+    public function newArena(Arena $arena): void
     {
         $this->arenas[] = $arena;
         $this->db->createArena($arena);
-        return true;
+        return;
     }
 
     /**
