@@ -32,7 +32,6 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
  - option to download update (but not install, too many security issues there)
  - Much more events for other developers to be able to customise the game EVEN MORE !
  - HouseCleaning and a load of testing to release v1.0.0 :)
- - Default arena values to be in config.
  - Something extra for when winner is announced ***wink***
 
 ## About the game
@@ -61,13 +60,11 @@ To join a game/arena the arena must meet some criteria,
 If the arena meets all the above you can join using `/koth join <arena name>`
 
 ### Starting a game
-The game will start the pregame - counter when the minimum amount of players has joined.
-
-(In future you can force start)
+The game will start the pregame counter when the minimum amount of players has joined.
+or if auto-start is disabled in config you can type `/koth forcestart` or `/koth start`
 
 ### Leaving a game
-As of Beta2 you can only leave by Leaving the server
-or using `/koth leave`
+You can leave a game by using the command `/koth leave` or quiting the game.
 
 ### Winning a game
 **NOTICE: THIS IS PLANNED TO CHANGE IN BETA4/5**
@@ -98,24 +95,11 @@ If your provider is yaml feel free to edit the data file but any damaged caused 
 
 You can use commands to modify some but not all data (as of beta3) check /koth help
 
-### Config Options
-plugin_enabled - Disable/enable the plugin.
+### Config:
+When the plugin is first run it will make a file in plugin_data/koth/ named config.yml
+in the file you will find a series of values feel free to change any of them except version
 
-debug - Show debug messages.
-
-check_updates - Not yet used.
-
-language - Choose one ["eng"] for the correct help file.
-
-KingTextParticles - Displays KingText in middle of king area.
-
-nametag_enabled - Enable/disable nametag feature.
-
-nametag_format - NameTag format, you can use any colour code. see help file for more info.
-
-start_countdown - How long until game starts when the minimum amount of players are in-game.
-
-__For more info see the help file in plugin_data/KOTH/help_eng.txt__
+For more info see the help file found in the same directory.
 
 ## Extensions:
  - <https://github.com/jackthehack21/koth-extensions>

@@ -70,7 +70,7 @@ class CommandHandler{
                     $sender->sendMessage(C::GOLD."/koth help ".C::RESET."- Sends help :)");
                     $sender->sendMessage(C::GOLD."/koth credits ".C::RESET."- Display the credits.");
                     if($sender->hasPermission("koth.list")) $sender->sendMessage(C::GOLD."/koth list ".C::RESET."- List all arena's setup and ready to play !");
-                    if($sender->hasPermission("koth.info")) $sender->sendMessage(C::GOLD."/koth list ".C::RESET."- List all arena's setup and ready to play !");
+                    if($sender->hasPermission("koth.info")) $sender->sendMessage(C::GOLD."/koth info (arena name) ".C::RESET."- Get more info on one arena.");
                     if($sender->hasPermission("koth.join")) $sender->sendMessage(C::GOLD."/koth join (arena name)".C::RESET." - Join a game.");
                     if($sender->hasPermission("koth.leave")) $sender->sendMessage(C::GOLD."/koth leave ".C::RESET."- Leave a game you'r currently in.");
                     if($sender->hasPermission("koth.new")) $sender->sendMessage(C::GOLD."/koth new (arena name - no spaces) (min players) (max players) (gametime in seconds)".C::RESET." - Start the setup process of making a new arena.");
@@ -231,6 +231,7 @@ class CommandHandler{
                     }
                     if(isset($arena->hill[0])){
                         $arena->hill[0] = $point;
+                        $arena->world = $sender->getLevel()->getName();
                         $sender->sendMessage($this->prefix.C::GREEN."Position 1 Re-set");
                         return true;
                     }

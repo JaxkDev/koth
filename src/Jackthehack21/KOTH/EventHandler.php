@@ -54,7 +54,7 @@ class EventHandler implements Listener{
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
         if($this->plugin->inGame($playerName) === true){
-            //adjust scoreboard.
+            $this->plugin->debug($playerName." has left the game, informing arena...");
             $arena = $this->plugin->getArenaByPlayer($playerName);
             $arena->removePlayer($event->getPlayer(), "Disconnected from server.");
         }
@@ -67,6 +67,7 @@ class EventHandler implements Listener{
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
         if($this->plugin->inGame($playerName) === true){
+            $this->plugin->debug($playerName." was re-spawned.");
             $event->setRespawnPosition($this->plugin->getArenaByPlayer($playerName)->getSpawn(true));
         }
     }
@@ -77,6 +78,7 @@ class EventHandler implements Listener{
     public function onDeath(PlayerDeathEvent $event){
         $player = $event->getPlayer();
         if($this->plugin->inGame($player->getLowerCaseName()) === true and $this->plugin->config["keep_inventory"] === true){
+            $this->plugin->debug($player->getLowerCaseName()."'s inventory was not reset (death)");
             $event->setKeepInventory(true);
         }
     }
@@ -92,6 +94,7 @@ class EventHandler implements Listener{
     public function onPlayerCommandPreprocess(PlayerCommandPreprocessEvent $event){
         $player = $event->getPlayer();
         if($this->plugin->inGame($player->getLowerCaseName()) === true and $this->plugin->config["block_commands"] === true and substr($event->getMessage(), 0, 5) !== "/koth"){
+            $this->plugin->debug($player->getName()." tried to use command '".$event->getMessage()."' but was cancelled.");
             $event->setCancelled(true);
         }
     }
@@ -102,6 +105,7 @@ class EventHandler implements Listener{
     public function onPlayerGameModeChange(PlayerGameModeChangeEvent $event){
         if($this->plugin->inGame($event->getPlayer()->getLowerCaseName()) === true){
             if($event->getPlayer()->isOp() === false and $this->plugin->config["prevent_gamemode_change"] === true){
+                $this->plugin->debug($event->getPlayer()->getName()." attempted to change gamemode but was stopped.");
                 $event->setCancelled(true);
             }
         }
@@ -112,6 +116,7 @@ class EventHandler implements Listener{
      */
     public function onBlockBreak(BlockBreakEvent $event){
         if($this->plugin->inGame($event->getPlayer()->getLowerCaseName()) === true and $this->plugin->config["prevent_break"] === true){
+            $this->plugin->debug($event->getPlayer()->getName()." attempted to break a block but was stopped.");
             $event->setCancelled(true);
         }
     }
@@ -121,6 +126,7 @@ class EventHandler implements Listener{
      */
     public function onBlockPlace(BlockPlaceEvent $event){
         if($this->plugin->inGame($event->getPlayer()->getLowerCaseName()) === true and $this->plugin->config["prevent_place"] === true){
+            $this->plugin->debug($event->getPlayer()->getName()." attempted to place a block but was stopped.");
             $event->setCancelled(true);
         }
     }

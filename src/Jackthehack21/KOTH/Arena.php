@@ -545,10 +545,8 @@ class Arena{
      * @return bool
      */
     public function addPlayer(Player $player) : bool{
-        if(count($this->players) >= $this->maxPlayers){
-            return false;
-        }
         if($this->plugin->getArenaByPlayer(strtolower($player->getName())) !== null){
+            $player->sendMessage($this->plugin->prefix.C::RED."You are in a arena, type /koth leave before joining another one.");
             return false;
         }
         switch($this->status){

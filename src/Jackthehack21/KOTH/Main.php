@@ -47,15 +47,6 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat as C;
 
-/*
- * [X] Priority: High, Add all major messages into messages.yml (different file as there are many customisable messages.)
- * [X] Priority: Medium, Add base events and begin using them.
- * [ ] Priority: Medium, Move most functions to separate file (eg ArenaManager.php) less mess in here to tidy...
- * [X] Priority: Medium, Move around functions, into more sub files (eg ^) and add all PHPDoc for functions and variables to stop these useless warnings *frown*
- * [X] Priority: Medium, Add a custom Update class/task.
- * [-] Priority: Low, Add the rest of the modern languages to help files. (update existing ones/commit the ones locally)
- */
-
 class Main extends PluginBase implements Listener
 {
 
@@ -137,7 +128,7 @@ class Main extends PluginBase implements Listener
             if (!isset($this->config["keep_inventory"])) $this->config["keep_inventory"] = true;
             if (!isset($this->config["show_updates"])) $this->config["show_updates"] = true;
             if (!isset($this->config["check_updates"])) $this->config["check_updates"] = true;
-            if (!isset($this->config["update_check_url"])) $this->config["update_check_url"] = "https://raw.githubusercontent.com/jackthehack21/koth/master/github/updates.json";
+            if (!isset($this->config["update_check_url"])) $this->config["update_check_url"] = "https://raw.githubusercontent.com/jackthehack21/koth/master/updates.json";
             $this->config["version"] = $this::CONFIG_VER;
             $this->saveConfig();
         }

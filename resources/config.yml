@@ -7,7 +7,7 @@ debug: true
 
 show_updates: true
 check_updates: true
-update_check_url: "https://raw.githubusercontent.com/jackthehack21/koth/master/github/updates.json"
+update_check_url: "https://raw.githubusercontent.com/jackthehack21/koth/master/updates.json"
 
 block_commands: true
 prevent_place: true
