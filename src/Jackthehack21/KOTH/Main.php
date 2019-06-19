@@ -150,9 +150,19 @@ class Main extends PluginBase implements Listener
 
     /**
      * @param string $path
+     * @param $status
      */
-    public function handleDownload(string $path): void{
-        var_dump($path);
+    public function handleDownload(string $path, $status): void{
+        $this->debug("Update download complete, at '".$path."' with status '".$status."'");
+        @rename($path, $this->getServer()->getPluginPath()."/KOTH-Update.phar");
+        if($this->getFileName() === null){
+            $this->debug("Deleting previous KOTH version...");
+            @rmdir($this->getFile()); //i shouldn't be helping with source but i guess i can...
+            $this->getLogger()->warning("Installation complete, please restart your server to load the updated plugin.");
+            return;
+        }
+        @rename($this->getServer()->getPluginPath()."/".$this->getFileName(), $this->getServer()->getPluginPath()."/KOTH.phar.old"); //failsafe i guess.
+        $this->getLogger()->warning("Installation complete, please restart your server to load the updated plugin.");
     }
 
     /**
@@ -189,7 +199,7 @@ class Main extends PluginBase implements Listener
                 if ($this->config["download_updates"] === true){
                     $this->getLogger()->warning("Downloading Update...");
                     $this->debug("Begin download of new update.");
-                    $this->downloadUpdate($data["Response"]["download_url"]);
+                    $this->downloadUpdate($data["Response"]["download_link"]);
                 }
                 return;
             } else {
@@ -239,6 +249,7 @@ class Main extends PluginBase implements Listener
 
     public function onEnable(): void
     {
+        @rmdir($this->getDataFolder()."tmp/");
         $this->initResources();
         $this->init();
     }
