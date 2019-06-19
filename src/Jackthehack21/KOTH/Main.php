@@ -152,17 +152,23 @@ class Main extends PluginBase implements Listener
      * @param string $path
      * @param $status
      */
-    public function handleDownload(string $path, $status): void{
+    public function handleDownload(string $path, int $status): void{
         $this->debug("Update download complete, at '".$path."' with status '".$status."'");
+        if($status !== 200){
+            $this->getLogger()->warning("Received status code '".$status."' when downloading update, update cancelled.");
+            rmalldir($this->getDataFolder()."/tmp");
+            return;
+        }
         @rename($path, $this->getServer()->getPluginPath()."/KOTH-Update.phar");
         if($this->getFileName() === null){
             $this->debug("Deleting previous KOTH version...");
-            @rmdir($this->getFile()); //i shouldn't be helping with source but i guess i can...
+            rmalldir($this->getFile()); //i shouldn't be helping with source but i guess i can...
             $this->getLogger()->warning("Installation complete, please restart your server to load the updated plugin.");
             return;
         }
         @rename($this->getServer()->getPluginPath()."/".$this->getFileName(), $this->getServer()->getPluginPath()."/KOTH.phar.old"); //failsafe i guess.
-        $this->getLogger()->warning("Installation complete, please restart your server to load the updated plugin.");
+        $this->getLogger()->warning("Installation complete, reloading server...");
+        $this->getServer()->reload(); //todo config.
     }
 
     /**
@@ -420,4 +426,20 @@ class Main extends PluginBase implements Listener
     {
         return self::$instance;
     }
+}
+
+function rmalldir($dir) {
+    $tmp = scandir($dir);
+    foreach ($tmp as $item) {
+        if ($item === '.' || $item === '..') {
+            continue;
+        }
+        $path = $dir.'/'.$item;
+        if (is_dir($path)) {
+            rmalldir($path);
+        } else {
+            unlink($path);
+        }
+    }
+    rmdir($dir);
 }
