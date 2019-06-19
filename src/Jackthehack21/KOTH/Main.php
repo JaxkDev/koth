@@ -37,6 +37,7 @@ namespace Jackthehack21\KOTH;
 use Jackthehack21\KOTH\Providers\BaseProvider;
 use Jackthehack21\KOTH\Providers\SqliteProvider;
 use Jackthehack21\KOTH\Providers\YamlProvider;
+use Jackthehack21\KOTH\Tasks\DownloadFile;
 use Jackthehack21\KOTH\Tasks\GetUpdateInfo;
 use Jackthehack21\KOTH\Utils as PluginUtils;
 
@@ -73,6 +74,7 @@ class Main extends PluginBase implements Listener
 
     private function init(): void
     {
+        var_dump($this->getFileName());
         $this->arenas = [];
         $this->loadArenas();
         $this->getServer()->getPluginManager()->registerEvents($this->EventHandler, $this);
@@ -128,12 +130,29 @@ class Main extends PluginBase implements Listener
             if (!isset($this->config["keep_inventory"])) $this->config["keep_inventory"] = true;
             if (!isset($this->config["show_updates"])) $this->config["show_updates"] = true;
             if (!isset($this->config["check_updates"])) $this->config["check_updates"] = true;
+            if (!isset($this->config["download_updates"])) $this->config["download_updates"] = false;
             if (!isset($this->config["update_check_url"])) $this->config["update_check_url"] = "https://raw.githubusercontent.com/jackthehack21/koth/master/updates.json";
             $this->config["version"] = $this::CONFIG_VER;
             $this->saveConfig();
         }
 
         foreach(array("eng") as $language) $this->saveResource("help_" . $language . ".txt");
+    }
+
+    /**
+     * @param string $url
+     */
+    private function downloadUpdate(string $url): void{
+        @mkdir($this->getDataFolder()."tmp/");
+        $path = $this->getDataFolder()."tmp/KOTH-Update.phar";
+        $this->getServer()->getAsyncPool()->submitTask(new DownloadFile($this, $url, $path));
+    }
+
+    /**
+     * @param string $path
+     */
+    public function handleDownload(string $path): void{
+        var_dump($path);
     }
 
     /**
@@ -152,8 +171,12 @@ class Main extends PluginBase implements Listener
                 $this->getLogger()->debug("Plugin up-to-date !");
                 return;
             }
-            if ($this->config["show_updates"] === false) return;
-            if ($update > 0) {
+            if ($this->config["download_updates"] === true){
+                if ($update > 0){
+                    $this->debug("Downloading update...");
+                }
+            }
+            if ($update > 0 and $this->config["show_updates"] === true) {
                 $lines = explode("\n", $data["Response"]["patch_notes"]);
                 $this->getLogger()->warning("--- UPDATE AVAILABLE ---");
                 $this->getLogger()->warning(C::RED . " Version     :: " . $data["Response"]["version"]);
@@ -163,9 +186,14 @@ class Main extends PluginBase implements Listener
                     $this->getLogger()->warning("                " . C::GREEN . $lines[$i]);
                 }
                 $this->getLogger()->warning(C::LIGHT_PURPLE . " Update Link :: " . $data["Response"]["link"]);
+                if ($this->config["download_updates"] === true){
+                    $this->getLogger()->warning("Downloading Update...");
+                    $this->debug("Begin download of new update.");
+                    $this->downloadUpdate($data["Response"]["download_url"]);
+                }
                 return;
             } else {
-                $this->debug("Running a build not yet released, this can cause un intended side effects (including possible data loss)");
+                if ($update < 0) $this->debug("Running a build not yet released, this can cause un intended side effects (including possible data loss)");
                 return;
             }
         } else {
@@ -360,6 +388,18 @@ class Main extends PluginBase implements Listener
             }
         }
         return null;
+    }
+
+    /**
+     * returns null if running from folder or anything except phar.
+     * @return string|null
+     */
+    private function getFileName(){
+        $path = $this->getFile();
+        if(substr($path, 0, 7) !== "phar://") return null;
+        $tmp = explode("\\", $path);
+        $tmp = end($tmp); //requires reference, so cant do all in one
+        return str_replace("/","",$tmp);
     }
 
     /**

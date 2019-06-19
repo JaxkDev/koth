@@ -43,7 +43,7 @@ class GetUpdateInfo extends AsyncTask
     public function __construct(Main $plugin, string $url)
     {
         $this->url = $url;
-        $this->storeLocal($plugin);
+        $this->storeLocal($plugin); //4.0 compatible.
     }
     public function onRun()
     {

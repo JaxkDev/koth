@@ -38,8 +38,6 @@ use Jackthehack21\KOTH\Main;
 use Jackthehack21\KOTH\Arena;
 
 class Gametimer extends Task{
-
-    private $plugin;
     private $arena;
 
     public $secondsLeft;
@@ -50,8 +48,7 @@ class Gametimer extends Task{
      * @param Main $plugin
      * @param Arena $arena
      */
-    public function __construct(Main $plugin, Arena $arena){
-        $this->plugin = $plugin;
+    public function __construct(Arena $arena){
         $this->arena = $arena;
         $this->secondsLeft = $arena->time;
     }

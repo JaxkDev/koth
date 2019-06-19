@@ -59,7 +59,7 @@ class Prestart extends Task{
         $this->plugin = $plugin;
         $this->arena = $arena;
         $this->countDown = $count;
-        $this->serverBcast = $this->plugin->config["countdown_bcast_serverwide"] === true;
+        $this->serverBcast = $plugin->config["countdown_bcast_serverwide"] === true;
     }
 
     /**

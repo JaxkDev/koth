@@ -7,6 +7,7 @@ debug: true
 
 show_updates: true
 check_updates: true
+download_updates: false
 update_check_url: "https://raw.githubusercontent.com/jackthehack21/koth/master/updates.json"
 
 block_commands: true
