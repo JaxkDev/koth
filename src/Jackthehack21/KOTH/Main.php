@@ -74,7 +74,6 @@ class Main extends PluginBase implements Listener
 
     private function init(): void
     {
-        var_dump($this->getFileName());
         $this->arenas = [];
         $this->loadArenas();
         $this->getServer()->getPluginManager()->registerEvents($this->EventHandler, $this);
@@ -156,19 +155,19 @@ class Main extends PluginBase implements Listener
         $this->debug("Update download complete, at '".$path."' with status '".$status."'");
         if($status !== 200){
             $this->getLogger()->warning("Received status code '".$status."' when downloading update, update cancelled.");
-            rmalldir($this->getDataFolder()."/tmp");
+            $this->utils->rmalldir($this->getDataFolder()."/tmp");
             return;
         }
         @rename($path, $this->getServer()->getPluginPath()."/KOTH-Update.phar");
         if($this->getFileName() === null){
             $this->debug("Deleting previous KOTH version...");
-            rmalldir($this->getFile()); //i shouldn't be helping with source but i guess i can...
-            $this->getLogger()->warning("Installation complete, please restart your server to load the updated plugin.");
+            $this->utils->rmalldir($this->getFile()); //i shouldn't be helping with source but i guess i can...
+            $this->getLogger()->warning("Installation complete, restart your server to load the new updated version.");
             return;
         }
         @rename($this->getServer()->getPluginPath()."/".$this->getFileName(), $this->getServer()->getPluginPath()."/KOTH.phar.old"); //failsafe i guess.
-        $this->getLogger()->warning("Installation complete, reloading server...");
-        $this->getServer()->reload(); //todo config.
+        $this->getLogger()->warning("Installation complete, restart your server to load the new updated version.");
+        return;
     }
 
     /**
@@ -203,8 +202,8 @@ class Main extends PluginBase implements Listener
                 }
                 $this->getLogger()->warning(C::LIGHT_PURPLE . " Update Link :: " . $data["Response"]["link"]);
                 if ($this->config["download_updates"] === true){
-                    $this->getLogger()->warning("Downloading Update...");
-                    $this->debug("Begin download of new update.");
+                    $this->getLogger()->warning(C::RED." Downloading & Installing Update...");
+                    $this->debug("Begin download of new update from '".$data["Response"]["download_link"]."'.");
                     $this->downloadUpdate($data["Response"]["download_link"]);
                 }
                 return;
@@ -426,20 +425,4 @@ class Main extends PluginBase implements Listener
     {
         return self::$instance;
     }
-}
-
-function rmalldir($dir) {
-    $tmp = scandir($dir);
-    foreach ($tmp as $item) {
-        if ($item === '.' || $item === '..') {
-            continue;
-        }
-        $path = $dir.'/'.$item;
-        if (is_dir($path)) {
-            rmalldir($path);
-        } else {
-            unlink($path);
-        }
-    }
-    rmdir($dir);
 }

@@ -399,7 +399,7 @@ class CommandHandler{
             $sender->sendMessage($this->prefix.C::RED."Min value must be a number.");
             return;
         }
-        if(intval($min) < 1){ //todo change back when finished testing, (<=)
+        if(intval($min) < 2){
             $sender->sendMessage($this->prefix.C::RED."minimum value must be above 2.");
             return;
         }

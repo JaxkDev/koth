@@ -80,6 +80,25 @@ class Utils{
     }
 
     /**
+     * @param string $dir
+     */
+    public function rmalldir(string $dir): void{
+        $tmp = scandir($dir);
+        foreach ($tmp as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+            $path = $dir.'/'.$item;
+            if (is_dir($path)) {
+                $this->rmalldir($path);
+            } else {
+                unlink($path);
+            }
+        }
+        rmdir($dir);
+    }
+
+    /**
      * @param string $msg
      *
      * @return string

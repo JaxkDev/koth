@@ -34,7 +34,6 @@ namespace Jackthehack21\KOTH\Tasks;
 
 use pocketmine\scheduler\Task;
 
-use Jackthehack21\KOTH\Main;
 use Jackthehack21\KOTH\Arena;
 
 class Gametimer extends Task{
@@ -45,7 +44,6 @@ class Gametimer extends Task{
 
     /**
      * Gametimer constructor.
-     * @param Main $plugin
      * @param Arena $arena
      */
     public function __construct(Arena $arena){

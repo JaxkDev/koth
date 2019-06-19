@@ -364,7 +364,7 @@ class Arena{
         }
         $this->createKingTextParticle(); //in case it was never made on startup as it was first made.
         $this->updateKingTextParticle(); //spawn in here.
-        $this->timerTask = $this->plugin->getScheduler()->scheduleRepeatingTask(new Gametimer($this->plugin, $this),10);
+        $this->timerTask = $this->plugin->getScheduler()->scheduleRepeatingTask(new Gametimer($this),10);
         $this->plugin->debug("Started arena '".$this->name."'.");
     }
 

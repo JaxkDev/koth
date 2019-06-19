@@ -13,6 +13,8 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
  
 ## Features
 ### Implemented
+ - Much more events for other developers to be able to customise the game EVEN MORE !
+ - Automatically install updates on server start !
  - Check for updates on server start !
  - Messages are customisable.
  - Multiple Arena's.
@@ -28,9 +30,7 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
  - On death keep inventory. (todo config)
 
 ### Upcoming
- - Change of game rules.
- - option to download update (but not install, too many security issues there)
- - Much more events for other developers to be able to customise the game EVEN MORE !
+ - Change of game layout (different types will be optional)
  - HouseCleaning and a load of testing to release v1.0.0 :)
  - Something extra for when winner is announced ***wink***
 
