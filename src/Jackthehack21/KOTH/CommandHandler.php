@@ -29,9 +29,6 @@
 *   Email   :: gangnam253@gmail.com
 */
 
-/** @noinspection PhpMissingBreakStatementInspection */
-/** @noinspection PhpUnusedParameterInspection */
-//PhpStorm useless warnings.
 
 declare(strict_types=1);
 namespace Jackthehack21\KOTH;
@@ -54,7 +51,7 @@ class CommandHandler{
         $this->prefix = $plugin->prefix;
     }
 
-    public function handleCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
+    public function handleCommand(CommandSender $sender, Command $cmd, /** @noinspection PhpUnusedParameterInspection */ string $label, array $args): bool{
         if($cmd->getName() == "koth"){ //Is this really done server side ?? (if i only register /koth ?)
             if(!$sender instanceof Player and $this->plugin->getServer()->getMotd() !== "Jacks-Test-Server"){  //To help me debug faster.
                 $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
@@ -181,13 +178,45 @@ class CommandHandler{
                     }
                     return true;
 
-                case 'start': //todo
+                case 'start':
+                    if(!$sender->hasPermission("koth.start")){
+                        $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
+                        return true;
+                    }
+                    if(count($args) < 2 and $this->plugin->getArenaByPlayer($sender->getLowerCaseName()) === null){
+                        $sender->sendMessage(str_replace("{USAGE}", "/koth start (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
+                        return true;
+                    }
+                    $arena = $this->plugin->getArenaByPlayer($sender->getLowerCaseName());
+                    if($arena === null){
+                        $arena = $this->plugin->getArenaByName($args[1]);
+                    }
+                    if($arena === null){
+                        $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
+                        return true;
+                    }
+                    if($arena->timerTask !== null){
+                        $sender->sendMessage($this->prefix.C::RED."Arena already started.");
+                        return true;
+                    }
+                    if($arena->getStatus() !== $arena::STATUS_READY){
+                        $sender->sendMessage($this->prefix.C::RED."Arena is not 'ready' and so cannot be started.");
+                        return true;
+                    }
+                    $result = $arena->startTimer();
+                    if($result !== null){
+                        $sender->sendMessage($this->prefix.C::RED."Arena not started because: ".C::RESET.$result);
+                        return true;
+                    }
+                    $sender->sendMessage($this->prefix.C::GREEN."Arena starting now...");
+                    return true;
+
                 case 'forcestart':
                     if(!$sender->hasPermission("koth.forcestart")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return true;
                     }
-                    if(count($args) !== 2){
+                    if(count($args) < 2){
                         $sender->sendMessage(str_replace("{USAGE}", "/koth forcestart (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
                         return true;
                     }
@@ -201,7 +230,6 @@ class CommandHandler{
                         $sender->sendMessage($this->prefix.C::RED."Arena already started.");
                         return true;
                     }
-
                     $result = $arena->startTimer();
                     if($result !== null){
                         $sender->sendMessage($this->prefix.C::RED."Arena not started because: ".C::RESET.$result);

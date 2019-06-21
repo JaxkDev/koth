@@ -32,24 +32,51 @@
 declare(strict_types=1);
 namespace Jackthehack21\KOTH\Events;
 
+use Jackthehack21\KOTH\Arena;
 use Jackthehack21\KOTH\Main;
-use pocketmine\event\Cancellable;
-use pocketmine\event\plugin\PluginEvent;
+use pocketmine\Player;
 
-abstract class KothEvent extends PluginEvent implements Cancellable{
+class ArenaAddPlayerEvent extends KothEvent{
 
-    private $reason = "Event Cancelled";
+    /** @var Arena */
+    private $arena;
 
-    public function __construct(Main $plugin)
-    {
+    /** @var Player */
+    private $player;
+
+    /**
+     * ArenaAddPlayerEvent constructor.
+     * @param Main $plugin
+     * @param Arena $arena
+     * @param Player $player
+     */
+    public function __construct(Main $plugin, Arena $arena, Player $player){
+        $this->arena = $arena;
+        $this->player = $player;
         parent::__construct($plugin);
     }
 
-    public function getReason(): string{
-        return $this->reason;
+    /**
+     * @return Arena
+     */
+    public function getArena(): Arena{
+        return $this->arena;
     }
 
-    public function setReason(string $reason): void{
-        $this->reason = $reason;
+    /**
+     * @return Player
+     */
+    public function getPlayer(): Player
+    {
+        return $this->player;
+    }
+
+    /**
+     * @param Player $player
+     * Notice: Change this with caution, may result in unwanted behaviour.
+     *         You have been warned.
+     */
+    public function setPlayer(Player $player): void{
+        $this->player = $player;
     }
 }

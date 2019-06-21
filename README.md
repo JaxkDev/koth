@@ -14,8 +14,8 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
 ## Features
 ### Implemented
  - Much more events for other developers to be able to customise the game EVEN MORE !
- - Automatically install updates on server start !
- - Check for updates on server start !
+ - Automatically install updates on server start ! - 
+ - Check for updates on server start !             - Both wont work on android (CURL)
  - Messages are customisable.
  - Multiple Arena's.
  - Custom spawn & hill points.
@@ -49,12 +49,12 @@ They remain king for as long as they stay in the specified area/fort/castle if t
 The winner is announced at the end of the game (When a timer runs out), the king currently in power or the previous king will be winner.
 
 At the end the winner is given rewards and a *celebration* occurs (shortly).
-(This is not yet implemented - as of beta1)
+(This is not yet implemented - as of beta3)
 
 ### Joining a game
 To join a game/arena the arena must meet some criteria,
 1. The arena cannot be full or not ready (you can check using `/koth list`)
-2. The arena world must exist, cannot be deleted or re-named (if so you will have to delete and re-create it)
+2. The arena world must exist, cannot be deleted or re-named (if so you will have to reset the arena positions)
 3. The arena must have spawn points.
 
 If the arena meets all the above you can join using `/koth join <arena name>`
@@ -62,6 +62,7 @@ If the arena meets all the above you can join using `/koth join <arena name>`
 ### Starting a game
 The game will start the pregame counter when the minimum amount of players has joined.
 or if auto-start is disabled in config you can type `/koth forcestart` or `/koth start`
+the only difference is forcestart does not check the arena status whereas ^^^ only starts if status is `Ready`
 
 ### Leaving a game
 You can leave a game by using the command `/koth leave` or quiting the game.
@@ -94,6 +95,8 @@ To check arena status type `/koth list` or `/koth info <arena name>`
 If your provider is yaml feel free to edit the data file but any damaged caused is directly your fault.
 
 You can use commands to modify some but not all data (as of beta3) check /koth help
+- `/koth setpos1/2` (Can be re-used to overwrite old positions)
+- `/koth setspawn` (Can be used multiple times, `/koth remspawn` is in Beta4)
 
 ### Config:
 When the plugin is first run it will make a file in plugin_data/koth/ named config.yml
@@ -105,9 +108,9 @@ For more info see the help file found in the same directory.
  - <https://github.com/jackthehack21/koth-extensions>
 
 ## Known Bugs:
- - Floating Text Particles will appear in every world but at same position.
+ - Floating Text Particles will appear in every world but at same position, disable floating_text_particles if this is a issue for your server setup.
 
-To report bugs please make a issue over on [github](https://github.com/jackthehack21/koth/issues/new) and please follow the guidelines.
+To report bugs please make a issue over on [github](https://github.com/jackthehack21/koth/issues/new) and please *follow the guidelines.*
 
 ## Credits:
 _Developer:_ Jackthehack21 (aka JaxkDev)

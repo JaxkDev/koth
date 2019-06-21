@@ -80,9 +80,12 @@ class Utils{
     }
 
     /**
+     * NOTICE: Use with caution, if used incorrectly can have significant consequences.
+     *
      * @param string $dir
      */
     public function rmalldir(string $dir): void{
+        if($dir == "" or $dir == "/" or $dir == "C:/") return; //tiny safeguard.
         $tmp = scandir($dir);
         foreach ($tmp as $item) {
             if ($item === '.' || $item === '..') {

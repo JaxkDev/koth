@@ -195,21 +195,21 @@ class Main extends PluginBase implements Listener
                 $lines = explode("\n", $data["Response"]["patch_notes"]);
                 $this->getLogger()->warning("--- UPDATE AVAILABLE ---");
                 $this->getLogger()->warning(C::RED . " Version     :: " . $data["Response"]["version"]);
-                $this->getLogger()->warning(C::AQUA . " Released on :: " . date("d-m-Y", intval($data["Response"]["time"] / 1000)));
+                $this->getLogger()->warning(C::AQUA . " Released on :: " . date("d-m-Y", intval($data["Response"]["time"])));
                 $this->getLogger()->warning(C::GREEN . " Patch Notes :: " . $lines[0]);
                 for ($i = 1; $i < sizeof($lines); $i++) {
                     $this->getLogger()->warning("                " . C::GREEN . $lines[$i]);
                 }
                 $this->getLogger()->warning(C::LIGHT_PURPLE . " Update Link :: " . $data["Response"]["link"]);
-                if ($this->config["download_updates"] === true){
-                    $this->getLogger()->warning(C::RED." Downloading & Installing Update...");
-                    $this->debug("Begin download of new update from '".$data["Response"]["download_link"]."'.");
-                    $this->downloadUpdate($data["Response"]["download_link"]);
-                }
-                return;
+                if($this->config["download_updates"] !== true) $this->getLogger()->warning(C::GREEN." Enable the download_updates option in config.yml to automatically download and install updates.");
             } else {
                 if ($update < 0) $this->debug("Running a build not yet released, this can cause un intended side effects (including possible data loss)");
                 return;
+            }
+            if ($this->config["download_updates"] === true){
+                $this->getLogger()->warning(C::RED." Downloading & Installing Update...");
+                $this->debug("Begin download of new update from '".$data["Response"]["download_link"]."'.");
+                $this->downloadUpdate($data["Response"]["download_link"]);
             }
         } else {
             $this->getLogger()->warning("Failed to verify update info received from github.com");

@@ -32,8 +32,10 @@
 declare(strict_types=1);
 namespace Jackthehack21\KOTH;
 
+use Jackthehack21\KOTH\Events\ArenaAddPlayerEvent;
 use Jackthehack21\KOTH\Events\ArenaEndEvent;
 use Jackthehack21\KOTH\Events\ArenaPreStartEvent;
+use Jackthehack21\KOTH\Events\ArenaRemovePlayerEvent;
 use Jackthehack21\KOTH\Events\ArenaStartEvent;
 use Jackthehack21\KOTH\Particles\FloatingText;
 use Jackthehack21\KOTH\Tasks\Prestart;
@@ -44,9 +46,9 @@ use pocketmine\command\ConsoleCommandSender;
 use pocketmine\Player;
 use pocketmine\math\Vector3;
 use pocketmine\level\Position;
-
 use pocketmine\scheduler\TaskHandler;
 use pocketmine\utils\TextFormat as C;
+
 use ReflectionException;
 
 
@@ -218,7 +220,6 @@ class Arena{
     public function createKingTextParticle() : void{
         if($this->plugin->config["KingTextParticles"] === false) return;
         if($this->status !== $this::STATUS_NOT_READY and $this->currentKingParticle === null){
-            // TODO investigate, 1/2 issues reported in crash archive of level being undefined/null.
             $pos = new Vector3(($this->hill[0][0]+$this->hill[1][0])/2,($this->hill[0][1]+$this->hill[1][1])/2,($this->hill[0][2]+$this->hill[1][2])/2);
             $this->currentKingParticle = new FloatingText($this->plugin, $this->plugin->getServer()->getLevelByName($this->world), $pos, C::RED."King: ".C::GOLD."-");
         }
@@ -277,7 +278,7 @@ class Arena{
      * @param Player $player
      * @param bool $random
      */
-    public function spawnPlayer(Player $player, $random = false) : void{
+    private function spawnPlayer(Player $player, $random = false) : void{
         if(strtolower($player->getLevel()->getName()) !== strtolower($this->world)){
             if(!$this->plugin->getServer()->isLevelGenerated($this->world)) {
                 $player->sendMessage($this->plugin->prefix.C::RED."World set for '".$this->name."' does not exist.");
@@ -524,6 +525,27 @@ class Arena{
      * @return void
      */
     public function removePlayer(Player $player, string $reason, bool $silent = false) : void{
+        $event = new ArenaRemovePlayerEvent($this->plugin, $this, $player, $reason, $silent);
+        try {
+            $event->call();
+        } catch (ReflectionException $e) {
+            if(!$player->isConnected()){
+                //Player is leaving app.
+                $this->plugin->getLogger()->warning($this->plugin->prefix . C::RED . "Event failed, but player left the game assuming default scenario...");
+            } else {
+                $this->plugin->getLogger()->warning($this->plugin->prefix . C::RED . "Event failed, Player not removed.");
+                return;
+            }
+        }
+        if($event->isCancelled()){
+            if(!$player->isConnected()){
+                //Player is leaving app.
+                $this->plugin->getLogger()->warning($this->plugin->prefix . C::RED . "Event cancelled, but player is leaving app so will be removed anyway.");
+            } else {
+                $player->sendMessage($this->plugin->prefix.C::RED."Cannot leave the arena, reason: ".$event->getReason());
+                return;
+            }
+        }
         unset($this->players[array_search(strtolower($player->getName()), $this->players)]);
         if($this->king === $player->getLowerCaseName()){
             $this->removeKing();
@@ -557,7 +579,19 @@ class Arena{
                 $player->sendMessage($this->plugin->prefix.C::RED."This arena is full.");
                 return false;
         }
-        $player->setGamemode(0);
+        $event = new ArenaAddPlayerEvent($this->plugin, $this, $player);
+        try {
+            $event->call();
+        } catch (ReflectionException $e) {
+            $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Event failed, Player not added.");
+            $player->sendMessage($this->plugin->prefix.C::RED."Unable to join arena, reason: ".$event->getReason());
+            return false;
+        }
+        if($event->isCancelled()){
+            $player->sendMessage($this->plugin->prefix.C::RED."Unable to join arena, reason: ".$event->getReason());
+            return false;
+        }
+        $player->setGamemode(0); //todo Beta4 configurable.
         $this->players[] = strtolower($player->getName());
         $this->playerOldPositions[strtolower($player->getName())] = [$player->getLevel()->getName(),$player->getX(), $player->getY(), $player->getZ()];
         $this->broadcastJoin($player);
