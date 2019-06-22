@@ -1,31 +1,41 @@
 Colour variables =  {BLACK} {DARK_BLUE} {DARK_GREEN} {DARK_AQUA} {DARK_RED} {DARK_PURPLE} {GOLD} {GRAY} {DARK_GRAY} {BLUE} {GREEN} {AQUA} {RED}
                     {LIGHT_PURPLE} {YELLOW} {WHITE} {OBFUSCATED} {BOLD} {STRIKETHROUGH} {UNDERLINE} {ITALIC} {RESET}
 
-                    ^^^ these can be put in any messages ^^^
-
-//todo update this before Beta3
+                    ^^^ these can be put in any string messages often enclosed in " " ^^^
 
 ========== CONFIG HELP =========
-version: 0                                  <-- DO NOT EVER TOUCH, JUST NO, NO.
+version: 1                                  <-- DONT EVER TOUCH THIS. (You have been warned)
 
-plugin_enabled: true                        <-- Disable/enable the plugin (true/false)
-debug: false                                <-- Show debug messages (useful when encountering problems) (true/false)
+provider: "sqlite3"                         <-- Database provider, options: [Sqlite3,Yaml]. (leave alone if unsure)
 
-check_updates: true                         <-- Check for updates on server start.
+debug: true                                 <-- Show debug messages. (useful when encountering problems) (true/false)
 
-language: "eng"                             <-- Language (only used for saving the correct help file relative to your lang)
-                                                Currently supported languages: "eng"
+show_updates: true                          <-- If check_updates is true it will show any updates available in console. (true/false)
+check_updates: true                         <-- Check for updates on server start. (true/false)
+download_updates: false
+update_check_url: "link to github file"     <-- Link to the raw file containing update data in correct format. (dont change unless you know what your doing)
 
-KingTextParticles: true                     <-- Display FloatingText in middle of king area saying who's king.
+block_commands: true                        <-- Obvious, Block commands in game except '/koth'. (true/false) (TODO beta4, block_commands_list)
+prevent_place: true                         <-- Obvious. (true/false)
+prevent_break: true                         <-- Obvious. (true/false)
+prevent_gamemode_change: true               <-- Obvious. (true/false)
+keep_inventory: true                        <-- Keep inventory on death. (true/false)
 
-nametag_enabled: true                       <-- Place a nametag above the king.
-nametag_format: "{RED}[ {GREEN}KING {RED}]" <-- Format of the kings NameTag. (you can use any colour variable)
+auto_start: true                            <-- Auto start server when minimum players have joined. (over-ridden by /koth forcestart) (if false use /koth start to start arena)
 
-start_countdown: 10                         <-- Amount of seconds until game starts, countdown starts when minimum amount of players are in-game.
+countdown: 30                               <-- Countdown in seconds until game starts.
+countdown_bcast: true                       <-- Broadcast countdown to arena players. (true/false)
+countdown_bcast_interval: 5                 <-- Broadcast every X seconds.
+countdown_bcast_serverwide: false           <-- Broadcast to whole server as well as arena players. (true/false)
 
+start_bcast_serverwide: false               <-- Broadcast server start to whole server. (true/false)
+end_bcast_serverwide: false                 <-- Broadcast server end to whole server. (true/false)
+
+KingTextParticles: true                     <-- Enable/Disable current king being displayed in middle of arena hill positions. (Floating Text) (true/false)
+
+nametag_enabled: true                       <-- Enable custom nametag for king in power. (true/false)
+nametag_format: "{RED}[ {GREEN}KING {RED}]" <-- Format for nametag.
 ================================
-
-
 
 
 ========== ARENA HELP ==========
@@ -45,6 +55,9 @@ Creating new arena's:
 
  - /koth setspawn <area name>
    Can be used any amount of times. (stand in the spawn location you wish to add)
+
+ - /koth addreward <arena name> <command reward eg. 'say {PLAYER} Won the game !'>
+   Can be used any amount of times. (No way to remove rewards yet)
 
  If all went well, the arena status should become 'ready' (can be seen in /koth list or /koth info <arena name>)
  and you can then join the arena.

@@ -28,7 +28,7 @@ broadcasts:
   player_quit: "{PREFIX}{GOLD}{PLAYER} {AQUA}Has left the game, reason: {RED}{REASON}"
   player_join: "{PREFIX}{GOLD}{PLAYER} {GREEN}Has joined the game !"
 
-  countdown: "{PREFIX}{GOLD}[{ARENA}|COUNTDOWN] {RED}: {GREEN}{COUNT}"
+  countdown: "{PREFIX}{GOLD}[{AQUA}{ARENA} | {GOLD}COUNTDOWN] {RED}: {GREEN}{COUNT}"
   start: "{PREFIX}{GOLD}[{ARENA}] {GREEN}Has Started !"
   end: "{PREFIX}{GOLD}[{ARENA}] {GREEN}Has Ended."
 ...

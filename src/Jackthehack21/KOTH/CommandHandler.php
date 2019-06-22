@@ -352,7 +352,7 @@ class CommandHandler{
                 //////----------------------///////
 
                 default:
-                    $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["unknowns"]));
+                    $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["unknown"]));
                     return true;
             }
         }
@@ -427,7 +427,7 @@ class CommandHandler{
             $sender->sendMessage($this->prefix.C::RED."Min value must be a number.");
             return;
         }
-        if(intval($min) < 2){
+        if(intval($min) < 1){
             $sender->sendMessage($this->prefix.C::RED."minimum value must be above 2.");
             return;
         }

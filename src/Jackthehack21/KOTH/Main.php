@@ -135,7 +135,10 @@ class Main extends PluginBase implements Listener
             $this->saveConfig();
         }
 
-        foreach(array("eng") as $language) $this->saveResource("help_" . $language . ".txt");
+        foreach(array("eng") as $language){
+            @unlink($this->getDataFolder()."help_".$language.".txt");
+            $this->saveResource("help_" . $language . ".txt");
+        }
     }
 
     /**

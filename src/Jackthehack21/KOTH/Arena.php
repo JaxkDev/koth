@@ -70,6 +70,7 @@ class Arena{
     public const STATUS_READY = 1;
     public const STATUS_STARTED = 2;
     public const STATUS_FULL = 3;
+    public const STATUS_INVALID = 4;
     public const STATUS_UNKNOWN = 9;
 
     public $statusList = [
@@ -77,6 +78,7 @@ class Arena{
         self::STATUS_READY => "Ready",
         self::STATUS_STARTED => "Started",
         self::STATUS_FULL => "Full",
+        self::STATUS_INVALID => "Invalid Setup", #Used when arena was setup correctly but external causes means its no longer compatible.
         self::STATUS_UNKNOWN => "Unknown"
     ];
 
@@ -185,24 +187,28 @@ class Arena{
      * @param string $reason
      */
     public function broadcastQuit(Player $player, string $reason) : void{
-        $this->broadcastMessage(str_replace(["{REASON}", "{PLAYER}"], [$reason, $player], $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["player_quit"])));
+        $this->broadcastMessage(str_replace(["{REASON}", "{PLAYER}"], [$reason, $player->getLowerCaseName()], $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["player_quit"])));
     }
 
     /**
      * @param Player $player
      */
     public function broadcastJoin(Player $player) : void{
-        $this->broadcastMessage(str_replace("{PLAYER}", $player, $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["player_join"])));
+        $this->broadcastMessage(str_replace("{PLAYER}", $player->getLowerCaseName(), $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["player_join"])));
     }
 
     /**
      * @param bool $save
      */
     public function checkStatus(bool $save = true) : void{
-        if(count($this->hill) === 2 && count($this->spawns) >= 1 && $this->plugin->getServer()->getLevelByName($this->world) !== null){
+        if(count($this->hill) === 2 and count($this->spawns) >= 1 and $this->plugin->getServer()->getLevelByName($this->world) !== null){
             $this->status = self::STATUS_READY;
         } else {
             $this->status = self::STATUS_NOT_READY;
+            if($this->world === null or $this->plugin->getServer()->getLevelByName($this->world) === null){
+                $this->status = self::STATUS_INVALID;
+                $this->currentKingParticle = null;
+            }
             if($save === true) $this->plugin->updateArena($this);
             return;
         }
@@ -219,7 +225,7 @@ class Arena{
 
     public function createKingTextParticle() : void{
         if($this->plugin->config["KingTextParticles"] === false) return;
-        if($this->status !== $this::STATUS_NOT_READY and $this->currentKingParticle === null){
+        if(($this->status !== $this::STATUS_NOT_READY and $this->status !== $this::STATUS_INVALID) and $this->currentKingParticle === null){
             $pos = new Vector3(($this->hill[0][0]+$this->hill[1][0])/2,($this->hill[0][1]+$this->hill[1][1])/2,($this->hill[0][2]+$this->hill[1][2])/2);
             $this->currentKingParticle = new FloatingText($this->plugin, $this->plugin->getServer()->getLevelByName($this->world), $pos, C::RED."King: ".C::GOLD."-");
         }
@@ -231,6 +237,8 @@ class Arena{
             $this->currentKingParticle->setInvisible(false); //fix restarting games.
             /** @noinspection PhpUndefinedMethodInspection */
             $this->currentKingParticle->setText(C::RED."King: ".C::GOLD.($this->king === null ? "-" : $this->king));
+        } else {
+            $this->createKingTextParticle(); //keep trying to create it in case the scenario changes and its now able.
         }
         //set name tags, its own function so others can run it without updating Particles.
         $this->updateNameTags();
@@ -316,7 +324,7 @@ class Arena{
      * @param bool $freeze
      */
     public function freezeAll(bool $freeze) : void{
-        $this->plugin->debug("setting players ".$freeze ? "immobile" : "mobile");
+        $this->plugin->debug("Setting players in arena '".$this->name."' ".($freeze ? "immobile" : "mobile"));
         foreach($this->players as $name){
             $this->plugin->getServer()->getPlayerExact($name)->setImmobile($freeze);
         }
@@ -328,7 +336,7 @@ class Arena{
         try {
             $event->call();
         } catch (ReflectionException $e) {
-            return $this->plugin->prefix.C::RED."Event failed, Arena countdown not started.";
+            return $this->plugin->prefix.C::RED."Event failed, Arena '".$this->getName()."' countdown not started.";
         }
 
         if($event->isCancelled()){
@@ -345,12 +353,12 @@ class Arena{
         try {
             $event->call();
         } catch (ReflectionException $e) {
-            $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Event failed, Arena not started.");
+            $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Event failed, Arena '".$this->getName()."' not started.");
             return;
         }
 
         if($event->isCancelled()){
-            $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Cant start game because: ".$event->getReason());
+            $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Cant start game in Arena '".$this->getName()."' because: ".$event->getReason());
             return;
         }
         $this->plugin->debug("Starting arena '".$this->name."'...");
@@ -393,7 +401,7 @@ class Arena{
         try {
             $event->call();
         } catch (ReflectionException $e) {
-            $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Event failed, Arena not ended.");
+            $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Event failed, Arena '".$this->getName()."' not ended.");
             return;
         }
 
@@ -596,7 +604,7 @@ class Arena{
         $this->playerOldPositions[strtolower($player->getName())] = [$player->getLevel()->getName(),$player->getX(), $player->getY(), $player->getZ()];
         $this->broadcastJoin($player);
         $this->spawnPlayer($player);
-        if(count($this->players) >= $this->minPlayers && $this->timerTask === null && $this->plugin->config["auto-start"] === true){
+        if(count($this->players) >= $this->minPlayers && $this->timerTask === null && $this->plugin->config["auto_start"] === true){
             $this->startTimer();
         }
         $this->checkStatus();

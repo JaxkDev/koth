@@ -106,11 +106,12 @@ For more info see the help file found in the same directory.
 
 ## Extensions:
  - <https://github.com/jackthehack21/koth-extensions>
+ To install extensions place the phar from the releases section into the plugins directory of your server and reboot server.
 
 ## Known Bugs:
  - Floating Text Particles will appear in every world but at same position, disable floating_text_particles if this is a issue for your server setup.
 
-To report bugs please make a issue over on [github](https://github.com/jackthehack21/koth/issues/new) and please *follow the guidelines.*
+To report bugs please make a issue over on [github](https://github.com/jackthehack21/koth/issues/new) and please *follow the template!*
 
 ## Credits:
 _Developer:_ Jackthehack21 (aka JaxkDev)
