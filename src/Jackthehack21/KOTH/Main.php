@@ -135,7 +135,7 @@ class Main extends PluginBase implements Listener
             $this->saveConfig();
         }
 
-        foreach(array("eng") as $language){
+        foreach(array("eng","spa","fra") as $language){
             @unlink($this->getDataFolder()."help_".$language.".txt");
             $this->saveResource("help_" . $language . ".txt");
         }
@@ -165,11 +165,11 @@ class Main extends PluginBase implements Listener
         if($this->getFileName() === null){
             $this->debug("Deleting previous KOTH version...");
             $this->utils->rmalldir($this->getFile()); //i shouldn't be helping with source but i guess i can...
-            $this->getLogger()->warning("Installation complete, restart your server to load the new updated version.");
+            $this->getLogger()->warning("Update complete, restart your server to load the new updated version.");
             return;
         }
         @rename($this->getServer()->getPluginPath()."/".$this->getFileName(), $this->getServer()->getPluginPath()."/KOTH.phar.old"); //failsafe i guess.
-        $this->getLogger()->warning("Installation complete, restart your server to load the new updated version.");
+        $this->getLogger()->warning("Update complete, restart your server to load the new updated version.");
         return;
     }
 
@@ -178,9 +178,9 @@ class Main extends PluginBase implements Listener
      */
     public function handleUpdateInfo(Array $data): void
     {
-        $this->debug("Handling latest update info.");
+        $this->debug("Handling latest update data.");
         if ($data["Error"] !== '') {
-            $this->getLogger()->warning("Failed to get latest update info, Error: " . $data["Error"] . " Code: " . $data["httpCode"]);
+            $this->getLogger()->warning("Failed to get latest update data, Error: " . $data["Error"] . " Code: " . $data["httpCode"]);
             return;
         }
         if (array_key_exists("version", $data["Response"]) && array_key_exists("time", $data["Response"]) && array_key_exists("link", $data["Response"])) {
@@ -188,11 +188,6 @@ class Main extends PluginBase implements Listener
             if ($update == 0) {
                 $this->getLogger()->debug("Plugin up-to-date !");
                 return;
-            }
-            if ($this->config["download_updates"] === true){
-                if ($update > 0){
-                    $this->debug("Downloading update...");
-                }
             }
             if ($update > 0 and $this->config["show_updates"] === true) {
                 $lines = explode("\n", $data["Response"]["patch_notes"]);
@@ -210,12 +205,12 @@ class Main extends PluginBase implements Listener
                 return;
             }
             if ($this->config["download_updates"] === true){
-                $this->getLogger()->warning(C::RED." Downloading & Installing Update...");
+                $this->getLogger()->warning(C::RED." Downloading & Installing Update, please do not abruptly stop server/plugin.");
                 $this->debug("Begin download of new update from '".$data["Response"]["download_link"]."'.");
                 $this->downloadUpdate($data["Response"]["download_link"]);
             }
         } else {
-            $this->getLogger()->warning("Failed to verify update info received from github.com");
+            $this->getLogger()->warning("Failed to verify update data/incorrect format provided.");
             return;
         }
     }

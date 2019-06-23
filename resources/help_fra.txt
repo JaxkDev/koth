@@ -1,0 +1,92 @@
+French help file
+Fichier d'aide en français
+
+Variables de couleur = {BLACK} {DARK_BLUE} {DARK_GREEN} {DARK_AQUA} {DARK_RED} {DARK_PURPLE} {GOLD} {GRAY} {DARK_GRAY} {BLUE} {GREEN} {AQUA} {RED}
+                       {LIGHT_PURPLE} {YELLOW} {WHITE} {OBFUSCATED} {BOLD} {STRIKETHROUGH} {UNDERLINE} {ITALIC} {RESET}
+
+                    ^^^ ceux-ci peuvent être placés dans tous les messages de chaîne souvent inclus entre "" ^^^
+
+========== CONFIG HELP ==========
+version: 1                                  <- NE JAMAIS TOUCHER CETTE. (Tu étais prévenu)
+
+provider: "sqlite3"                         <- Fournisseur de base de données, options: [Sqlite3, Yaml]. (laisser seul en cas de doute)
+
+debug: true                                 <- Afficher les messages de débogage. (utile en cas de problème) (vrai / faux)
+
+show_updates: true                          <- Si check_updates est true, toutes les mises à jour disponibles dans la console seront affichées. (vrai faux)
+check_updates: true                         <- Recherchez les mises à jour au démarrage du serveur. (vrai faux)
+download_updates: false                     <- Téléchargez et installez automatiquement les mises à jour au démarrage du serveur.
+update_check_url: "link to github file"     <- Lien vers le fichier brut contenant les données de mise à jour au format correct. (ne changez que si vous savez ce que vous faites)
+
+block_commands: true                        <- Évident, Blocage des commandes dans le jeu sauf '/ koth'. (true / false) (TODO beta4, block_commands_list)
+prevent_place: true                         <- évident. (vrai faux)
+prevent_break: true                         <- évident. (vrai faux)
+prevent_gamemode_change: true               <- évident. (vrai faux)
+keep_inventory: true                        <- Conserve l'inventaire au décès. (vrai faux)
+
+auto_start: true                            <- Démarre automatiquement le serveur lorsque le nombre minimum de joueurs est rejoint. (écrasé par / koth forcestart) (si faux utiliser / koth commence à démarrer en arène)
+
+countdown: 30                               <- Compte à rebours en secondes jusqu'au début du jeu.
+countdown_bcast: true                       <- diffuse le compte à rebours aux joueurs de l'aréna. (vrai faux)
+countdown_bcast_interval: 5                 <- Diffusé toutes les X secondes.
+countdown_bcast_serverwide: false           <- Diffuse sur le serveur entier ainsi que sur les joueurs d'arène. (vrai faux)
+
+start_bcast_serverwide: false               <- Le serveur de diffusion démarre sur le serveur entier. (vrai faux)
+end_bcast_serverwide: false                 <- Diffuse le serveur de bout en bout. (vrai faux)
+
+KingTextParticles: true                     <- Activer / Désactiver le roi actuel affiché au milieu des positions de la colline de l'arène. (Texte flottant) (vrai / faux)
+
+nametag_enabled: true                       <- Permet d'activer l'étiquette d'identification personnalisée pour le roi au pouvoir. (vrai faux)
+nametag_format: "{RED} [{GREEN} KING {RED}]"<- Format de l'étiquette d'identification.
+================================
+
+
+========== ARENA HELP ===========
+
+Les Arena sont sauvegardées et chargées depuis plugin_data, vous n'avez donc pas besoin de sauvegarder quoi que ce soit manuellement.
+
+Créer de nouvelles arènes:
+
+ - / koth new <nom de l'arène> <min joueurs> <max joueurs> <temps de jeu>
+   Aucun espace dans le nom ^ ^ Nombre supérieur à 1 ^ ^ nombre de secondes pendant lesquelles le jeu est exécuté. (plus de 5)
+
+ - / koth setpos1 <nom de l'arène>
+   Tenez-vous sur un coin de la région des rois. (Pendant ce temps, le monde est détecté automatiquement.)
+
+ - / koth setpos2 <nom de l'arène>
+   Tenez-vous sur le coin opposé de la zone des rois (la hauteur est importante s'il n'y a rien au-dessus de sa conseillé de monter quelques pâtés de maisons pour permettre de sauter)
+
+ - / koth setspawn <nom de la zone>
+   Peut être utilisé n'importe quel nombre de fois. (placez-vous dans le lieu de ponte que vous souhaitez ajouter)
+
+ - / koth addreward <nom d'arène> <commande récompense, par exemple. 'say {PLAYER} a remporté le jeu!'>
+   Peut être utilisé n'importe quel nombre de fois. (Pas encore possible de supprimer les récompenses)
+
+ Si tout s'est bien passé, le statut de l'aréna devrait devenir «prêt» (visible dans / koth list ou / koth info <nom de l'aréna>)
+ et vous pouvez ensuite rejoindre l'arène.
+
+Enlever une arène:
+ - / koth rem <nom de l'arène>
+
+ Vous ne pouvez l'enlever que si l'arène n'est pas utilisée.
+
+Rejoindre une arène:
+ - / koth join <nom d'arène>
+
+ Vous ne pouvez rejoindre une arène que si son statut est Prêt ou Démarré.
+ Le statut peut être vu dans / koth list (ou / koth info <nom de l'arène>)
+
+Quitter un jeu:
+ - / koth leave
+
+ La commande ne fonctionnera que si vous êtes dans une arène. Sinon, quitter le serveur / mcpe vous obligera également à quitter le mini-jeu.
+
+Informations sur l'arène / statut:
+ - / koth list
+   Affiche une liste de toutes les arènes créées et leur statut.
+
+ - / koth info <nom de l'arène>
+   Affiche plus d'informations sur une arène.
+   (Joueurs dans le jeu, temps de jeu, nombre de spawns, etc.)
+
+================================

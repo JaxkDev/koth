@@ -1,0 +1,92 @@
+Spanish help file
+Archivo de ayuda en español
+
+Variables de color = {BLACK} {DARK_BLUE} {DARK_GREEN} {DARK_AQUA} {DARK_RED} {DARK_PURPLE} {GOLD} {GRAY} {DARK_GRAY} {BLUE} {GREEN} {AQUA} {RED}
+                     {LIGHT_PURPLE} {YELLOW} {WHITE} {OBFUSCATED} {BOLD} {STRIKETHROUGH} {UNDERLINE} {ITALIC} {RESET}
+
+                    ^^^ estos se pueden poner en cualquier cadena de mensajes a menudo encerrados en "" ^^^
+
+========== CONFIG HELP =========
+version: 1                                  <- NUNCA TOQUE ESTO. (Usted ha sido advertido)
+
+provider: "sqlite3"                         <- Proveedor de base de datos, opciones: [Sqlite3, Yaml]. (dejar solo si no está seguro)
+
+debug: true                                 <- Mostrar mensajes de depuración. (útil cuando se encuentran problemas) (verdadero / falso)
+
+show_updates: true                          <- Si check_updates es verdadero, mostrará todas las actualizaciones disponibles en la consola. (verdadero Falso)
+check_updates: true                         <- Buscar actualizaciones en el inicio del servidor. (verdadero Falso)
+download_updates: false                     <- Automáticamente descargar e instalar actualizaciones en el servidor de inicio.
+update_check_url: "enlace al archivo github"<- Enlace al archivo sin formato que contiene los datos de actualización en el formato correcto. (No cambies a menos que sepas lo que estás haciendo)
+
+block_commands: true                        <- Obvio, Bloquea los comandos en el juego excepto '/ koth'. (verdadero / falso)
+prevent_place: true                         <- Obvio. (verdadero Falso)
+prevent_break: true                         <- Obvious. (verdadero Falso)
+prevent_gamemode_change: true               <- Obvious. (verdadero Falso)
+keep_inventory: true                        <- Mantener el inventario de la muerte. (verdadero Falso)
+
+auto_start: true                            <- Iniciar automáticamente el servidor cuando se hayan unido al mínimo los jugadores. (sobrepasado por / koth forcestart) (si es falso, use / koth start para iniciar arena)
+
+countdown: 30                               <- Cuenta atrás en segundos hasta que comience el juego.
+countdown_bcast: true                       <- Transmite la cuenta regresiva a los jugadores de la arena. (verdadero Falso)
+countdown_bcast_interval: 5                 <- Transmisión cada X segundos.
+countdown_bcast_serverwide: false           <- Difunde a todo el servidor así como a los jugadores de la arena. (verdadero Falso)
+
+start_bcast_serverwide: false               <- El servidor de difusión comienza en todo el servidor. (verdadero Falso)
+end_bcast_serverwide: false                 <- El servidor de difusión finaliza a todo el servidor. (verdadero Falso)
+
+KingTextParticles: true                     <- Habilita / deshabilita el rey actual que se muestra en medio de las posiciones de arena de la colina. (Texto flotante) (verdadero / falso)
+
+nametag_enabled: true                       <- Habilita una etiqueta personalizada para el rey en el poder. (verdadero Falso)
+nametag_format: "{RED} [{GREEN} KING {RED}]"<- Formato para la etiqueta de nombre.
+================================
+
+
+========== AYUDA DE ARENA ==========
+
+Las arenas se guardan y se cargan desde plugin_data, por lo que no es necesario guardar nada manualmente.
+
+Creando nuevas arenas:
+
+ - /koth new <nombre de la arena> <min jugadores> <max jugadores> <tiempo de juego>
+   No hay espacios en el nombre ^ ^ Números por encima de 1 ^ ^ de segundos de ejecución del juego. (por encima de 5)
+
+ - /koth setpos1 <nombre de arena>
+   Párese en una esquina de la zona de los reyes. (Durante esto, el mundo se detecta automáticamente.)
+
+ - /koth setpos2 <nombre de la arena>
+   Párese en la esquina opuesta del área de los reyes (la altura es importante si no hay nada por encima de lo que se recomienda subir unas cuantas cuadras para permitir el salto)
+
+ - /koth setspawn <nombre del área>
+   Se puede utilizar cualquier cantidad de veces. (párese en la ubicación de engendro que desea agregar)
+
+ - /koth addreward <nombre de arena> <recompensa de comando, por ejemplo. 'say {PLAYER} ¡Ganó el juego!'>
+   Se puede utilizar cualquier cantidad de veces. (No hay manera de eliminar recompensas todavía)
+
+ Si todo salió bien, el estado de la arena debería estar "listo" (se puede ver en / koth list o / koth info <nombre de la arena>)
+ y luego puedes unirte a la arena.
+
+Eliminando una arena:
+ - /koth rem <nombre de la arena>
+
+ Solo puedes eliminarlo si la arena no está en uso.
+
+Uniéndose a una arena:
+ - /koth join <nombre de la arena>
+
+ Solo puedes unirte a una arena si su estado es Listo o Iniciado
+ El estado se puede ver en / koth list (o / koth info <nombre de la arena>)
+
+Dejando un juego:
+ - /koth leave
+
+ El comando solo funcionará si estás en una Arena, Alternativamente, al dejar el servidor / mcpe también te hará salir del mini-juego.
+
+Información de la Arena / Estado:
+ - / koth list
+   Muestra una lista de todos los espacios creados y su estado.
+
+ - / koth info <nombre de la arena>
+   Muestra más información en una arena.
+   (Jugadores en juego, tiempo de juego, cantidad de engendros, etc.)
+
+================================

@@ -86,7 +86,7 @@ class Arena{
     public $spawns = [];
     public $spawnCounter;
     public $hill = [];
-    public $players = [];
+    private $players = [];
     public $playerOldPositions = [];
     public $playerOldNameTags = [];
     public $minPlayers;
@@ -105,7 +105,7 @@ class Arena{
     /** @var null|TaskHandler */
     public $timerTask;
 
-    public $status = -1;
+    public $status = 9;
 
     public $currentKingParticle = null;
 
@@ -407,7 +407,7 @@ class Arena{
 
         if($event->isCancelled()){
             /** @noinspection PhpUndefinedFieldInspection */
-            $this->timerTask->getTask()->secondsLeft = $event;
+            $this->timerTask->getTask()->secondsLeft = $event->getSecondsLeft();
             $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Arena '".$this->name."' not ended, reason: ".$event->getReason());
             return;
         }
@@ -451,7 +451,7 @@ class Arena{
             };
 
         }
-        //todo particles fireworks and more for king, and X second delay before un freezing, Beta4
+        //todo particles fireworks and more for king, Beta4
         $this->freezeAll(false);
     }
 

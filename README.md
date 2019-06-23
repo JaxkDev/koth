@@ -10,6 +10,8 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
  
  *Just because its the only plugin released, doesnt mean its the best one.*
  
+ *Please feel free to create a PR to modify/add new help files for different languages !*
+ 
  
 ## Features
 ### Implemented
@@ -21,18 +23,17 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
  - Custom spawn & hill points.
  - Supports Arena's in different worlds.
  - Custom player amount, and game time.
- - Block break/place disabled during in-game.
- - Changing gamemode during a game is cancelled.
+ - Block break/place disabled during in-game (optional).
+ - Changing gamemode during a game is cancelled (optional).
  - Rewards given to king at end of game.
  - Leave a arena.
- - 'King' is displayed above player name. (nametag)
+ - 'King' is displayed above player name. (nametag, optional)
  - Some values are in config.yml including a help file.
- - On death keep inventory. (todo config)
+ - On death keep inventory.
 
 ### Upcoming
- - Change of game layout (different types will be optional)
- - HouseCleaning and a load of testing to release v1.0.0 :)
- - Something extra for when winner is announced ***wink***
+ - Change of game layout (different types will be optional) - Beta4
+ - Something extra for when winner is announced ***wink***  - Beta4
 
 ## About the game
 ### KOTH
@@ -118,7 +119,7 @@ _Developer:_ Jackthehack21 (aka JaxkDev)
 
 _Icon Creator:_ WowAssasin (WowAssasin#6608)
 
-_Idea generator:_ GOLDVAGE (GOLDVAGE#2712)
+_Requested By:_ GOLDVAGE (GOLDVAGE#2712)
 
 
 ### License:

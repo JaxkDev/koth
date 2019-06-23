@@ -1,3 +1,5 @@
+English help file
+
 Colour variables =  {BLACK} {DARK_BLUE} {DARK_GREEN} {DARK_AQUA} {DARK_RED} {DARK_PURPLE} {GOLD} {GRAY} {DARK_GRAY} {BLUE} {GREEN} {AQUA} {RED}
                     {LIGHT_PURPLE} {YELLOW} {WHITE} {OBFUSCATED} {BOLD} {STRIKETHROUGH} {UNDERLINE} {ITALIC} {RESET}
 
@@ -12,7 +14,7 @@ debug: true                                 <-- Show debug messages. (useful whe
 
 show_updates: true                          <-- If check_updates is true it will show any updates available in console. (true/false)
 check_updates: true                         <-- Check for updates on server start. (true/false)
-download_updates: false
+download_updates: false                     <-- Automatically download & install updates on server start.
 update_check_url: "link to github file"     <-- Link to the raw file containing update data in correct format. (dont change unless you know what your doing)
 
 block_commands: true                        <-- Obvious, Block commands in game except '/koth'. (true/false) (TODO beta4, block_commands_list)

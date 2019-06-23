@@ -38,6 +38,12 @@ use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\level\particle\FloatingTextParticle;
 
+/**
+ * Class FloatingText
+ *
+ * This class's sole purpose is to update every time its changed.
+ */
+
 class FloatingText extends FloatingTextParticle {
 
     private $plugin;
