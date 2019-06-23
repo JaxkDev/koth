@@ -382,7 +382,7 @@ class Main extends PluginBase implements Listener
     public function getArenaByPlayer(string $name)
     {
         foreach ($this->arenas as $arena) {
-            if (in_array(strtolower($name), $arena->players)) {
+            if (in_array(strtolower($name), $arena->getPlayers())) {
                 return $arena;
             }
         }

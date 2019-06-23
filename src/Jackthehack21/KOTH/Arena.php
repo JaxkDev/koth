@@ -285,12 +285,13 @@ class Arena{
     /**
      * @param Player $player
      * @param bool $random
+     * @return bool
      */
-    private function spawnPlayer(Player $player, $random = false) : void{
+    private function spawnPlayer(Player $player, $random = false) : bool{
         if(strtolower($player->getLevel()->getName()) !== strtolower($this->world)){
             if(!$this->plugin->getServer()->isLevelGenerated($this->world)) {
                 $player->sendMessage($this->plugin->prefix.C::RED."World set for '".$this->name."' does not exist.");
-                return;
+                return false;
             }
             if(!$this->plugin->getServer()->isLevelLoaded($this->world)) {
                 $this->plugin->getServer()->loadLevel($this->world);
@@ -298,6 +299,7 @@ class Arena{
 
         }
         $player->teleport($this->getSpawn($random));
+        return true;
     }
 
     /**
@@ -586,6 +588,12 @@ class Arena{
             case self::STATUS_FULL:
                 $player->sendMessage($this->plugin->prefix.C::RED."This arena is full.");
                 return false;
+            case self::STATUS_INVALID:
+                $player->sendMessage($this->plugin->prefix.C::RED."This arena has been setup in a place that no longer exists.");
+                return false;
+            case self::STATUS_UNKNOWN:
+                $player->sendMessage($this->plugin->prefix.C::RED."This arena has a unknown status.");
+                return false;
         }
         $event = new ArenaAddPlayerEvent($this->plugin, $this, $player);
         try {
@@ -599,11 +607,15 @@ class Arena{
             $player->sendMessage($this->plugin->prefix.C::RED."Unable to join arena, reason: ".$event->getReason());
             return false;
         }
+
+        $this->playerOldPositions[strtolower($player->getName())] = [$player->getLevel()->getName(),$player->getX(), $player->getY(), $player->getZ()];
+        if(!$this->spawnPlayer($player)){
+            unset($this->playerOldPositions[strtolower($player->getName())]);
+            return false;
+        }
         $player->setGamemode(0); //todo Beta4 configurable.
         $this->players[] = strtolower($player->getName());
-        $this->playerOldPositions[strtolower($player->getName())] = [$player->getLevel()->getName(),$player->getX(), $player->getY(), $player->getZ()];
         $this->broadcastJoin($player);
-        $this->spawnPlayer($player);
         if(count($this->players) >= $this->minPlayers && $this->timerTask === null && $this->plugin->config["auto_start"] === true){
             $this->startTimer();
         }

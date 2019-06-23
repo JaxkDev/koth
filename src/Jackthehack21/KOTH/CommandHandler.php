@@ -162,7 +162,7 @@ class CommandHandler{
                     }
                     $name = $arena->getName();
                     $status = $arena->getFriendlyStatus();
-                    $players = count($arena->players);
+                    $players = count($arena->getPlayers());
                     $spawns = count($arena->spawns);
                     $rewards = $arena->rewards;
                     $gameTime = $arena->time;
@@ -427,7 +427,7 @@ class CommandHandler{
             $sender->sendMessage($this->prefix.C::RED."Min value must be a number.");
             return;
         }
-        if(intval($min) < 1){
+        if(intval($min) < 2){
             $sender->sendMessage($this->prefix.C::RED."minimum value must be above 2.");
             return;
         }
@@ -446,11 +446,6 @@ class CommandHandler{
         }
         if(intval($gameTime) < 5){
             $sender->sendMessage($this->prefix.C::RED."Game time has to be above 5 seconds.");
-            return;
-        }
-
-        if($this->plugin->getArenaByName($name) !== null){
-            $sender->sendMessage($this->prefix.C::RED."A arena under that name already exists.");
             return;
         }
 

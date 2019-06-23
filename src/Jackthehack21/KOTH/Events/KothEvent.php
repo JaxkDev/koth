@@ -42,6 +42,7 @@ abstract class KothEvent extends PluginEvent implements Cancellable{
 
     public function __construct(Main $plugin)
     {
+        $plugin->debug("Event '".$this->getEventName()."' is being constructed...");
         parent::__construct($plugin);
     }
 
