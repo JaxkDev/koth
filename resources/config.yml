@@ -3,7 +3,7 @@ version: 1
 
 provider: "sqlite3"
 
-debug: true
+debug: false
 
 show_updates: true
 check_updates: true

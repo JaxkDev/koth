@@ -57,7 +57,7 @@ class Main extends PluginBase implements Listener
     public const CONFIG_VER = 1;
     public const MESSAGE_VER = 0;
 
-    private $arenas;
+    private $arenas = [];
     private $CommandHandler;
     private $EventHandler;
     private $configC;
@@ -135,10 +135,16 @@ class Main extends PluginBase implements Listener
             $this->saveConfig();
         }
 
+        if($this->config["download_updates"] === true){
+            $this->getLogger()->warning("Important disclaimer, by using the download_updates option you accept full responsibility of any damage done by the feature. Disable the option if you are un-happy with this or do not need it (Note, it has been tested and works on a plain pocketmine-mp v3.7.0-v3.8.5 server)");
+            //Just in case it somehow goes wrong.
+        }
+
         foreach(array("eng","spa","fra") as $language){
             @unlink($this->getDataFolder()."help_".$language.".txt");
             $this->saveResource("help_" . $language . ".txt");
         }
+
     }
 
     /**
@@ -245,9 +251,10 @@ class Main extends PluginBase implements Listener
 
     public function onDisable()
     {
-        $this->updateAllArenas();
-        $this->saveConfig();
-        $this->db->close();
+        //small checks here to stop throwing more errors if crashing on load/enable etc.
+        if(!is_null($this->db)) $this->updateAllArenas();
+        if(!is_null($this->config)) $this->saveConfig();
+        if(!is_null($this->db)) $this->db->close();
     }
 
     public function onEnable(): void
@@ -299,7 +306,7 @@ class Main extends PluginBase implements Listener
                 "world" => $arena->world
             ];
         }
-        $this->db->setAllData($save);
+        if(!is_null($this->db)) $this->db->setAllData($save);
     }
 
     /**
@@ -308,9 +315,10 @@ class Main extends PluginBase implements Listener
     public function saveConfig(array $data = null): void
     {
         if ($data !== null) {
-            $this->configC->setAll($data);
+            if(!is_null($this->configC)) $this->configC->setAll($data);
             return;
         }
+        if(is_null($this->configC) or is_null($this->config)) return;
         $this->configC->setAll($this->config);
         $this->configC->save();
     }

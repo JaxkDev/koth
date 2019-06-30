@@ -5,6 +5,8 @@ version: 1.0.0-Beta3
 api:
 - 3.7.0
 main: Jackthehack21\KOTH\Main
+website: "https://github.com/Jackthehack21/KOTH"
+description: "King of The Hill, A mini-game plugin by Jackthehack21"
 
 extensions: [sqlite3]
 
@@ -48,6 +50,12 @@ permissions:
         description: "Allows player to join a game."
         default: true
       koth.leave:
-        description: "Allows players to chicken out of a game."
+        description: "Allows player to chicken out of a game."
         default: true
+      koth.start:
+        description: "Allows player to start a arena."
+        default: true
+      koth.forcestart:
+        description: "Allows player to force start a arena."
+        default: op
 ...

@@ -69,7 +69,7 @@ the only difference is forcestart does not check the arena status whereas ^^^ on
 You can leave a game by using the command `/koth leave` or quiting the game.
 
 ### Winning a game
-**NOTICE: THIS IS PLANNED TO CHANGE IN BETA4/5**
+**NOTICE: There is plans for different types of ways of winning a game, targeted for beta 4/5**
 
 The game runs on a timer, during which anyone can move, attack and kill the king.
 However when the timer runs out the last standing king, or the previous king will be crowned.
@@ -108,6 +108,7 @@ For more info see the help file found in the same directory.
 ## Extensions:
  - <https://github.com/jackthehack21/koth-extensions>
  To install extensions place the phar from the releases section into the plugins directory of your server and reboot server.
+ Any issues should be reported in that repository if the extension crashes.
 
 ## Known Bugs:
  - Floating Text Particles will appear in every world but at same position, disable floating_text_particles if this is a issue for your server setup.

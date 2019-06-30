@@ -70,11 +70,13 @@ class CommandHandler{
                     if($sender->hasPermission("koth.info")) $sender->sendMessage(C::GOLD."/koth info (arena name) ".C::RESET."- Get more info on one arena.");
                     if($sender->hasPermission("koth.join")) $sender->sendMessage(C::GOLD."/koth join (arena name)".C::RESET." - Join a game.");
                     if($sender->hasPermission("koth.leave")) $sender->sendMessage(C::GOLD."/koth leave ".C::RESET."- Leave a game you'r currently in.");
+                    if($sender->hasPermission("koth.start")) $sender->sendMessage(C::GOLD."/koth start (arena name - optional) ".C::RESET."- Starts a arena if game requirements are met.");
+                    if($sender->hasPermission("koth.forcestart")) $sender->sendMessage(C::GOLD."/koth forcestart (arena name - optional) ".C::RESET."- Forces a arena/game to start the countdown to begin.");
                     if($sender->hasPermission("koth.new")) $sender->sendMessage(C::GOLD."/koth new (arena name - no spaces) (min players) (max players) (gametime in seconds)".C::RESET." - Start the setup process of making a new arena.");
                     if($sender->hasPermission("koth.rem")) $sender->sendMessage(C::GOLD."/koth rem (arena name)".C::RESET." - Remove a area that has been setup.");
                     if($sender->hasPermission("koth.setspawns")) $sender->sendMessage(C::GOLD."/koth setspawn (arena name) ".C::RESET."- Set a spawn point for a arena.");
                     if($sender->hasPermission("koth.setpos")) $sender->sendMessage(C::GOLD."/koth setpos1 (arena name) or /koth setpos2 (arena name> ".C::RESET."- Set king area corner to corner.");
-                    if($sender->hasPermission("koth.addrewards")) $sender->sendMessage(C::GOLD."/koth addreward (arena name) (command eg. /give {PLAYER} 20 1)");
+                    if($sender->hasPermission("koth.addrewards")) $sender->sendMessage(C::GOLD."/koth addreward (arena name) (command eg. /give {PLAYER} 20 1)".C::RESET." - Add a command to execute when winner is announced");
                     return true;
                 case 'credits':
                     $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." CREDITS".C::YELLOW."]");
