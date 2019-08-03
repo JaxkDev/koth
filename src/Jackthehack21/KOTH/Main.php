@@ -54,7 +54,7 @@ class Main extends PluginBase implements Listener
     private static $instance;
 
     public const ARENA_VER = 2;
-    public const CONFIG_VER = 1;
+    public const CONFIG_VER = 2;
     public const MESSAGE_VER = 0;
 
     private $arenas = [];
@@ -122,6 +122,7 @@ class Main extends PluginBase implements Listener
             if (!isset($this->config["end_bcast_serverwide"])) $this->config["end_bcast_serverwide"] = false;
             if (isset($this->config["language"])) unset($this->config["language"]);
             if (!isset($this->config["provider"])) $this->config["provider"] = "sqlite3";
+			if (!isset($this->config["block_messages"])) $this->config["block_messages"] = true;
             if (!isset($this->config["block_commands"])) $this->config["block_commands"] = true;
             if (!isset($this->config["prevent_place"])) $this->config["prevent_place"] = true;
             if (!isset($this->config["prevent_break"])) $this->config["prevent_break"] = true;
@@ -273,7 +274,8 @@ class Main extends PluginBase implements Listener
      */
     public function onCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool
     {
-        return $this->CommandHandler->handleCommand($sender, $cmd, $label, $args);
+        $this->CommandHandler->handleCommand($sender, $cmd, $label, $args);
+        return true;
     }
 
     /**

@@ -49,7 +49,7 @@ class YamlProvider implements BaseProvider{
     /** @var array $data */
     public $data;
 
-    private $version = 0;
+    private $version = Main::ARENA_VER;
 
     public function __construct(Main $plugin)
     {

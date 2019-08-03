@@ -50,6 +50,7 @@ use pocketmine\scheduler\TaskHandler;
 use pocketmine\utils\TextFormat as C;
 
 use ReflectionException;
+use TypeError;
 
 
 /*
@@ -71,6 +72,7 @@ class Arena{
     public const STATUS_STARTED = 2;
     public const STATUS_FULL = 3;
     public const STATUS_INVALID = 4;
+    public const STATUS_DISABLED = 7;
     public const STATUS_UNKNOWN = 9;
 
     public $statusList = [
@@ -79,6 +81,7 @@ class Arena{
         self::STATUS_STARTED => "Started",
         self::STATUS_FULL => "Full",
         self::STATUS_INVALID => "Invalid Setup", #Used when arena was setup correctly but external causes means its no longer compatible.
+		self::STATUS_DISABLED => "Disabled",
         self::STATUS_UNKNOWN => "Unknown"
     ];
 
@@ -107,6 +110,7 @@ class Arena{
 
     public $status = 9;
 
+	/** @var null|FloatingText */
     public $currentKingParticle = null;
 
     /**
@@ -143,6 +147,8 @@ class Arena{
 
         $this->checkStatus();
         $this->createKingTextParticle();
+
+        $this->plugin->debug($this->getName()." - Arena Constructed, status: ".$this->getFriendlyStatus());
     }
 
     /**
@@ -166,10 +172,40 @@ class Arena{
         return $this->name;
     }
 
+    public function enable() : bool{
+    	if($this->status !== $this::STATUS_DISABLED){
+    		$this->plugin->debug("Failed to enable arena '".$this->getName()."', already enabled.");
+    		return false;
+		}
+    	$this->status = $this::STATUS_UNKNOWN;
+    	$this->checkStatus();
+    	if($this->status !== $this::STATUS_DISABLED) $this->plugin->debug("Enabled arena '".$this->getName()."'");
+    	else $this->plugin->debug("Failed to enable arena '".$this->getName()."'");
+    	return true;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function disable() : bool{
+		if($this->status === $this::STATUS_DISABLED){
+			$this->plugin->debug("Failed to disable arena '".$this->getName()."', already disabled.");
+			return false;
+		}
+		if($this->status === $this::STATUS_STARTED or count($this->players) > 0){
+			$this->plugin->debug("Failed to disable arena '".$this->getName()."', players are currently in the arena.");
+			return false;
+		}
+    	$this->status = $this::STATUS_DISABLED;
+		$this->plugin->debug("Disabled arena '".$this->getName()."'");
+    	return true;
+	}
+
     /**
      * @param string $msg
      */
     public function broadcastMessage(string $msg) : void{
+    	$this->plugin->debug("Broadcasting message '".$msg."' to '".count($this->players)."' Players in arena '".$this->getName()."'");
         foreach($this->players as $player){
             $this->plugin->getServer()->getPlayerExact($player)->sendMessage($msg);
         }
@@ -201,41 +237,52 @@ class Arena{
      * @param bool $save
      */
     public function checkStatus(bool $save = true) : void{
-        if(count($this->hill) === 2 and count($this->spawns) >= 1 and $this->plugin->getServer()->getLevelByName($this->world) !== null){
-            $this->status = self::STATUS_READY;
-        } else {
-            $this->status = self::STATUS_NOT_READY;
-            if($this->world === null or $this->plugin->getServer()->getLevelByName($this->world) === null){
-                $this->status = self::STATUS_INVALID;
-                $this->currentKingParticle = null;
-            }
-            if($save === true) $this->plugin->updateArena($this);
-            return;
-        }
-        if($this->started === true){
-            $this->status = self::STATUS_STARTED;
-        }
-        if(count($this->players) >= $this->maxPlayers){
-            $this->status = self::STATUS_FULL;
-            if($save === true) $this->plugin->updateArena($this);
-            return;
-        }
-        if($save === true) $this->plugin->updateArena($this);
+    	$this->plugin->debug("Checking status in arena '".$this->getName()."', save: ".($save ? "yes" : "no"));
+    	$world = $this->plugin->utils->getLevelByName($this->world);
+    	if($this->status === $this::STATUS_DISABLED) return;
+    	if(count($this->hill) === 2 and count($this->spawns) >= 1 and $world !== null){
+    		$this->status = self::STATUS_READY;
+    	} else {
+    		$this->status = self::STATUS_NOT_READY;
+    		if($world === null){
+    			$this->plugin->getLogger()->warning(C::RED."World '".$this->world."' couldn't be loaded/found, Arena '".$this->getName()."' Will not be playable.");
+    			$this->status = self::STATUS_INVALID;
+    			$this->currentKingParticle = null;
+    		}
+    		if($world !== null) $this->world = $world->getFolderName();
+    		if($save === true) $this->plugin->updateArena($this);
+			$this->plugin->debug("Setting status to '".$this->getFriendlyStatus()."'. (Arena: '".$this->getName()."')");
+    		return;
+    	}
+    	if($this->started === true){
+    		$this->status = self::STATUS_STARTED;
+    	}
+    	if(count($this->players) >= $this->maxPlayers){
+    		$this->status = self::STATUS_FULL;
+    		if($save === true) $this->plugin->updateArena($this);
+			$this->plugin->debug("Setting status to '".$this->getFriendlyStatus()."'. (Arena: '".$this->getName()."')");
+    		return;
+    	}
+    	if($save === true) $this->plugin->updateArena($this);
+		$this->plugin->debug("Setting status to '".$this->getFriendlyStatus()."'. (Arena: '".$this->getName()."')");
     }
 
     public function createKingTextParticle() : void{
+    	$this->plugin->debug("Creating KT particle for arena '".$this->getName()."'");
         if($this->plugin->config["KingTextParticles"] === false) return;
+        $this->checkStatus(); //Double check its ready, also used to get exact world name.
         if(($this->status !== $this::STATUS_NOT_READY and $this->status !== $this::STATUS_INVALID) and $this->currentKingParticle === null){
+        	$this->plugin->debug("KT Particle being created... ('".$this->getName()."')");
             $pos = new Vector3(($this->hill[0][0]+$this->hill[1][0])/2,($this->hill[0][1]+$this->hill[1][1])/2,($this->hill[0][2]+$this->hill[1][2])/2);
             $this->currentKingParticle = new FloatingText($this->plugin, $this->plugin->getServer()->getLevelByName($this->world), $pos, C::RED."King: ".C::GOLD."-");
         }
+        else $this->plugin->debug("Arena '".$this->getName()."' doesnt satisfy the requirements needed to create the KT particle.");
     }
 
     public function updateKingTextParticle() : void{
+    	$this->plugin->debug("Updating KT particle in arena '".$this->getName()."'");
         if($this->currentKingParticle !== null){
-            /** @noinspection PhpUndefinedMethodInspection */
             $this->currentKingParticle->setInvisible(false); //fix restarting games.
-            /** @noinspection PhpUndefinedMethodInspection */
             $this->currentKingParticle->setText(C::RED."King: ".C::GOLD.($this->king === null ? "-" : $this->king));
         } else {
             $this->createKingTextParticle(); //keep trying to create it in case the scenario changes and its now able.
@@ -246,7 +293,6 @@ class Arena{
 
     public function removeKingTextParticles() : void{
         if($this->currentKingParticle !== null){
-            /** @noinspection PhpUndefinedMethodInspection */
             $this->currentKingParticle->setInvisible();
         }
         $this->updateNameTags(); //here to revert back to original.
@@ -255,10 +301,9 @@ class Arena{
     public function updateNameTags() : void{
         //this makes plugins that modify your tag based on things like health,lvl etc not work while in game.
         if($this->plugin->config["nametag_enabled"] === true){
-            /** @noinspection PhpUndefinedMethodInspection */
             $format = $this->plugin->utils->colourise($this->plugin->config["nametag_format"]);
             if($this->king !== null){
-                /** @noinspection PhpStrictTypeCheckingInspection */
+				/** @noinspection PhpStrictTypeCheckingInspection */
                 $player = $this->plugin->getServer()->getPlayerExact($this->king);
                 if(array_key_exists($this->king,$this->playerOldNameTags) !== true){
                     $this->playerOldNameTags[$this->king] = $player->getNameTag();
@@ -288,25 +333,35 @@ class Arena{
      * @return bool
      */
     private function spawnPlayer(Player $player, $random = false) : bool{
-        if(strtolower($player->getLevel()->getName()) !== strtolower($this->world)){
-            if(!$this->plugin->getServer()->isLevelGenerated($this->world)) {
-                $player->sendMessage($this->plugin->prefix.C::RED."World set for '".$this->name."' does not exist.");
-                return false;
-            }
-            if(!$this->plugin->getServer()->isLevelLoaded($this->world)) {
-                $this->plugin->getServer()->loadLevel($this->world);
+    	$world = $this->plugin->utils->getLevelByName($this->world);
+    	if($world === null){
+    		$player->sendMessage($this->plugin->prefix.C::RED."World set for '".$this->name."' does not exist");
+    		$this->plugin->debug("World not found, '".$this->world."' for arena '".$this->getName()."'");
+    		return false;
+		}
+        if($player->getLevel()->getId() !== $world->getId()){
+            if(!$this->plugin->getServer()->isLevelLoaded($world->getFolderName())) {
+                $this->plugin->getServer()->loadLevel($world->getFolderName());
+                $this->plugin->debug("Loaded world '".$world->getFolderName()."' So '".$player->getName()."' can join.");
             }
 
         }
-        $player->teleport($this->getSpawn($random));
+        $spawn = $this->getSpawn($random);
+        $this->plugin->debug("Teleporting '".$player->getName()."' to '".$spawn."' in level '".$world->getFolderName()."'");
+        $player->teleport($spawn);
         return true;
     }
 
     /**
      * @param bool $random
-     * @return Position
+     * @return Position|null
      */
-    public function getSpawn(bool $random = false) : Position{
+    public function getSpawn(bool $random = false) : ?Position{
+		$world = $this->plugin->utils->getLevelByName($this->world);
+		if($world === null){
+			$this->plugin->debug("World '".$this->world."' Not found !!!, Failed to get random position in arena '".$this->getName()."'");
+			throw new TypeError("World '".$this->world."' Not found, Failed to get random position in arena '".$this->getName()."'");
+		}
         if($random === false){
             if($this->spawnCounter >= count($this->spawns)){
                 $this->spawnCounter = 0;

@@ -31,6 +31,12 @@ permissions:
       koth.new:
         description: "Allows player to start process of making a arena."
         default: op
+      koth.enable:
+        description: "Allows player to enable a arena."
+        default: op
+      koth.disable:
+        description: "Allows player to disable a arena."
+        default: op
       koth.addrewards:
         description: "Allows player to add reward commands to an arena."
         default: op

@@ -15,6 +15,8 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
  
 ## Features
 ### Implemented
+ - Console has its own commands.
+ - Enable/Disable arena's !
  - Much more events for other developers to be able to customise the game EVEN MORE !
  - Automatically install updates on server start ! - 
  - Check for updates on server start !             - Both wont work on android (CURL)
@@ -32,8 +34,8 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
  - On death keep inventory.
 
 ### Upcoming
- - Change of game layout (different types will be optional) - Beta4
- - Something extra for when winner is announced ***wink***  - Beta4
+ - Change of game layout (different types will be extensions) - Beta4/5 (check the extensions [repo](https://github/Jackthehack21/Koth-Extensions) for more info)
+ - Something extra for when winner is announced *wink*    - Beta4
 
 ## About the game
 ### KOTH
@@ -120,7 +122,7 @@ _Developer:_ Jackthehack21 (aka JaxkDev)
 
 _Icon Creator:_ WowAssasin (WowAssasin#6608)
 
-_Requested By:_ GOLDVAGE (GOLDVAGE#2712)
+_Requested Originally By:_ GOLDVAGE (GOLDVAGE#2712) (My Idea generator, hehe)
 
 
 ### License:

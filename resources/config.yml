@@ -11,6 +11,7 @@ download_updates: false
 update_check_url: "https://raw.githubusercontent.com/jackthehack21/koth/master/updates.json"
 
 block_commands: true
+block_messages: true
 prevent_place: true
 prevent_break: true
 prevent_gamemode_change: true

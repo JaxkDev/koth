@@ -37,6 +37,7 @@ use Jackthehack21\KOTH\Events\{ArenaCreateEvent, ArenaDeleteEvent};;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 
+use pocketmine\command\ConsoleCommandSender;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat as C;
 use ReflectionException;
@@ -51,116 +52,127 @@ class CommandHandler{
         $this->prefix = $plugin->prefix;
     }
 
-    public function handleCommand(CommandSender $sender, Command $cmd, /** @noinspection PhpUnusedParameterInspection */ string $label, array $args): bool{
+    public function handleCommand(CommandSender $sender, Command $cmd, /** @noinspection PhpUnusedParameterInspection */ string $label, array $args): void{
         if($cmd->getName() == "koth"){ //Is this really done server side ?? (if i only register /koth ?)
-            if(!$sender instanceof Player and $this->plugin->getServer()->getMotd() !== "Jacks-Test-Server"){  //To help me debug faster.
+            if(!$sender instanceof Player and $this->plugin->getServer()->getMotd() !== "Jacks-Test-Server"){  //debug
                 $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
-                return true;
+                return;
             }
             if(!isset($args[0])){
                 $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["unknown"]));
-                return true;
+                return;
             }
             switch($args[0]){
                 case 'help':
-                    $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." HELP".C::YELLOW."]");
+                    $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN."CONSOLE HELP".C::YELLOW."]");
                     $sender->sendMessage(C::GOLD."/koth help ".C::RESET."- Sends help :)");
                     $sender->sendMessage(C::GOLD."/koth credits ".C::RESET."- Display the credits.");
-                    if($sender->hasPermission("koth.list")) $sender->sendMessage(C::GOLD."/koth list ".C::RESET."- List all arena's setup and ready to play !");
-                    if($sender->hasPermission("koth.info")) $sender->sendMessage(C::GOLD."/koth info (arena name) ".C::RESET."- Get more info on one arena.");
-                    if($sender->hasPermission("koth.join")) $sender->sendMessage(C::GOLD."/koth join (arena name)".C::RESET." - Join a game.");
-                    if($sender->hasPermission("koth.leave")) $sender->sendMessage(C::GOLD."/koth leave ".C::RESET."- Leave a game you'r currently in.");
-                    if($sender->hasPermission("koth.start")) $sender->sendMessage(C::GOLD."/koth start (arena name - optional) ".C::RESET."- Starts a arena if game requirements are met.");
-                    if($sender->hasPermission("koth.forcestart")) $sender->sendMessage(C::GOLD."/koth forcestart (arena name - optional) ".C::RESET."- Forces a arena/game to start the countdown to begin.");
-                    if($sender->hasPermission("koth.new")) $sender->sendMessage(C::GOLD."/koth new (arena name - no spaces) (min players) (max players) (gametime in seconds)".C::RESET." - Start the setup process of making a new arena.");
-                    if($sender->hasPermission("koth.rem")) $sender->sendMessage(C::GOLD."/koth rem (arena name)".C::RESET." - Remove a area that has been setup.");
-                    if($sender->hasPermission("koth.setspawns")) $sender->sendMessage(C::GOLD."/koth setspawn (arena name) ".C::RESET."- Set a spawn point for a arena.");
-                    if($sender->hasPermission("koth.setpos")) $sender->sendMessage(C::GOLD."/koth setpos1 (arena name) or /koth setpos2 (arena name> ".C::RESET."- Set king area corner to corner.");
-                    if($sender->hasPermission("koth.addrewards")) $sender->sendMessage(C::GOLD."/koth addreward (arena name) (command eg. /give {PLAYER} 20 1)".C::RESET." - Add a command to execute when winner is announced");
-                    return true;
+                    if($sender instanceof ConsoleCommandSender) {
+						$sender->sendMessage(C::GOLD . "/koth list " . C::RESET . "- List all arena's setup and ready to play !");
+						$sender->sendMessage(C::GOLD . "/koth info (arena name) " . C::RESET . "- Get more info on one arena.");
+						$sender->sendMessage(C::GOLD . "/koth start (arena name) " . C::RESET . "- Starts a arena if game requirements are met.");
+						$sender->sendMessage(C::GOLD . "/koth forcestart (arena name) " . C::RESET . "- Forces a arena/game to start the countdown to begin.");
+						$sender->sendMessage(C::GOLD . "/koth enable (arena name)" . C::RESET . " - Enables a disabled arena, when enabled players can join etc.");
+						$sender->sendMessage(C::GOLD . "/koth disable (arena name" . C::RESET . " - Disable a arena, when disabled no one can use it at all.");
+					} else {
+						if ($sender->hasPermission("koth.list")) $sender->sendMessage(C::GOLD . "/koth list " . C::RESET . "- List all arena's setup and ready to play !");
+						if ($sender->hasPermission("koth.info")) $sender->sendMessage(C::GOLD . "/koth info (arena name) " . C::RESET . "- Get more info on one arena.");
+						if ($sender->hasPermission("koth.join")) $sender->sendMessage(C::GOLD . "/koth join (arena name)" . C::RESET . " - Join a game.");
+						if ($sender->hasPermission("koth.leave")) $sender->sendMessage(C::GOLD . "/koth leave " . C::RESET . "- Leave a game you'r currently in.");
+						if ($sender->hasPermission("koth.start")) $sender->sendMessage(C::GOLD . "/koth start (arena name - optional) " . C::RESET . "- Starts a arena if game requirements are met.");
+						if ($sender->hasPermission("koth.forcestart")) $sender->sendMessage(C::GOLD . "/koth forcestart (arena name - optional) " . C::RESET . "- Forces a arena/game to start the countdown to begin.");
+						if ($sender->hasPermission("koth.new")) $sender->sendMessage(C::GOLD . "/koth new (arena name - no spaces) (min players) (max players) (gametime in seconds)" . C::RESET . " - Start the setup process of making a new arena.");
+						if ($sender->hasPermission("koth.rem")) $sender->sendMessage(C::GOLD . "/koth rem (arena name)" . C::RESET . " - Remove a area that has been setup.");
+						if ($sender->hasPermission("koth.enable")) $sender->sendMessage(C::GOLD . "/koth enable (arena name)" . C::RESET . " - Enables a disabled arena, when enabled players can join etc.");
+						if ($sender->hasPermission("koth.disable")) $sender->sendMessage(C::GOLD . "/koth disable (arena name" . C::RESET . " - Disable a arena, when disabled no one can use it at all.");
+						if ($sender->hasPermission("koth.setspawns")) $sender->sendMessage(C::GOLD . "/koth setspawn (arena name) " . C::RESET . "- Set a spawn point for a arena.");
+						if ($sender->hasPermission("koth.setpos")) $sender->sendMessage(C::GOLD . "/koth setpos1 (arena name) or /koth setpos2 (arena name> " . C::RESET . "- Set king area corner to corner.");
+						if ($sender->hasPermission("koth.addrewards")) $sender->sendMessage(C::GOLD . "/koth addreward (arena name) (command eg. /give {PLAYER} 20 1)" . C::RESET . " - Add a command to execute when winner is announced");
+					}
+                    return;
                 case 'credits':
                     $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." CREDITS".C::YELLOW."]");
                     $sender->sendMessage(C::AQUA."Developer: ".C::GOLD."Jackthehack21");
                     $sender->sendMessage(C::AQUA."Icon creator: ".C::GOLD."WowAssasin#6608");
-                    return true;
+                    return;
                 case 'list':
                     if(!$sender->hasPermission("koth.list")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
-                        return true;
+                        return;
                     }
                     $this->listArenas($sender);
-                    return true;
+                    return;
                 case 'rem':
                 case 'remove':
                 case 'del':
                 case 'delete':
                     if(!$sender->hasPermission("koth.rem")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
-                        return true;
+                        return;
                     }
                     $this->deleteArena($sender, $args);
-                    return true;
+                    return;
                 case 'create':
                 case 'make':
                 case 'new':
                     if(!$sender->hasPermission("koth.new")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
-                        return true;
+                        return;
                     }
                     $this->createArena($sender, $args);
-                    return true;
+                    return;
 
                 case 'quit':
                 case 'exit':
                 case 'leave':
                     if(!$sender->hasPermission("koth.leave")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
-                        return true;
+                        return;
                     }
                     $arena = $this->plugin->getArenaByPlayer(strtolower($sender->getName()));
                     if($arena === null){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_in_game_leave"]));
-                        return true;
+                        return;
                     }
                     $arena->removePlayer($sender, $this->plugin->utils->colourise($this->plugin->messages["arenas"]["leave_message"]));
-                    return true;
+                    return;
 
                 case 'join':
                     if(!$sender->hasPermission("koth.join")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
-                        return true;
+                        return;
                     }
                     if($this->plugin->getArenaByPlayer(strtolower($sender->getName())) !== null){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game_join"]));
-                        return true;
+                        return;
                     }
                     if(count($args) !== 2){
                         $sender->sendMessage(str_replace("{USAGE}", "/koth join (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
-                        return true;
+                        return;
                     }
                     $arena = $this->plugin->getArenaByName($args[1]);
                     if($arena === null){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
-                        return true;
+                        return;
                     }
                     $arena->addPlayer($sender);
-                    return true;
+                    return;
 
                 case 'details':
                 case 'info':
                     if(!$sender->hasPermission("koth.info")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
-                        return true;
+                        return;
                     }
                     if(count($args) !== 2){
                         $sender->sendMessage(str_replace("{USAGE}", "/koth info (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
-                        return true;
+                        return;
                     }
 
                     $arena = $this->plugin->getArenaByName($args[1]);
                     if($arena === null){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
-                        return true;
+                        return;
                     }
                     $name = $arena->getName();
                     $status = $arena->getFriendlyStatus();
@@ -178,167 +190,218 @@ class CommandHandler{
                     foreach($rewards as $reward){
                         $sender->sendMessage("- ".C::AQUA.$reward);
                     }
-                    return true;
+                    return;
 
                 case 'start':
                     if(!$sender->hasPermission("koth.start")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
-                        return true;
+                        return;
                     }
-                    if(count($args) < 2 and $this->plugin->getArenaByPlayer($sender->getLowerCaseName()) === null){
+                    if(count($args) < 2 and $this->plugin->getArenaByPlayer(strtolower($sender->getName())) === null){
                         $sender->sendMessage(str_replace("{USAGE}", "/koth start (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
-                        return true;
+                        return;
                     }
-                    $arena = $this->plugin->getArenaByPlayer($sender->getLowerCaseName());
+                    $arena = $this->plugin->getArenaByPlayer(strtolower($sender->getName()));
                     if($arena === null){
                         $arena = $this->plugin->getArenaByName($args[1]);
                     }
                     if($arena === null){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
-                        return true;
+                        return;
                     }
                     if($arena->timerTask !== null){
                         $sender->sendMessage($this->prefix.C::RED."Arena already started.");
-                        return true;
+                        return;
                     }
                     if($arena->getStatus() !== $arena::STATUS_READY){
                         $sender->sendMessage($this->prefix.C::RED."Arena is not 'ready' and so cannot be started.");
-                        return true;
+                        return;
                     }
                     $result = $arena->startTimer();
                     if($result !== null){
                         $sender->sendMessage($this->prefix.C::RED."Arena not started because: ".C::RESET.$result);
-                        return true;
+                        return;
                     }
                     $sender->sendMessage($this->prefix.C::GREEN."Arena starting now...");
-                    return true;
+                    return;
 
                 case 'forcestart':
                     if(!$sender->hasPermission("koth.forcestart")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
-                        return true;
+                        return;
                     }
                     if(count($args) < 2){
                         $sender->sendMessage(str_replace("{USAGE}", "/koth forcestart (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
-                        return true;
+                        return;
                     }
 
                     $arena = $this->plugin->getArenaByName($args[1]);
                     if($arena === null){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
-                        return true;
+                        return;
                     }
                     if($arena->timerTask !== null){
                         $sender->sendMessage($this->prefix.C::RED."Arena already started.");
-                        return true;
+                        return;
                     }
+                    if($arena->status === $arena::STATUS_DISABLED or $arena->status === $arena::STATUS_INVALID) {
+						$sender->sendMessage($this->prefix . C::RED . "Cannot force a disabled/invalid arena.");
+						return;
+					}
                     $result = $arena->startTimer();
                     if($result !== null){
                         $sender->sendMessage($this->prefix.C::RED."Arena not started because: ".C::RESET.$result);
-                        return true;
+                        return;
                     }
                     $sender->sendMessage($this->prefix.C::GREEN."Arena starting now...");
-                    return true;
+                    return;
+
+				case 'enable':
+					if(!$sender->hasPermission("koth.enable")){
+						$sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
+						return;
+					}
+					if(count($args) < 2){
+						$sender->sendMessage(str_replace("{USAGE}", "/koth enable (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
+						return;
+					}
+
+					$arena = $this->plugin->getArenaByName($args[1]);
+					if($arena === null){
+						$sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
+						return;
+					}
+					if($arena->status !== $arena::STATUS_DISABLED){
+						$sender->sendMessage($this->prefix.C::RED."Arena is not disabled so how can you enable it...");
+						return;
+					}
+					if($arena->enable()) $sender->sendMessage($this->prefix.C::GREEN."Arena has been enabled.");
+					else $sender->sendMessage($this->prefix.C::RED."Arena could not be enabled.");
+					return;
+
+				case 'disable':
+					if(!$sender->hasPermission("koth.disable")){
+						$sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
+						return;
+					}
+					if(count($args) < 2){
+						$sender->sendMessage(str_replace("{USAGE}", "/koth disable (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
+						return;
+					}
+
+					$arena = $this->plugin->getArenaByName($args[1]);
+					if($arena === null){
+						$sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
+						return;
+					}
+					if($arena->status === $arena::STATUS_DISABLED){
+						$sender->sendMessage($this->prefix.C::RED."Arena is not enabled so how can you enable it...");
+						return;
+					}
+					if($arena->disable()) $sender->sendMessage($this->prefix.C::GREEN."Arena has been disabled.");
+					else $sender->sendMessage($this->prefix.C::RED."Arena could not be disabled, make sure its empty and its not running before disabling.");
+					//TODO force enable/disable.
+					return;
 
                 //////-----Arena Setup------///////
                 case 'setpos1':
                     //Set position one of the hill.
                     if(!$sender->hasPermission("koth.setpoints")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
-                        return true;
+                        return;
                     }
                     /** @noinspection PhpUndefinedMethodInspection */
                     $pos = $sender->getPosition();
                     $point = [$pos->x, $pos->y, $pos->z];
                     if(count($args) !== 2){
                         $sender->sendMessage(str_replace("{USAGE}", "/koth setpos1 (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
-                        return true;
+                        return;
                     }
                     $arena = $this->plugin->getArenaByName($args[1]);
                     if($arena === null){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
-                        return true;
+                        return;
                     }
                     if(isset($arena->hill[0])){
                         $arena->hill[0] = $point;
                         $arena->world = $sender->getLevel()->getName();
                         $sender->sendMessage($this->prefix.C::GREEN."Position 1 Re-set");
-                        return true;
+                        return;
                     }
                     $arena->hill[0] = $point;
                     /** @noinspection PhpUndefinedMethodInspection */
                     $arena->world = $sender->getLevel()->getName();
                     $sender->sendMessage($this->prefix.C::GREEN."Position 1 set, be sure to do /koth setpos2 ".$arena->getName());
-                    return true;
+                    return;
 
                 case 'setpos2':
                     if(!$sender->hasPermission("koth.setpoints")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
-                        return true;
+                        return;
                     }
                     /** @noinspection PhpUndefinedMethodInspection */
                     $pos = $sender->getPosition();
                     $point = [$pos->x, $pos->y, $pos->z];
                     if(count($args) !== 2){
                         $sender->sendMessage(str_replace("{USAGE}", "/koth setpos2 (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
-                        return true;
+                        return;
                     }
                     $arena = $this->plugin->getArenaByName($args[1]);
                     if($arena === null){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
-                        return true;
+                        return;
                     }
                     if(count($arena->hill) === 2){
                         $arena->hill[1] = $point;
                         $sender->sendMessage($this->prefix.C::GREEN."Position 2 re-set");
-                        return true;
+                        return;
                     }
                     if(count($arena->hill) === 0){
                         $arena->hill[1] = $point;
                         $sender->sendMessage($this->prefix.C::RED."Position 2 set, please use /koth setpos1 ".$arena->getName()." as well !");
-                        return true;
+                        return;
                     }
                     $arena->hill[1] = $point;
                     $arena->checkStatus();
                     $sender->sendMessage($this->prefix.C::GREEN."Position 2 set, be sure to setup some spawn point '/koth setspawn ".$arena->getName());
-                    return true;
+                    return;
 
                 case 'setspawn':
                     //Set a spawn position
                     if(!$sender->hasPermission("koth.setspawns")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
-                        return true;
+                        return;
                     }
                     /** @noinspection PhpUndefinedMethodInspection */
                     $pos = $sender->getPosition();
                     $point = [$pos->x, $pos->y, $pos->z];
                     if(count($args) !== 2){
                         $sender->sendMessage(str_replace("{USAGE}", "/koth setspawn (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
-                        return true;
+                        return;
                     }
                     $arena = $this->plugin->getArenaByName($args[1]);
                     if($arena === null){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
-                        return true;
+                        return;
                     }
                     $arena->spawns[] = $point;
                     $arena->checkStatus();
                     $sender->sendMessage($this->prefix.C::GREEN."Spawn position added.");
-                    return true;
+                    return;
 
                 case 'addreward':
                     if(!$sender->hasPermission("koth.addreward")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
-                        return true;
+                        return;
                     }
                     if(count($args) <= 2){
                         $sender->sendMessage(str_replace("{USAGE}", " /koth addreward (arena name) (command eg. give {PLAYER} 20 1)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
-                        return true;
+                        return;
                     }
                     $arena = $this->plugin->getArenaByName($args[1]);
                     if($arena === null){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
-                        return true;
+                        return;
                     }
                     if($args[2][0] === "/"){
                         $args[2] = substr($args[2], 1);
@@ -349,16 +412,15 @@ class CommandHandler{
                     $arena->rewards[] = implode(" ",$cmd);
                     $this->plugin->updateArena($arena);
                     $sender->sendMessage($this->prefix.C::GREEN."Reward added to the ".$arena->getName()." Arena.");
-                    return true;
+                    return;
 
                 //////----------------------///////
 
                 default:
                     $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["unknown"]));
-                    return true;
+                    return;
             }
         }
-        return false;
     }
 
     private function listArenas(CommandSender $sender) : void{

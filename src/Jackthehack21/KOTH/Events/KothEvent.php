@@ -39,10 +39,12 @@ use pocketmine\event\plugin\PluginEvent;
 abstract class KothEvent extends PluginEvent implements Cancellable{
 
     private $reason = "Event Cancelled";
+    private $plugin;
 
     public function __construct(Main $plugin)
     {
-        $plugin->debug("Event '".$this->getEventName()."' is being constructed...");
+    	$this->plugin = $plugin;
+        $this->plugin->debug("Event '".$this->getEventName()."' is being constructed...");
         parent::__construct($plugin);
     }
 
@@ -53,4 +55,10 @@ abstract class KothEvent extends PluginEvent implements Cancellable{
     public function setReason(string $reason): void{
         $this->reason = $reason;
     }
+
+    public function call(): void
+	{
+		$this->plugin->debug("Event '".$this->getEventName()."' Called.");
+		parent::call();
+	}
 }

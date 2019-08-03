@@ -2,6 +2,7 @@
 
 namespace Jackthehack21\KOTH;
 
+use pocketmine\level\Level;
 use pocketmine\utils\TextFormat as C;
 
 class Utils{
@@ -81,7 +82,7 @@ class Utils{
 
     /**
      * NOTICE: Use with caution, if used incorrectly can have significant consequences.
-     *
+     * TODO remove, too dangerous (some people like to give perms to everything that pops up)
      * @param string $dir
      */
     public function rmalldir(string $dir): void{
@@ -100,6 +101,25 @@ class Utils{
         }
         rmdir($dir);
     }
+
+	/**
+	 * Modified version of PMMP's one.
+	 * @param string $name
+	 * @return Level|null
+	 */
+	public function getLevelByName(string $name) : ?Level{
+		foreach($this->plugin->getServer()->getLevels() as $level){
+			if(strtolower($level->getFolderName()) === strtolower($name) or strtolower($level->getName()) === strtolower($name)){
+				return $level;
+			}
+		}
+		if($this->plugin->getServer()->loadLevel($name) === false) {
+			$this->plugin->debug("Failed to find or load the level '" . $name . "'");
+			return null;
+		}
+		else $this->plugin->debug("Loaded level '".$name."'");
+		return $this->getLevelByName($name);
+	}
 
     /**
      * @param string $msg

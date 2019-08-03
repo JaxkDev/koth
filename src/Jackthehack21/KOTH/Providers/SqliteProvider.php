@@ -43,7 +43,7 @@ class SqliteProvider implements BaseProvider{
     /** @var SQLite3 $db */
     public $db;
 
-    private $version = 0;
+    private $version = Main::ARENA_VER;
 
     private $createTableCode, $deleteTableCode, $deleteArenaCode, $createArenaCode, $updateArenaCode, $getAllDataCode, $setAllDataCode;
 
