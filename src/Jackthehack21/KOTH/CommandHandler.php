@@ -9,7 +9,7 @@
 *   | $$ \  $$|  $$$$$$/   | $$   | $$  | $$
 *   |__/  \__/ \______/    |__/   |__/  |__/
 *  
-*   Copyright (C) 2019 Jackthehack21 (Jack Honour/Jackthehaxk21/JaxkDev)
+*   Copyright (C) 2019 JaxkDev
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 *
 *   Twitter :: @JaxkDev
 *   Discord :: Jackthehaxk21#8860
-*   Email   :: gangnam253@gmail.com
+*   Email   :: JaxkDev@gmail.com
 */
 
 
@@ -92,7 +92,7 @@ class CommandHandler{
                     return;
                 case 'credits':
                     $sender->sendMessage(C::YELLOW."[".C::AQUA."KOTH ".C::RED."-".C::GREEN." CREDITS".C::YELLOW."]");
-                    $sender->sendMessage(C::AQUA."Developer: ".C::GOLD."Jackthehack21");
+                    $sender->sendMessage(C::AQUA."Developer: ".C::GOLD."JaxkDev (AKA Jackthehack21)");
                     $sender->sendMessage(C::AQUA."Icon creator: ".C::GOLD."WowAssasin#6608");
                     return;
                 case 'list':

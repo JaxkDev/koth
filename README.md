@@ -1,9 +1,9 @@
-[![HitCount](http://hits.dwyl.io/Jackthehack21/KOTH.svg)](http://hits.dwyl.io/Jackthehack21/KOTH)
+[![HitCount](http://hits.dwyl.io/JaxkDev/KOTH.svg)](http://hits.dwyl.io/JaxkDev/KOTH)
 <a href="https://tiny.cc/JaxksDC"><img src="https://discordapp.com/api/guilds/554059221847638040/embed.png" alt="Discord server"/></a>
 <a href="https://poggit.pmmp.io/p/KOTH"><img src="https://poggit.pmmp.io/shield.state/KOTH"></a>
 
 # K.O.T.H
-King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
+King Of The Hill mini-game, Pocketmine-MP Plugin by JaxkDev.
 
 ## NOTICE'S
  **This plugin is in BETA (Pre-Release), so *please* dont spam out comments/issues with broken things or things that you expect there and are not.**
@@ -34,8 +34,8 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by Jackthehack21.
  - On death keep inventory.
 
 ### Upcoming
- - Change of game layout (different types will be extensions) - Beta4/5 (check the extensions [repo](https://github/Jackthehack21/Koth-Extensions) for more info)
- - Something extra for when winner is announced *wink*    - Beta4
+ - Change of game layout (different types will be extensions) - Beta5/6 (check the extensions [repo](https://github/JaxkDev/Koth-Extensions) for more info)
+ - Something extra for when winner is announced *wink*    - Beta5
 
 ## About the game
 ### KOTH
@@ -52,7 +52,7 @@ They remain king for as long as they stay in the specified area/fort/castle if t
 The winner is announced at the end of the game (When a timer runs out), the king currently in power or the previous king will be winner.
 
 At the end the winner is given rewards and a *celebration* occurs (shortly).
-(This is not yet implemented - as of beta3)
+(This is not yet implemented - as of beta4)
 
 ### Joining a game
 To join a game/arena the arena must meet some criteria,
@@ -108,17 +108,17 @@ in the file you will find a series of values feel free to change any of them exc
 For more info see the help file found in the same directory.
 
 ## Extensions:
- - <https://github.com/jackthehack21/koth-extensions>
+ - <https://github.com/JaxkDev/koth-extensions>
  To install extensions place the phar from the releases section into the plugins directory of your server and reboot server.
  Any issues should be reported in that repository if the extension crashes.
 
 ## Known Bugs:
  - Floating Text Particles will appear in every world but at same position, disable floating_text_particles if this is a issue for your server setup.
 
-To report bugs please make a issue over on [github](https://github.com/jackthehack21/koth/issues/new) and please *follow the template!*
+To report bugs please make a issue over on [github](https://github.com/JaxkDev/koth/issues/new) and please *follow the template!*
 
 ## Credits:
-_Developer:_ Jackthehack21 (aka JaxkDev)
+_Developer:_ JaxkDev
 
 _Icon Creator:_ WowAssasin (WowAssasin#6608)
 
@@ -127,7 +127,7 @@ _Requested Originally By:_ GOLDVAGE (GOLDVAGE#2712) (My Idea generator, hehe)
 
 ### License:
     KOTH - King of the hill
-    Copyright (C) 2019 Jackthehack21 (Jack Honour/Jackthehaxk21/JaxkDev)
+    Copyright (C) 2019 JaxkDev
     
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -144,4 +144,4 @@ _Requested Originally By:_ GOLDVAGE (GOLDVAGE#2712) (My Idea generator, hehe)
     
     Twitter :: @JaxkDev
     Discord :: Jackthehaxk21#8860
-    Email   :: gangnam253@gmail.com
+    Email   :: JaxkDev@gmail.com

@@ -9,7 +9,7 @@
 *   | $$ \  $$|  $$$$$$/   | $$   | $$  | $$
 *   |__/  \__/ \______/    |__/   |__/  |__/
 *  
-*   Copyright (C) 2019 Jackthehack21 (Jack Honour/Jackthehaxk21/JaxkDev)
+*   Copyright (C) 2019 JaxkDev
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 *
 *   Twitter :: @JaxkDev
 *   Discord :: Jackthehaxk21#8860
-*   Email   :: gangnam253@gmail.com
+*   Email   :: JaxkDev@gmail.com
 */
 
 /** @noinspection PhpUndefinedMethodInspection */
@@ -137,8 +137,8 @@ class Main extends PluginBase implements Listener
         }
 
         if($this->config["download_updates"] === true){
-            $this->getLogger()->warning("Important disclaimer, by using the download_updates option you accept full responsibility of any damage done by the feature. Disable the option if you are un-happy with this or do not need it (Note, it has been tested and works on a plain pocketmine-mp v3.7.0-v3.8.5 server)");
-            //Just in case it somehow goes wrong.
+            $this->getLogger()->warning("Important disclaimer, by using the download_updates option you accept full responsibility of any damage done by the feature. Disable the option if you are un-happy with this or do not need it (Note, it has been tested and works on a plain pocketmine-mp v3.7.0-v3.9 server)");
+            //Just in case it somehow goes wrong, dont blame me 😅
         }
 
         foreach(array("eng","spa","fra") as $language){
