@@ -131,7 +131,7 @@ class Main extends PluginBase implements Listener
             if (!isset($this->config["show_updates"])) $this->config["show_updates"] = true;
             if (!isset($this->config["check_updates"])) $this->config["check_updates"] = true;
             if (!isset($this->config["download_updates"])) $this->config["download_updates"] = false;
-            if (!isset($this->config["update_check_url"])) $this->config["update_check_url"] = "https://raw.githubusercontent.com/jackthehack21/koth/master/updates.json";
+            $this->config["update_check_url"] = "https://raw.githubusercontent.com/JaxkDev/koth/master/updates.json";
             $this->config["version"] = $this::CONFIG_VER;
             $this->saveConfig();
         }

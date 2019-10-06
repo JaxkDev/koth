@@ -38,7 +38,6 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 
 use pocketmine\command\ConsoleCommandSender;
-use pocketmine\Player;
 use pocketmine\utils\TextFormat as C;
 use ReflectionException;
 
@@ -53,11 +52,7 @@ class CommandHandler{
     }
 
     public function handleCommand(CommandSender $sender, Command $cmd, /** @noinspection PhpUnusedParameterInspection */ string $label, array $args): void{
-        if($cmd->getName() == "koth"){ //Is this really done server side ?? (if i only register /koth ?)
-            if(!$sender instanceof Player and $this->plugin->getServer()->getMotd() !== "Jacks-Test-Server"){  //debug
-                $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
-                return;
-            }
+        if($cmd->getName() == "koth"){ //Is this really done server side ?? (if i only register /koth ?) - YES
             if(!isset($args[0])){
                 $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["unknown"]));
                 return;
@@ -106,6 +101,10 @@ class CommandHandler{
                 case 'remove':
                 case 'del':
                 case 'delete':
+                	if($sender instanceof ConsoleCommandSender) {
+						$sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
+						return;
+					}
                     if(!$sender->hasPermission("koth.rem")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
@@ -115,6 +114,10 @@ class CommandHandler{
                 case 'create':
                 case 'make':
                 case 'new':
+					if($sender instanceof ConsoleCommandSender) {
+						$sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
+						return;
+					}
                     if(!$sender->hasPermission("koth.new")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
@@ -125,6 +128,10 @@ class CommandHandler{
                 case 'quit':
                 case 'exit':
                 case 'leave':
+					if($sender instanceof ConsoleCommandSender) {
+						$sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
+						return;
+					}
                     if(!$sender->hasPermission("koth.leave")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
@@ -138,6 +145,10 @@ class CommandHandler{
                     return;
 
                 case 'join':
+                	if($sender instanceof ConsoleCommandSender) {
+						$sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
+						return;
+					}
                     if(!$sender->hasPermission("koth.join")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
@@ -305,6 +316,10 @@ class CommandHandler{
 
                 //////-----Arena Setup------///////
                 case 'setpos1':
+					if($sender instanceof ConsoleCommandSender) {
+						$sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
+						return;
+					}
                     //Set position one of the hill.
                     if(!$sender->hasPermission("koth.setpoints")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
@@ -324,6 +339,7 @@ class CommandHandler{
                     }
                     if(isset($arena->hill[0])){
                         $arena->hill[0] = $point;
+						/** @noinspection PhpUndefinedMethodInspection */
                         $arena->world = $sender->getLevel()->getName();
                         $sender->sendMessage($this->prefix.C::GREEN."Position 1 Re-set");
                         return;
@@ -335,6 +351,10 @@ class CommandHandler{
                     return;
 
                 case 'setpos2':
+					if($sender instanceof ConsoleCommandSender) {
+						$sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
+						return;
+					}
                     if(!$sender->hasPermission("koth.setpoints")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
@@ -368,6 +388,10 @@ class CommandHandler{
 
                 case 'setspawn':
                     //Set a spawn position
+					if($sender instanceof ConsoleCommandSender) {
+						$sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
+						return;
+					}
                     if(!$sender->hasPermission("koth.setspawns")){
                         $sender->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;

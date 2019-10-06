@@ -1,7 +1,7 @@
 {
-  "version": "1.0.0-Beta3",
-  "time": 1561900000,
-  "link": "https://github.com/Jackthehack21/KOTH/releases/tag/1.0.0-Beta3",
-  "download_link": "https://poggit.pmmp.io/r/61202/KOTH.phar",
-  "patch_notes": "- Brand new extensions now available.\n- Database options (default Sqlite3, only two options as of now [sqlite3, yaml])\n- Massive changes in message formats, almost all messages can be changed in messages.yml\n- options in config.yml to:\n  - Broadcast events server wide\n  - Option to auto-start arena or wait for /koth start\n  - Countdown options are now configurable\n  - The following are now optional:\n    - block_commands (NEW !)\n    - prevent_place\n    - prevent_break\n    - prevent_gamemode_change\n    - keep_inventory\n- Massive changes to the update feature:\n  - Check for updates on server start (you can change URL for those who take it to the next level *wink*)\n  - Download updates and install updates automatically no need to do anything except restart server !\n  *Notice: This option is disabled by default by enabling it you accept the risk that the plugin may become corrupt or worse. (but good news is its been tested ALOT, and not once has anything caused lasting damage)*\n- For those over the seas, the help files got translated to a few modern foreign languages (more to come)\n- You can now re-set position 1 and 2 of the hill if you need to move the arena (spawn points aren't removable yet)\n\n**For developers:**\n- Notice: The GameTimer task seconds played has been switched to seconds left to cater for events and extending game play.\n- The plugin got some housecleaning now almost everything has type hints for your ease and Koth events are now in use.\n- The following events are used, please check the source for their individual vars:\n    - KothEvent (base, all events extend)\n    - ArenaCreateEvent\n    - ArenaDeleteEvent\n    - ArenaEndEvent\n    - ArenaPreStartEvent\n    - ArenaStartEvent\n    - ArenaRemovePlayerEvent\n    - ArenaAddPlayerEvent"
+  "version": "1.0.0-Beta4",
+  "time": 1570354000,
+  "link": "https://github.com/JaxkDev/KOTH/releases/tag/1.0.0-Beta4",
+  "download_link": "https://poggit.pmmp.io/r/66818/KOTH.phar",
+  "patch_notes": "## Whats New ?\n- Enable/Disable arena's\n- Console commands (now not all are blocked for console).\n\n## Bugs fixed:\n- Fixed the common world doesn't exist after restart.\n- Fixed the arena DB version number default to 0.\n- Fixed blocking chat and commands instead of what was configured.\n- Many other bugs were smashed while cleaning up :)"
 }

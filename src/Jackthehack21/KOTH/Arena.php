@@ -197,6 +197,8 @@ class Arena{
 			return false;
 		}
     	$this->status = $this::STATUS_DISABLED;
+		if($this->timerTask !== null) $this->timerTask->cancel();
+		$this->reset();
 		$this->plugin->debug("Disabled arena '".$this->getName()."'");
     	return true;
 	}
