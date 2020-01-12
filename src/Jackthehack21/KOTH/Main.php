@@ -254,10 +254,9 @@ class Main extends PluginBase implements Listener
 
     public function onDisable()
     {
-        //small checks here to stop throwing more errors if crashing on load/enable etc.
-        if(!is_null($this->db)) $this->updateAllArenas();
-        if(!is_null($this->config)) $this->saveConfig();
-        if(!is_null($this->db)) $this->db->close();
+        $this->updateAllArenas();
+        $this->saveConfig();
+        $this->db->close();
     }
 
     public function onEnable(): void
@@ -310,7 +309,7 @@ class Main extends PluginBase implements Listener
                 "world" => $arena->world
             ];
         }
-        if(!is_null($this->db)) $this->db->setAllData($save);
+        $this->db->setAllData($save);
     }
 
     /**
@@ -319,10 +318,9 @@ class Main extends PluginBase implements Listener
     public function saveConfig(array $data = null): void
     {
         if ($data !== null) {
-            if(!is_null($this->configC)) $this->configC->setAll($data);
+            $this->configC->setAll($data);
             return;
         }
-        if(is_null($this->configC) or is_null($this->config)) return;
         $this->configC->setAll($this->config);
         $this->configC->save();
     }

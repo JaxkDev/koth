@@ -135,6 +135,7 @@ class SqliteProvider implements BaseProvider{
         $countTmp = $result->fetchArray(1);
         while($countTmp !== false){
             $tmpData[] = $countTmp;
+            /** @var false|array $countTmp */
             $countTmp = $result->fetchArray(1);
         }
         $data = [];
