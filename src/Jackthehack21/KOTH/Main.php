@@ -249,7 +249,7 @@ class Main extends PluginBase implements Listener
             $this->arenas[] = $arena;
         }
 
-        $this->debug(str_replace("{AMOUNT}", count($this->arenas), $this->utils->colourise($this->messages["arenas"]["loaded"])));
+        $this->debug(str_replace("{AMOUNT}", (string)count($this->arenas), $this->utils->colourise($this->messages["arenas"]["loaded"])));
     }
 
     public function onDisable()
