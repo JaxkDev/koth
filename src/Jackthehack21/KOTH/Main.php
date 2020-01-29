@@ -9,7 +9,7 @@
 *   | $$ \  $$|  $$$$$$/   | $$   | $$  | $$
 *   |__/  \__/ \______/    |__/   |__/  |__/
 *  
-*   Copyright (C) 2019 JaxkDev
+*   Copyright (C) 2019-2020 JaxkDev
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -25,11 +25,9 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 *   Twitter :: @JaxkDev
-*   Discord :: Jackthehaxk21#8860
+*   Discord :: JaxkDev#8860
 *   Email   :: JaxkDev@gmail.com
 */
-
-/** @noinspection PhpUndefinedMethodInspection */
 
 declare(strict_types=1);
 namespace Jackthehack21\KOTH;
@@ -58,9 +56,13 @@ class Main extends PluginBase implements Listener
     public const MESSAGE_VER = 0;
 
     private $arenas = [];
+    /** @var CommandHandler */
     private $CommandHandler;
+    /** @var EventHandler */
     private $EventHandler;
+    /** @var Config */
     private $configC;
+    /** @var Config */
     private $messagesC;
     /** @var BaseProvider */
     private $db;
@@ -159,7 +161,7 @@ class Main extends PluginBase implements Listener
 
     /**
      * @param string $path
-     * @param $status
+     * @param int $status
      */
     public function handleDownload(string $path, int $status): void{
         $this->debug("Update download complete, at '".$path."' with status '".$status."'");
@@ -247,15 +249,14 @@ class Main extends PluginBase implements Listener
             $this->arenas[] = $arena;
         }
 
-        $this->debug(str_replace("{AMOUNT}", count($this->arenas), $this->utils->colourise($this->messages["arenas"]["loaded"])));
+        $this->debug(str_replace("{AMOUNT}", (string)count($this->arenas), $this->utils->colourise($this->messages["arenas"]["loaded"])));
     }
 
     public function onDisable()
     {
-        //small checks here to stop throwing more errors if crashing on load/enable etc.
-        if(!is_null($this->db)) $this->updateAllArenas();
-        if(!is_null($this->config)) $this->saveConfig();
-        if(!is_null($this->db)) $this->db->close();
+        $this->updateAllArenas();
+        $this->saveConfig();
+        $this->db->close();
     }
 
     public function onEnable(): void
@@ -308,7 +309,7 @@ class Main extends PluginBase implements Listener
                 "world" => $arena->world
             ];
         }
-        if(!is_null($this->db)) $this->db->setAllData($save);
+        $this->db->setAllData($save);
     }
 
     /**
@@ -317,10 +318,9 @@ class Main extends PluginBase implements Listener
     public function saveConfig(array $data = null): void
     {
         if ($data !== null) {
-            if(!is_null($this->configC)) $this->configC->setAll($data);
+            $this->configC->setAll($data);
             return;
         }
-        if(is_null($this->configC) or is_null($this->config)) return;
         $this->configC->setAll($this->config);
         $this->configC->save();
     }

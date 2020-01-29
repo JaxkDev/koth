@@ -9,7 +9,7 @@
 *   | $$ \  $$|  $$$$$$/   | $$   | $$  | $$
 *   |__/  \__/ \______/    |__/   |__/  |__/
 *  
-*   Copyright (C) 2019 JaxkDev
+*   Copyright (C) 2019-2020 JaxkDev
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 *   Twitter :: @JaxkDev
-*   Discord :: Jackthehaxk21#8860
+*   Discord :: JaxkDev#8860
 *   Email   :: JaxkDev@gmail.com
 */
 
@@ -41,7 +41,6 @@ use Jackthehack21\KOTH\Particles\FloatingText;
 use Jackthehack21\KOTH\Tasks\Prestart;
 use Jackthehack21\KOTH\Tasks\Gametimer;
 
-use pocketmine\command\CommandSender;
 use pocketmine\command\ConsoleCommandSender;
 use pocketmine\Player;
 use pocketmine\math\Vector3;
@@ -49,7 +48,6 @@ use pocketmine\level\Position;
 use pocketmine\scheduler\TaskHandler;
 use pocketmine\utils\TextFormat as C;
 
-use ReflectionException;
 use TypeError;
 
 
@@ -392,11 +390,7 @@ class Arena{
     /** @return null|string */
     public function startTimer(){
         $event = new ArenaPreStartEvent($this->plugin, $this);
-        try {
-            $event->call();
-        } catch (ReflectionException $e) {
-            return $this->plugin->prefix.C::RED."Event failed, Arena '".$this->getName()."' countdown not started.";
-        }
+        $event->call();
 
         if($event->isCancelled()){
             return $event->getReason();
@@ -407,14 +401,8 @@ class Arena{
     }
 
     public function startGame() : void{
-        /** @noinspection PhpUndefinedMethodInspection */
         $event = new ArenaStartEvent($this->plugin, $this);
-        try {
-            $event->call();
-        } catch (ReflectionException $e) {
-            $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Event failed, Arena '".$this->getName()."' not started.");
-            return;
-        }
+        $event->call();
 
         if($event->isCancelled()){
             $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Cant start game in Arena '".$this->getName()."' because: ".$event->getReason());
@@ -457,16 +445,12 @@ class Arena{
 
     public function endGame() : void{
         $event = new ArenaEndEvent($this->plugin, $this);
-        try {
-            $event->call();
-        } catch (ReflectionException $e) {
-            $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Event failed, Arena '".$this->getName()."' not ended.");
-            return;
-        }
+        $event->call();
 
         if($event->isCancelled()){
-            /** @noinspection PhpUndefinedFieldInspection */
-            $this->timerTask->getTask()->secondsLeft = $event->getSecondsLeft();
+        	/** @var Gametimer $tsk */
+        	$tsk = $this->timerTask->getTask();
+            $tsk->secondsLeft = $event->getSecondsLeft();
             $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Arena '".$this->name."' not ended, reason: ".$event->getReason());
             return;
         }
@@ -585,7 +569,7 @@ class Arena{
 
 
     /**
-     * @param Player|CommandSender $player
+     * @param Player $player
      * @param string $reason
      * @param bool   $silent
      * 
@@ -593,17 +577,7 @@ class Arena{
      */
     public function removePlayer(Player $player, string $reason, bool $silent = false) : void{
         $event = new ArenaRemovePlayerEvent($this->plugin, $this, $player, $reason, $silent);
-        try {
-            $event->call();
-        } catch (ReflectionException $e) {
-            if(!$player->isConnected()){
-                //Player is leaving app.
-                $this->plugin->getLogger()->warning($this->plugin->prefix . C::RED . "Event failed, but player left the game assuming default scenario...");
-            } else {
-                $this->plugin->getLogger()->warning($this->plugin->prefix . C::RED . "Event failed, Player not removed.");
-                return;
-            }
-        }
+        $event->call();
         if($event->isCancelled()){
             if(!$player->isConnected()){
                 //Player is leaving app.
@@ -629,7 +603,7 @@ class Arena{
     /**
      * Returns false if player cannot join.
      * 
-     * @param Player|CommandSender $player
+     * @param Player $player
      * 
      * @return bool
      */
@@ -653,13 +627,7 @@ class Arena{
                 return false;
         }
         $event = new ArenaAddPlayerEvent($this->plugin, $this, $player);
-        try {
-            $event->call();
-        } catch (ReflectionException $e) {
-            $this->plugin->getLogger()->warning($this->plugin->prefix.C::RED."Event failed, Player not added.");
-            $player->sendMessage($this->plugin->prefix.C::RED."Unable to join arena, reason: ".$event->getReason());
-            return false;
-        }
+        $event->call();
         if($event->isCancelled()){
             $player->sendMessage($this->plugin->prefix.C::RED."Unable to join arena, reason: ".$event->getReason());
             return false;
