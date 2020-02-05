@@ -12,6 +12,21 @@ class Utils{
     public function __construct(Main $plugin){
         $this->plugin = $plugin;
     }
+	
+	/**
+	 * Credit to https://gist.githubusercontent.com/LeoLopesWeb/a3e0bba7fe66a6af1e50eef3d231f2da/raw/16edbd69a709ca21d24f2774af5ccf68297aa97d/.php
+	 * Slightly modified for our use.
+	 * @param int $seconds
+	 *
+	 * @return string
+	 */
+	function secToHR(int $seconds) {
+	  $days = floor($seconds / 86400);
+	  $hours = floor(($seconds / 3600) % 24);
+	  $minutes = floor(($seconds / 60) % 60);
+	  $seconds = $seconds % 60;
+	  return $days > 0 ? "$days days, $hours hours, $minutes minutes" : ($hours > 0 ? "$hours hours, $minutes minutes" : ($minutes > 0 ? "$minutes minutes, $seconds seconds" : "$seconds seconds"));
+	}
 
     /**
      * @param string $base
