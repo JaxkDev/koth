@@ -1,7 +1,7 @@
 ---
 name: KOTH
 author: JaxkDev
-version: 1.0.0-Beta4
+version: 1.0.0-Beta5
 api:
 - 3.9.0
 main: Jackthehack21\KOTH\Main
