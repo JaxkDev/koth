@@ -34,7 +34,7 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by JaxkDev.
  - On death keep inventory.
 
 ### Upcoming
- - Change of game layout (different types will be extensions) - Beta5/6 (check the extensions [repo](https://github/JaxkDev/Koth-Extensions) for more info)
+ - Change of game layout (different types will be extensions) - Beta5/6 (check the extensions [repo](https://github.com/JaxkDev/Koth-Extensions) for more info)
  - Something extra for when winner is announced *wink*    - Beta5
 
 ## About the game
