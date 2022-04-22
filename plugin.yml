@@ -2,66 +2,60 @@
 name: KOTH
 author: JaxkDev
 version: 1.0.0-Beta4
-api:
-- 3.9.0
+api: 4.0.0
 main: Jackthehack21\KOTH\Main
 website: "https://github.com/JaxkDev/KOTH"
 description: "King of The Hill, A mini-game plugin by JaxkDev"
-
 extensions: [sqlite3]
 
 commands:
   koth:
-    description: "KOTH general command"
-    permission: koth.command
-    usage: /koth help
-    permission-message: "[KOTH] You do not have permission to use this command."
+  description: "KOTH general command"
+  permission: koth.command
+  usage: /koth help
+  permission-message: "[KOTH] You do not have permission to use this command."
 
 permissions:
-  koth:
-    default: false
-    description: "Allows usage of /koth"
-    children:
-      koth.command:
-        description: "Allows player to use /koth"
-        default: true
-      koth.rem:
-        description: "Allows player to remove a arena."
-        default: op
-      koth.new:
-        description: "Allows player to start process of making a arena."
-        default: op
-      koth.enable:
-        description: "Allows player to enable a arena."
-        default: op
-      koth.disable:
-        description: "Allows player to disable a arena."
-        default: op
-      koth.addrewards:
-        description: "Allows player to add reward commands to an arena."
-        default: op
-      koth.setspawns:
-        description: "Allows player to set spawn points for a arena."
-        default: op
-      koth.setpos:
-        description: "Allows player to set points when setting up a new arena."
-        default: op
-      koth.info:
-        description: "Displays more details about one specific arena."
-        default: true
-      koth.list:
-        description: "Allows player to see all Arena's and their status."
-        default: true
-      koth.join:
-        description: "Allows player to join a game."
-        default: true
-      koth.leave:
-        description: "Allows player to chicken out of a game."
-        default: true
-      koth.start:
-        description: "Allows player to start a arena."
-        default: true
-      koth.forcestart:
-        description: "Allows player to force start a arena."
-        default: op
+  koth.command:
+    description: "Allows player to use /koth"
+    default: true
+  koth.rem:
+    description: "Allows player to remove a arena."
+    default: op
+  koth.new:
+    description: "Allows player to start process of making a arena."
+    default: op
+  koth.enable:
+    description: "Allows player to enable a arena."
+    default: op
+  koth.disable:
+    description: "Allows player to disable a arena."
+    default: op
+  koth.addrewards:
+    description: "Allows player to add reward commands to an arena."
+    default: op
+  koth.setspawns:
+    description: "Allows player to set spawn points for a arena."
+    default: op
+  koth.setpos:
+    description: "Allows player to set points when setting up a new arena."
+    default: op
+  koth.info:
+    description: "Displays more details about one specific arena."
+    default: true
+  koth.list:
+    description: "Allows player to see all Arena's and their status."
+    default: true
+  koth.join:
+    description: "Allows player to join a game."
+    default: true
+  koth.leave:
+    description: "Allows player to chicken out of a game."
+    default: true
+  koth.start:
+    description: "Allows player to start a arena."
+    default: true
+  koth.forcestart:
+    description: "Allows player to force start a arena."
+    default: op
 ...

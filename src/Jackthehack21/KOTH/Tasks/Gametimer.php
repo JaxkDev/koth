@@ -54,7 +54,7 @@ class Gametimer extends Task{
     /**
      * @param int $tick
      */
-    public function onRun(int $tick){
+    public function onRun(): void{
         $this->secondsLeft -= 0.5;
         $inBox = $this->arena->playersInBox();
         if($this->arena->king === null){

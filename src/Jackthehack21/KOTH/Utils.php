@@ -2,7 +2,7 @@
 
 namespace Jackthehack21\KOTH;
 
-use pocketmine\level\Level;
+use pocketmine\world\World;
 use pocketmine\utils\TextFormat as C;
 
 class Utils{
@@ -107,13 +107,13 @@ class Utils{
 	 * @param string $name
 	 * @return Level|null
 	 */
-	public function getLevelByName(string $name) : ?Level{
-		foreach($this->plugin->getServer()->getLevels() as $level){
-			if(strtolower($level->getFolderName()) === strtolower($name) or strtolower($level->getName()) === strtolower($name)){
+	public function getLevelByName(string $name) : ?World{
+		foreach($this->plugin->getServer()->getWorldManager()->getWorlds() as $level){
+			if(strtolower($level->getFolderName()) === strtolower($name) or strtolower($level->getFolderName()) === strtolower($name)){
 				return $level;
 			}
 		}
-		if($this->plugin->getServer()->loadLevel($name) === false) {
+		if($this->plugin->getServer()->getWorldManager()->loadWorld($name) === false) {
 			$this->plugin->debug("Failed to find or load the level '" . $name . "'");
 			return null;
 		}

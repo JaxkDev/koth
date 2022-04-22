@@ -34,9 +34,9 @@ namespace Jackthehack21\KOTH\Particles;
 
 use Jackthehack21\KOTH\Main;
 
-use pocketmine\level\Level;
+use pocketmine\world\World;
 use pocketmine\math\Vector3;
-use pocketmine\level\particle\FloatingTextParticle;
+use pocketmine\world\particle\FloatingTextParticle;
 
 /**
  * Class FloatingText
@@ -46,14 +46,13 @@ use pocketmine\level\particle\FloatingTextParticle;
 
 class FloatingText extends FloatingTextParticle {
 
-    private $plugin;
-    private $level;
-    private $position;
+    protected World $level;
 
-    public function __construct(Main $plugin, Level $level, Vector3 $position, string $text, string $title = "")
+    protected Vector3 $position;
+
+    public function __construct(Main $plugin, World $level, Vector3 $position, string $text, string $title = "")
     {
-        parent::__construct($position, $text, $title);
-        $this->plugin = $plugin;
+        parent::__construct($text, $title);
         $this->level = $level;
         $this->position = $position;
     }
@@ -83,7 +82,7 @@ class FloatingText extends FloatingTextParticle {
     }
 
     public function update() : void{
-        $this->level->addParticle($this);
+        $this->level->addParticle($this->position, $this);
     }
 
 }

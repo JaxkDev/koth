@@ -36,7 +36,10 @@ use pocketmine\event\Listener;
 use pocketmine\utils\TextFormat as C;
 use pocketmine\event\block\{BlockBreakEvent, BlockPlaceEvent};;
 //use pocketmine\event\entity\EntityLevelChangeEvent;
-use pocketmine\event\player\{PlayerDeathEvent, PlayerRespawnEvent, PlayerQuitEvent, PlayerGameModeChangeEvent, PlayerCommandPreprocessEvent};;
+use pocketmine\event\player\{PlayerDeathEvent, PlayerRespawnEvent, PlayerQuitEvent, PlayerGameModeChangeEvent, PlayerCommandPreprocessEvent};
+use pocketmine\Server;
+
+;
 
 
 class EventHandler implements Listener{
@@ -77,8 +80,8 @@ class EventHandler implements Listener{
      */
     public function onDeath(PlayerDeathEvent $event){
         $player = $event->getPlayer();
-        if($this->plugin->inGame($player->getLowerCaseName()) === true and $this->plugin->config["keep_inventory"] === true){
-            $this->plugin->debug($player->getLowerCaseName()."'s inventory was not reset (death)");
+        if($this->plugin->inGame($player->getDisplayName()) === true and $this->plugin->config["keep_inventory"] === true){
+            $this->plugin->debug($player->getDisplayName()."'s inventory was not reset (death)");
             $event->setKeepInventory(true);
         }
     }
@@ -93,16 +96,16 @@ class EventHandler implements Listener{
      */
     public function onPlayerCommandPreprocess(PlayerCommandPreprocessEvent $event){
         $player = $event->getPlayer();
-        if($this->plugin->inGame($player->getLowerCaseName()) === true){
+        if($this->plugin->inGame($player->getDisplayName()) === true){
         	if($this->plugin->config["block_commands"] === true and substr($event->getMessage(), 0, 5) !== "/koth" and substr($event->getMessage(), 0, 1) === "/") {
 				$this->plugin->debug($player->getName() . " tried to use command '" . $event->getMessage() . "' but was cancelled.");
-				$event->setCancelled(true);
+				$event->cancel();
 				$player->sendMessage($this->plugin->prefix.C::RED."You are not allowed to use commands in game except: /koth, ");//TODO messages.yml
 			}
         	elseif($this->plugin->config["block_messages"] === true){
         		$this->plugin->debug($player->getName() . " tried to send '".$event->getMessage()."' globally, but was cancelled.");
 				$player->sendMessage($this->plugin->prefix.C::RED."You are not allowed to chat while in game.");//TODO messages.yml
-        		$event->setCancelled(true);
+        		$event->cancel();
 			}
         }
     }
@@ -111,11 +114,12 @@ class EventHandler implements Listener{
      * @param PlayerGameModeChangeEvent $event
      */
     public function onPlayerGameModeChange(PlayerGameModeChangeEvent $event){
-        if($this->plugin->inGame($event->getPlayer()->getLowerCaseName()) === true){
-            if($event->getPlayer()->isOp() === false and $this->plugin->config["prevent_gamemode_change"] === true){
-                $this->plugin->debug($event->getPlayer()->getName()." attempted to change gamemode but was stopped.");
+        $player = $event->getPlayer();
+        if($this->plugin->inGame($player->getDisplayName()) === true){
+            if(Server::getInstance()->isOp($player->getName()) === false and $this->plugin->config["prevent_gamemode_change"] === true){
+                $this->plugin->debug($player->getName()." attempted to change gamemode but was stopped.");
                 $event->getPlayer()->sendMessage($this->plugin->prefix.C::RED."You are not allowed to changed gamemode while in game.");//TODO messages.yml
-                $event->setCancelled(true);
+                $event->cancel();
             }
         }
     }
@@ -124,10 +128,10 @@ class EventHandler implements Listener{
      * @param BlockBreakEvent $event
      */
     public function onBlockBreak(BlockBreakEvent $event){
-        if($this->plugin->inGame($event->getPlayer()->getLowerCaseName()) === true and $this->plugin->config["prevent_break"] === true){
+        if($this->plugin->inGame($event->getPlayer()->getDisplayName()) === true and $this->plugin->config["prevent_break"] === true){
             $this->plugin->debug($event->getPlayer()->getName()." attempted to break a block but was stopped.");
 			$event->getPlayer()->sendMessage($this->plugin->prefix.C::RED."You are not allowed to break things while in game.");//TODO messages.yml
-			$event->setCancelled(true);
+			$event->cancel();
         }
     }
 
@@ -135,10 +139,10 @@ class EventHandler implements Listener{
      * @param BlockPlaceEvent $event
      */
     public function onBlockPlace(BlockPlaceEvent $event){
-        if($this->plugin->inGame($event->getPlayer()->getLowerCaseName()) === true and $this->plugin->config["prevent_place"] === true){
+        if($this->plugin->inGame($event->getPlayer()->getDisplayName()) === true and $this->plugin->config["prevent_place"] === true){
             $this->plugin->debug($event->getPlayer()->getName()." attempted to place a block but was stopped.");
 			$event->getPlayer()->sendMessage($this->plugin->prefix.C::RED."You are not allowed to place things while in game.");//TODO messages.yml
-			$event->setCancelled(true);
+			$event->cancel();
         }
     }
 

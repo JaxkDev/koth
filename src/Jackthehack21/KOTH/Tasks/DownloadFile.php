@@ -46,9 +46,9 @@ class DownloadFile extends AsyncTask
     {
         $this->url = $url;
         $this->path = $path;
-        $this->storeLocal($plugin); //4.0 compatible.
+        $this->storeLocal("idk", $plugin); //4.0 compatible.
     }
-    public function onRun()
+    public function onRun(): void
     {
         $file = fopen($this->path, 'w+');
         if($file === false){
@@ -68,9 +68,9 @@ class DownloadFile extends AsyncTask
         fclose($file);
         $this->setResult($statusCode);
     }
-    public function onCompletion(Server $server)
+    public function onCompletion(): void
     {
-        $plugin = $this->fetchLocal();
+        $plugin = $this->fetchLocal("idk");
         $plugin->handleDownload($this->path, $this->getResult());
     }
 }

@@ -65,7 +65,7 @@ class Prestart extends Task{
     /**
      * @param int $tick
      */
-    public function onRun(int $tick){
+    public function onRun(): void{
         if($this->countDown === 0){
             $this->arena->startGame();
             return;
