@@ -10,10 +10,10 @@ extensions: [sqlite3]
 
 commands:
   koth:
-  description: "KOTH general command"
-  permission: koth.command
-  usage: /koth help
-  permission-message: "[KOTH] You do not have permission to use this command."
+    description: "KOTH general command"
+    permission: koth.command
+    usage: /koth help
+    permission-message: "[KOTH] You do not have permission to use this command."
 
 permissions:
   koth.command:
