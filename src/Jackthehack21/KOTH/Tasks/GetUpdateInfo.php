@@ -43,9 +43,9 @@ class GetUpdateInfo extends AsyncTask
     public function __construct(Main $plugin, string $url)
     {
         $this->url = $url;
-        $this->storeLocal($plugin); //4.0 compatible.
+        $this->storeLocal("key", $plugin); //4.0 compatible.
     }
-    public function onRun()
+    public function onRun(): void
     {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $this->url);
@@ -65,9 +65,9 @@ class GetUpdateInfo extends AsyncTask
         $result = ["Response" => $responseJson, "Error" => $error, "httpCode" => curl_getinfo($curl, CURLINFO_HTTP_CODE)];
         $this->setResult($result);
     }
-    public function onCompletion(Server $server)
+    public function onCompletion(): void
     {
-        $plugin = $this->fetchLocal();
+        $plugin = $this->fetchLocal("key");
         $plugin->handleUpdateInfo($this->getResult());
     }
 }

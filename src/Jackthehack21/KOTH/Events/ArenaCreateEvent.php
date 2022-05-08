@@ -35,7 +35,7 @@ namespace Jackthehack21\KOTH\Events;
 use Jackthehack21\KOTH\Main;
 use pocketmine\command\CommandSender;
 use pocketmine\command\ConsoleCommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 /*
  * Note: The event is only used when the command /koth remove/delete is used,

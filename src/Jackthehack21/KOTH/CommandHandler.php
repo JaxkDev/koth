@@ -36,8 +36,8 @@ use Jackthehack21\KOTH\Events\{ArenaCreateEvent, ArenaDeleteEvent};;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 
-use pocketmine\command\ConsoleCommandSender;
-use pocketmine\Player;
+use pocketmine\console\ConsoleCommandSender;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat as C;
 
 class CommandHandler{
@@ -341,12 +341,12 @@ class CommandHandler{
                     }
                     if(isset($arena->hill[0])){
                         $arena->hill[0] = $point;
-                        $arena->world = $player->getLevel()->getName();
+                        $arena->world = $player->getWorld()->getFolderName();
                         $player->sendMessage($this->prefix.C::GREEN."Position 1 Re-set");
                         return;
                     }
                     $arena->hill[0] = $point;
-                    $arena->world = $player->getLevel()->getName();
+                    $arena->world = $player->getWorld()->getFolderName();
                     $player->sendMessage($this->prefix.C::GREEN."Position 1 set, be sure to do /koth setpos2 ".$arena->getName());
                     return;
 

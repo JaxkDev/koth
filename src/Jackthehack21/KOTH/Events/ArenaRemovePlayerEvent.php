@@ -34,7 +34,7 @@ namespace Jackthehack21\KOTH\Events;
 
 use Jackthehack21\KOTH\Arena;
 use Jackthehack21\KOTH\Main;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 /*
  * NOTICE: This event may be cancellable however, if player is quiting MC (app)

@@ -34,9 +34,12 @@ namespace Jackthehack21\KOTH\Events;
 
 use Jackthehack21\KOTH\Main;
 use pocketmine\event\Cancellable;
+use pocketmine\event\CancellableTrait;
 use pocketmine\event\plugin\PluginEvent;
 
 abstract class KothEvent extends PluginEvent implements Cancellable{
+
+    use CancellableTrait;
 
     private $reason = "Event Cancelled";
     private $plugin;

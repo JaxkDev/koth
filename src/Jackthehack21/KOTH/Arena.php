@@ -41,11 +41,12 @@ use Jackthehack21\KOTH\Particles\FloatingText;
 use Jackthehack21\KOTH\Tasks\Prestart;
 use Jackthehack21\KOTH\Tasks\Gametimer;
 
-use pocketmine\command\ConsoleCommandSender;
-use pocketmine\Player;
+use pocketmine\console\ConsoleCommandSender;
+use pocketmine\player\Player;
 use pocketmine\math\Vector3;
-use pocketmine\level\Position;
+use pocketmine\world\Position;
 use pocketmine\scheduler\TaskHandler;
+use pocketmine\Server;
 use pocketmine\utils\TextFormat as C;
 
 use TypeError;
@@ -207,7 +208,7 @@ class Arena{
     public function broadcastMessage(string $msg) : void{
     	$this->plugin->debug("Broadcasting message '".$msg."' to '".count($this->players)."' Players in arena '".$this->getName()."'");
         foreach($this->players as $player){
-            $this->plugin->getServer()->getPlayerExact($player)->sendMessage($msg);
+            $this->plugin->getServer()->getPlayerByPrefix($player)->sendMessage($msg);
         }
     }
 
@@ -223,14 +224,14 @@ class Arena{
      * @param string $reason
      */
     public function broadcastQuit(Player $player, string $reason) : void{
-        $this->broadcastMessage(str_replace(["{REASON}", "{PLAYER}"], [$reason, $player->getLowerCaseName()], $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["player_quit"])));
+        $this->broadcastMessage(str_replace(["{REASON}", "{PLAYER}"], [$reason, $player->getDisplayName()], $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["player_quit"])));
     }
 
     /**
      * @param Player $player
      */
     public function broadcastJoin(Player $player) : void{
-        $this->broadcastMessage(str_replace("{PLAYER}", $player->getLowerCaseName(), $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["player_join"])));
+        $this->broadcastMessage(str_replace("{PLAYER}", $player->getDisplayName(), $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["player_join"])));
     }
 
     /**
@@ -274,7 +275,7 @@ class Arena{
         if(($this->status !== $this::STATUS_NOT_READY and $this->status !== $this::STATUS_INVALID) and $this->currentKingParticle === null){
         	$this->plugin->debug("KT Particle being created... ('".$this->getName()."')");
             $pos = new Vector3(($this->hill[0][0]+$this->hill[1][0])/2,($this->hill[0][1]+$this->hill[1][1])/2,($this->hill[0][2]+$this->hill[1][2])/2);
-            $this->currentKingParticle = new FloatingText($this->plugin, $this->plugin->getServer()->getLevelByName($this->world), $pos, C::RED."King: ".C::GOLD."-");
+            $this->currentKingParticle = new FloatingText($this->plugin, $this->plugin->getServer()->getWorldManager()->getWorldByName($this->world), $pos, C::RED."King: ".C::GOLD."-");
         }
         else $this->plugin->debug("Arena '".$this->getName()."' doesnt satisfy the requirements needed to create the KT particle.");
     }
@@ -304,22 +305,22 @@ class Arena{
             $format = $this->plugin->utils->colourise($this->plugin->config["nametag_format"]);
             if($this->king !== null){
 				/** @noinspection PhpStrictTypeCheckingInspection */
-                $player = $this->plugin->getServer()->getPlayerExact($this->king);
+                $player = $this->plugin->getServer()->getPlayerByPrefix($this->king);
                 if(array_key_exists($this->king,$this->playerOldNameTags) !== true){
                     $this->playerOldNameTags[$this->king] = $player->getNameTag();
                 }
-                $old = $this->playerOldNameTags[$player->getLowerCaseName()];
+                $old = $this->playerOldNameTags[$player->getDisplayName()];
                 $player->setNameTag($format."\n".$old);
                 if($this->oldKing !== null and $this->oldKing !== $this->king){
                     //remove nametag.
                     $old = $this->playerOldNameTags[$this->oldKing];
-                    $p = $this->plugin->getServer()->getPlayerExact($this->oldKing);
+                    $p = $this->plugin->getServer()->getPlayerByPrefix($this->oldKing);
                     if($p === null) return;
                     $p->setNameTag($old);
                 }
             } else {
                 if($this->oldKing !== null){
-                    $player = $this->plugin->getServer()->getPlayerExact($this->oldKing);
+                    $player = $this->plugin->getServer()->getPlayerByPrefix($this->oldKing);
                     if($player === null) return;
                     $player->setNameTag($this->playerOldNameTags[strtolower($player->getName())]);
                 }
@@ -339,9 +340,9 @@ class Arena{
     		$this->plugin->debug("World not found, '".$this->world."' for arena '".$this->getName()."'");
     		return false;
 		}
-        if($player->getLevel()->getId() !== $world->getId()){
-            if(!$this->plugin->getServer()->isLevelLoaded($world->getFolderName())) {
-                $this->plugin->getServer()->loadLevel($world->getFolderName());
+        if($player->getWorld()->getId() !== $world->getId()){
+            if(!$this->plugin->getServer()->getWorldManager()->isWorldLoaded($world->getFolderName())) {
+                $this->plugin->getServer()->getWorldManager()->loadWorld($world->getFolderName());
                 $this->plugin->debug("Loaded world '".$world->getFolderName()."' So '".$player->getName()."' can join.");
             }
 
@@ -367,12 +368,12 @@ class Arena{
                 $this->spawnCounter = 0;
             }
             $old = $this->spawns[$this->spawnCounter];
-            $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getLevelByName($this->world));
+            $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getWorldManager()->getWorldByName($this->world));
             $this->spawnCounter++;
             return $pos;
         } else {
             $old = $this->spawns[array_rand($this->spawns)];
-            $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getLevelByName($this->world));
+            $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getWorldManager()->getWorldByName($this->world));
             return $pos;
         }
     }
@@ -383,7 +384,7 @@ class Arena{
     public function freezeAll(bool $freeze) : void{
         $this->plugin->debug("Setting players in arena '".$this->name."' ".($freeze ? "immobile" : "mobile"));
         foreach($this->players as $name){
-            $this->plugin->getServer()->getPlayerExact($name)->setImmobile($freeze);
+            $this->plugin->getServer()->getPlayerByPrefix($name)->setImmobile($freeze);
         }
     }
 
@@ -433,7 +434,7 @@ class Arena{
         $this->timerTask = null;
 
         foreach($this->players as $name){
-            $player = $this->plugin->getServer()->getPlayerExact($name);
+            $player = $this->plugin->getServer()->getPlayerByPrefix($name);
             $this->removePlayer($player, "Game over", true);
         }
 
@@ -486,7 +487,7 @@ class Arena{
             return;
         }
         $this->broadcastWinner($king);
-        $console = new ConsoleCommandSender();
+        $console = new ConsoleCommandSender(Server::getInstance(), Server::getInstance()->getLanguage());
         foreach($this->rewards as $reward){
             $reward = str_replace("{PLAYER}", $king, $reward);
             if($this->plugin->getServer()->getCommandMap()->dispatch($console, $reward) === false){
@@ -530,8 +531,8 @@ class Arena{
         } //To allow jumping, shouldn't effect what so ever.
 
         foreach($this->players as $playerName){
-            $player = $this->plugin->getServer()->getPlayer($playerName);
-            if(($minX <= $player->getX() && $player->getX() <= $maxX && $minY <= $player->getY() && $player->getY() <= $maxY && $minZ <= $player->getZ() && $player->getZ() <= $maxZ)){
+            $player = $this->plugin->getServer()->getPlayerByPrefix($playerName);
+            if(($minX <= $player->getPosition()->getX() && $player->getPosition()->getX() <= $maxX && $minY <= $player->getPosition()->getY() && $player->getPosition()->getY() <= $maxY && $minZ <= $player->getPosition()->getZ() && $player->getPosition()->getZ() <= $maxZ)){
                 $list[] = $playerName;
             }
         }
@@ -588,13 +589,13 @@ class Arena{
             }
         }
         unset($this->players[array_search(strtolower($player->getName()), $this->players)]);
-        if($this->king === $player->getLowerCaseName()){
+        if($this->king === $player->getDisplayName()){
             $this->removeKing();
         }
         if($silent === false) $this->broadcastQuit($player, $reason);
         $this->checkStatus();
         if($player->loggedIn !== false and $player->spawned !== false){ //check to avoid tp if player left server.
-            $pos = new Position($this->playerOldPositions[strtolower($player->getName())][1],$this->playerOldPositions[strtolower($player->getName())][2],$this->playerOldPositions[strtolower($player->getName())][3],$this->plugin->getServer()->getLevelByName($this->playerOldPositions[strtolower($player->getName())][0]));
+            $pos = new Position($this->playerOldPositions[strtolower($player->getName())][1],$this->playerOldPositions[strtolower($player->getName())][2],$this->playerOldPositions[strtolower($player->getName())][3],$this->plugin->getServer()->getWorldManager()->getWorldByName($this->playerOldPositions[strtolower($player->getName())][0]));
             $player->teleport($pos);
             unset($this->playerOldPositions[strtolower($player->getName())]);
         }
@@ -633,12 +634,12 @@ class Arena{
             return false;
         }
 
-        $this->playerOldPositions[strtolower($player->getName())] = [$player->getLevel()->getName(),$player->getX(), $player->getY(), $player->getZ()];
+        $this->playerOldPositions[strtolower($player->getName())] = [$player->getWorld()->getFolderName(),$player->getPosition()->getX(), $player->getPosition()->getY(), $player->getPosition()->getZ()];
         if(!$this->spawnPlayer($player)){
             unset($this->playerOldPositions[strtolower($player->getName())]);
             return false;
         }
-        $player->setGamemode(0); //todo Beta4 configurable.
+        $player->isSurvival(); //todo Beta4 configurable.
         $this->players[] = strtolower($player->getName());
         $this->broadcastJoin($player);
         if(count($this->players) >= $this->minPlayers && $this->timerTask === null && $this->plugin->config["auto_start"] === true){

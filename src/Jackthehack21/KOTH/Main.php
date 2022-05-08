@@ -84,10 +84,9 @@ class Main extends PluginBase implements Listener
             $this->debug("Starting update check task...");
             $this->getServer()->getAsyncPool()->submitTask(new GetUpdateInfo($this, $this->config["update_check_url"]));
         }
-
-        if (!$this->isPhar()){
+	if (!$this->isPhar()){
             $this->getLogger()->warning("You are using source code which is heavily suggested NOT TO DO, please consider using production phar's pre built for you.");
-        }
+	}
     }
 
     private function initResources(): void
@@ -252,7 +251,7 @@ class Main extends PluginBase implements Listener
         $this->debug(str_replace("{AMOUNT}", (string)count($this->arenas), $this->utils->colourise($this->messages["arenas"]["loaded"])));
     }
 
-    public function onDisable()
+    public function onDisable(): void
     {
         $this->updateAllArenas();
         $this->saveConfig();
