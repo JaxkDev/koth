@@ -39,9 +39,6 @@ use pocketmine\event\block\{BlockBreakEvent, BlockPlaceEvent};;
 use pocketmine\event\player\{PlayerDeathEvent, PlayerRespawnEvent, PlayerQuitEvent, PlayerGameModeChangeEvent, PlayerCommandPreprocessEvent};
 use pocketmine\Server;
 
-;
-
-
 class EventHandler implements Listener{
 
     private $plugin;
