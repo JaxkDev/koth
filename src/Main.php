@@ -25,19 +25,18 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 *   Twitter :: @JaxkDev
-*   Discord :: JaxkDev#8860
+*   Discord :: JaxkDev#2698
 *   Email   :: JaxkDev@gmail.com
 */
 
-declare(strict_types=1);
-namespace Jackthehack21\KOTH;
+namespace JaxkDev\KOTH;
 
-use Jackthehack21\KOTH\Providers\BaseProvider;
-use Jackthehack21\KOTH\Providers\SqliteProvider;
-use Jackthehack21\KOTH\Providers\YamlProvider;
-use Jackthehack21\KOTH\Tasks\DownloadFile;
-use Jackthehack21\KOTH\Tasks\GetUpdateInfo;
-use Jackthehack21\KOTH\Utils as PluginUtils;
+use JaxkDev\KOTH\Providers\BaseProvider;
+use JaxkDev\KOTH\Providers\SqliteProvider;
+use JaxkDev\KOTH\Providers\YamlProvider;
+use JaxkDev\KOTH\Tasks\DownloadFile;
+use JaxkDev\KOTH\Tasks\GetUpdateInfo;
+use JaxkDev\KOTH\Utils as PluginUtils;
 
 use pocketmine\utils\Config;
 use pocketmine\event\Listener;
@@ -133,7 +132,6 @@ class Main extends PluginBase implements Listener
             if (!isset($this->config["show_updates"])) $this->config["show_updates"] = true;
             if (!isset($this->config["check_updates"])) $this->config["check_updates"] = true;
             if (!isset($this->config["download_updates"])) $this->config["download_updates"] = false;
-            $this->config["update_check_url"] = "https://raw.githubusercontent.com/JaxkDev/koth/master/updates.json";
             $this->config["version"] = $this::CONFIG_VER;
             $this->saveConfig();
         }

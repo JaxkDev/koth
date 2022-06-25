@@ -1,6 +1,6 @@
 <?php
 
-namespace Jackthehack21\KOTH;
+namespace JaxkDev\KOTH;
 
 use pocketmine\level\Level;
 use pocketmine\utils\TextFormat as C;
@@ -12,15 +12,12 @@ class Utils{
     public function __construct(Main $plugin){
         $this->plugin = $plugin;
     }
-	
+
 	/**
 	 * Credit to https://gist.githubusercontent.com/LeoLopesWeb/a3e0bba7fe66a6af1e50eef3d231f2da/raw/16edbd69a709ca21d24f2774af5ccf68297aa97d/.php
 	 * Slightly modified for our use.
-	 * @param int $seconds
-	 *
-	 * @return string
 	 */
-	function secToHR(int $seconds) {
+	function secToHR(int $seconds): string{
 	  $days = floor($seconds / 86400);
 	  $hours = floor(($seconds / 3600) % 24);
 	  $minutes = floor(($seconds / 60) % 60);
@@ -28,12 +25,6 @@ class Utils{
 	  return $days > 0 ? "$days days, $hours hours, $minutes minutes" : ($hours > 0 ? "$hours hours, $minutes minutes" : ($minutes > 0 ? "$minutes minutes, $seconds seconds" : "$seconds seconds"));
 	}
 
-    /**
-     * @param string $base
-     * @param string $new
-     *
-     * @return int
-     */
     public function compareVersions(string $base, string $new) : int{
         $baseParts = explode(".",$base);
         $baseParts[2] = explode("-beta",$baseParts[2])[0];
@@ -78,12 +69,6 @@ class Utils{
         return 0;
     }
 
-    /**
-     * @param string $search
-     * @param array $arr
-     *
-     * @return int
-     */
     public function getClosest(string $search, array $arr) : int{
         //https://stackoverflow.com/a/5464961 - Thanks :)
         $closest = null;
@@ -136,11 +121,6 @@ class Utils{
 		return $this->getLevelByName($name);
 	}
 
-    /**
-     * @param string $msg
-     *
-     * @return string
-     */
     public function colourise(string $msg) : string{
         $colour = array("{PREFIX}","{BLACK}","{DARK_BLUE}","{DARK_GREEN}","{DARK_AQUA}","{DARK_RED}","{DARK_PURPLE}","{GOLD}","{GRAY}","{DARK_GRAY}","{BLUE}","{GREEN}","{AQUA}","{RED}","{LIGHT_PURPLE}","{YELLOW}","{WHITE}","{OBFUSCATED}","{BOLD}","{STRIKETHROUGH}","{UNDERLINE}","{ITALIC}","{RESET}");
         $keys = array($this->plugin->prefix, C::BLACK, C::DARK_BLUE, C::DARK_GREEN, C::DARK_AQUA, C::DARK_RED, C::DARK_PURPLE, C::GOLD, C::GRAY, C::DARK_GRAY, C::BLUE, C::GREEN, C::AQUA, C::RED, C::LIGHT_PURPLE, C::YELLOW, C::WHITE, C::OBFUSCATED, C::BOLD, C::STRIKETHROUGH, C::UNDERLINE, C::ITALIC, C::RESET);

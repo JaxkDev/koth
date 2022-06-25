@@ -8,14 +8,11 @@ Colour variables =  {BLACK} {DARK_BLUE} {DARK_GREEN} {DARK_AQUA} {DARK_RED} {DAR
 ========== CONFIG HELP =========
 version: 1                                  <-- DONT EVER TOUCH THIS. (You have been warned)
 
-provider: "sqlite3"                         <-- Database provider, options: [Sqlite3,Yaml]. (leave alone if unsure)
+provider: "sqlite3"                         <-- Database provider, options: [Sqlite3]. (leave alone if unsure)
 
 debug: true                                 <-- Show debug messages. (useful when encountering problems) (true/false)
 
-show_updates: true                          <-- If check_updates is true it will show any updates available in console. (true/false)
 check_updates: true                         <-- Check for updates on server start. (true/false)
-download_updates: false                     <-- Automatically download & install updates on server start.
-update_check_url: "link to github file"     <-- Link to the raw file containing update data in correct format. (dont change unless you know what your doing)
 
 block_commands: true                        <-- Obvious, Block commands in game except '/koth'. (true/false) (TODO beta4, block_commands_list)
 prevent_place: true                         <-- Obvious. (true/false)

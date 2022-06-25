@@ -1,7 +1,0 @@
-{
-  "version": "1.0.0-Beta4",
-  "time": 1570354000,
-  "link": "https://github.com/JaxkDev/KOTH/releases/tag/1.0.0-Beta4",
-  "download_link": "https://poggit.pmmp.io/r/66825/KOTH.phar",
-  "patch_notes": "## Whats New ?\n- Enable/Disable arena's\n- Console commands (now not all are blocked for console).\n\n## Bugs fixed:\n- Fixed the common world doesn't exist after restart.\n- Fixed the arena DB version number default to 0.\n- Fixed blocking chat and commands instead of what was configured.\n- Many other bugs were smashed while cleaning up :)"
-}

@@ -25,21 +25,20 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 *   Twitter :: @JaxkDev
-*   Discord :: JaxkDev#8860
+*   Discord :: JaxkDev#2698
 *   Email   :: JaxkDev@gmail.com
 */
 
-declare(strict_types=1);
-namespace Jackthehack21\KOTH;
+namespace JaxkDev\KOTH;
 
-use Jackthehack21\KOTH\Events\ArenaAddPlayerEvent;
-use Jackthehack21\KOTH\Events\ArenaEndEvent;
-use Jackthehack21\KOTH\Events\ArenaPreStartEvent;
-use Jackthehack21\KOTH\Events\ArenaRemovePlayerEvent;
-use Jackthehack21\KOTH\Events\ArenaStartEvent;
-use Jackthehack21\KOTH\Particles\FloatingText;
-use Jackthehack21\KOTH\Tasks\Prestart;
-use Jackthehack21\KOTH\Tasks\Gametimer;
+use JaxkDev\KOTH\Events\ArenaAddPlayerEvent;
+use JaxkDev\KOTH\Events\ArenaEndEvent;
+use JaxkDev\KOTH\Events\ArenaPreStartEvent;
+use JaxkDev\KOTH\Events\ArenaRemovePlayerEvent;
+use JaxkDev\KOTH\Events\ArenaStartEvent;
+use JaxkDev\KOTH\Particles\FloatingText;
+use JaxkDev\KOTH\Tasks\Prestart;
+use JaxkDev\KOTH\Tasks\Gametimer;
 
 use pocketmine\command\ConsoleCommandSender;
 use pocketmine\Player;

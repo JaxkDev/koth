@@ -25,12 +25,11 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 *   Twitter :: @JaxkDev
-*   Discord :: JaxkDev#8860
+*   Discord :: JaxkDev#2698
 *   Email   :: JaxkDev@gmail.com
 */
 
-declare(strict_types=1);
-namespace Jackthehack21\KOTH;
+namespace JaxkDev\KOTH;
 
 use pocketmine\event\Listener;
 use pocketmine\utils\TextFormat as C;

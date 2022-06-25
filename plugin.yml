@@ -1,10 +1,10 @@
 ---
 name: KOTH
 author: JaxkDev
-version: 1.0.0-Beta5
-api:
-- 3.9.0
-main: Jackthehack21\KOTH\Main
+version: 1.0.0
+api: 4.0.0
+main: JaxkDev\KOTH\Main
+src-namespace-prefix: JaxkDev\KOTH
 website: "https://github.com/JaxkDev/KOTH"
 description: "King of The Hill, A mini-game plugin by JaxkDev"
 
@@ -15,7 +15,7 @@ commands:
     description: "KOTH general command"
     permission: koth.command
     usage: /koth help
-    permission-message: "[KOTH] You do not have permission to use this command."
+    permission-message: "You do not have permission to use this command."
 
 permissions:
   koth:

@@ -25,14 +25,13 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 *   Twitter :: @JaxkDev
-*   Discord :: JaxkDev#8860
+*   Discord :: JaxkDev#2698
 *   Email   :: JaxkDev@gmail.com
 */
 
-declare(strict_types=1);
-namespace Jackthehack21\KOTH;
+namespace JaxkDev\KOTH;
 
-use Jackthehack21\KOTH\Events\{ArenaCreateEvent, ArenaDeleteEvent};;
+use JaxkDev\KOTH\Events\{ArenaCreateEvent, ArenaDeleteEvent};;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 

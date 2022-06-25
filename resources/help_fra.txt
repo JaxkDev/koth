@@ -9,14 +9,11 @@ Variables de couleur = {BLACK} {DARK_BLUE} {DARK_GREEN} {DARK_AQUA} {DARK_RED} {
 ========== CONFIG HELP ==========
 version: 1                                  <- NE JAMAIS TOUCHER CETTE. (Tu étais prévenu)
 
-provider: "sqlite3"                         <- Fournisseur de base de données, options: [Sqlite3, Yaml]. (laisser seul en cas de doute)
+provider: "sqlite3"                         <- Fournisseur de base de données, options: [Sqlite3]. (laisser seul en cas de doute)
 
 debug: true                                 <- Afficher les messages de débogage. (utile en cas de problème) (vrai / faux)
 
-show_updates: true                          <- Si check_updates est true, toutes les mises à jour disponibles dans la console seront affichées. (vrai faux)
 check_updates: true                         <- Recherchez les mises à jour au démarrage du serveur. (vrai faux)
-download_updates: false                     <- Téléchargez et installez automatiquement les mises à jour au démarrage du serveur.
-update_check_url: "link to github file"     <- Lien vers le fichier brut contenant les données de mise à jour au format correct. (ne changez que si vous savez ce que vous faites)
 
 block_commands: true                        <- Évident, Blocage des commandes dans le jeu sauf '/ koth'. (true / false) (TODO beta4, block_commands_list)
 prevent_place: true                         <- évident. (vrai faux)
