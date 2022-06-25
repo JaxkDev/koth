@@ -46,8 +46,8 @@ interface BaseProvider
     public function deleteArena(string $arena): void;
 
 
-    //TODO, Break these down into smaller methods.
-    public function getAllData(): array;
-
-    public function setAllData(array $data): void;
+    /**
+     * @return Arena[]
+     */
+    public function loadAllArenas(): array;
 }

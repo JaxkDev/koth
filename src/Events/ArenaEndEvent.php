@@ -33,7 +33,7 @@ class ArenaEndEvent extends KothEvent{
 
     public function __construct(Main $plugin, Arena $arena){
         $this->arena = $arena;
-        $this->secondsLeft = $arena->time;
+        $this->secondsLeft = $arena->getTime();
         parent::__construct($plugin);
     }
 

@@ -33,16 +33,16 @@ class GameTimer extends Task{
 
     public function __construct(Arena $arena){
         $this->arena = $arena;
-        $this->secondsLeft = $arena->time;
+        $this->secondsLeft = $arena->getTime();
     }
 
     public function onRun(): void{
         $this->secondsLeft -= 0.5;
-        $inBox = $this->arena->playersInBox();
-        if($this->arena->king === null){
+        $inBox = $this->arena->getPlayersInBox();
+        if($this->arena->getKing() === null){
             $this->arena->checkNewKing();
         }else{
-            if(!in_array($this->arena->king, $inBox)){
+            if(!in_array($this->arena->getKing(), $inBox)){
                 $this->arena->removeKing();
             }
         }

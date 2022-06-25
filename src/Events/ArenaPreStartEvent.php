@@ -33,7 +33,7 @@ class ArenaPreStartEvent extends KothEvent{
 
     public function __construct(Main $plugin, Arena $arena){
         $this->arena = $arena;
-        $this->countdown = $arena->countDown;
+        $this->countdown = $arena->getCountDown();
         parent::__construct($plugin);
     }
 

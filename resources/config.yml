@@ -24,7 +24,7 @@ countdown_bcast_serverwide: false
 start_bcast_serverwide: false
 end_bcast_serverwide: false
 
-KingTextParticles: true
+king_text_particles: true
 
 nametag_enabled: true
 nametag_format: "{RED}[ {GREEN}KING {RED}]"

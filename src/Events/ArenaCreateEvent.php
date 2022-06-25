@@ -24,6 +24,7 @@
 
 namespace JaxkDev\KOTH\Events;
 
+use InvalidArgumentException;
 use JaxkDev\KOTH\Main;
 use pocketmine\console\ConsoleCommandSender;
 use pocketmine\player\Player;
@@ -37,12 +38,26 @@ class ArenaCreateEvent extends KothEvent{
     private int $maxPlayers;
     private int $gameTime;
 
+    /** @var float[][]|int[][] */
     private array $hill;
+    /** @var float[][]|int[][] */
     private array $spawns;
     /** @var string[] */
     private array $rewards;
 
-    public function __construct(Main $plugin, $creator, string $name, int $min_players, int $max_players, int $gameTime, array $hill = [], array $spawns = [], array $rewards = [], string $world = "null"){
+    /**
+     * @param Main $plugin
+     * @param Player|ConsoleCommandSender|null $creator
+     * @param string $name
+     * @param int $min_players
+     * @param int $max_players
+     * @param int $gameTime
+     * @param float[][]|int[][] $hill
+     * @param float[][]|int[][] $spawns
+     * @param string[] $rewards
+     * @param string $world
+     */
+    public function __construct(Main $plugin, Player|ConsoleCommandSender|null $creator, string $name, int $min_players, int $max_players, int $gameTime, array $hill = [], array $spawns = [], array $rewards = [], string $world = "null"){
         $this->creator = $creator;
         $this->name = $name;
         $this->minPlayers = $min_players;
@@ -73,10 +88,10 @@ class ArenaCreateEvent extends KothEvent{
 
     public function setMinPlayers(int $amount): void{
         if($amount < 2){
-            throw new \InvalidArgumentException("Min players must be above 2");
+            throw new InvalidArgumentException("Min players must be above 2");
         }
         if($amount >= $this->maxPlayers){
-            throw new \InvalidArgumentException("Min players must be below max players");
+            throw new InvalidArgumentException("Min players must be below max players");
         }
         $this->minPlayers = $amount;
     }
@@ -87,7 +102,7 @@ class ArenaCreateEvent extends KothEvent{
 
     public function setMaxPlayers(int $amount): void{
         if($amount <= $this->minPlayers){
-            throw new \InvalidArgumentException("Max players cannot be less than or equal to min players");
+            throw new InvalidArgumentException("Max players cannot be less than or equal to min players");
         }
         $this->maxPlayers = $amount;
     }
@@ -100,26 +115,47 @@ class ArenaCreateEvent extends KothEvent{
         $this->gameTime = $amount;
     }
 
+    /**
+     * @return float[][]|int[][]
+     */
     public function getHillPositions(): array{
         return $this->hill;
     }
 
+    /**
+     * @param float[][]|int[][] $hill
+     * @return void
+     */
     public function setHillPositions(array $hill): void{
         $this->hill = $hill;
     }
 
+    /**
+     * @return float[][]|int[][]
+     */
     public function getSpawnPositions(): array{
         return $this->spawns;
     }
 
+    /**
+     * @param float[][]|int[][] $spawns
+     * @return void
+     */
     public function setSpawnPositions(array $spawns): void{
         $this->spawns = $spawns;
     }
 
+    /**
+     * @return string[]
+     */
     public function getRewards(): array{
         return $this->rewards;
     }
 
+    /**
+     * @param string[] $rewards
+     * @return void
+     */
     public function setRewards(array $rewards): void{
         $this->rewards = $rewards;
     }

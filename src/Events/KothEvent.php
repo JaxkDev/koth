@@ -32,11 +32,10 @@ use pocketmine\event\plugin\PluginEvent;
 abstract class KothEvent extends PluginEvent implements Cancellable{
     use CancellableTrait;
 
-    private $reason = "Event Cancelled";
-    private $plugin;
+    private string $reason = "Event Cancelled";
+    private Main $plugin;
 
-    public function __construct(Main $plugin)
-    {
+    public function __construct(Main $plugin){
     	$this->plugin = $plugin;
         $this->plugin->getLogger()->debug("Event '".$this->getEventName()."' is being constructed...");
         parent::__construct($plugin);
@@ -50,8 +49,7 @@ abstract class KothEvent extends PluginEvent implements Cancellable{
         $this->reason = $reason;
     }
 
-    public function call(): void
-	{
+    public function call(): void{
 		$this->plugin->getLogger()->debug("Event '".$this->getEventName()."' Called.");
 		parent::call();
 	}

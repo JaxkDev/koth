@@ -39,6 +39,12 @@ class CommandHandler{
         $this->plugin = $plugin;
     }
 
+    /**
+     * @param Player|ConsoleCommandSender $player
+     * @param Command $cmd
+     * @param string[] $args
+     * @return void
+     */
     public function handleCommand(Player|ConsoleCommandSender $player, Command $cmd, array $args): void{
         if($cmd->getName() == "koth"){ //Is this really done server side ?? (if i only register /koth ?) - YES
             if(!isset($args[0])){
@@ -175,9 +181,9 @@ class CommandHandler{
                     $name = $arena->getName();
                     $status = $arena->getFriendlyStatus();
                     $players = count($arena->getPlayers());
-                    $spawns = count($arena->spawns);
-                    $rewards = $arena->rewards;
-                    $gameTime = $arena->time;
+                    $spawns = count($arena->getSpawns());
+                    $rewards = $arena->getRewards();
+                    $gameTime = $arena->getTime();
 
                     $player->sendMessage(Main::PREFIX.C::AQUA.$name." Info:");
                     $player->sendMessage(C::GREEN."Status  : ".C::BLUE.$status);
@@ -207,7 +213,7 @@ class CommandHandler{
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
                         return;
                     }
-                    if($arena->timerTask !== null){
+                    if($arena->getStatus() === Arena::STATUS_STARTED){
                         $player->sendMessage(Main::PREFIX.C::RED."Arena already started.");
                         return;
                     }
@@ -238,11 +244,11 @@ class CommandHandler{
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
                         return;
                     }
-                    if($arena->timerTask !== null){
+                    if($arena->getStatus() === Arena::STATUS_STARTED){
                         $player->sendMessage(Main::PREFIX.C::RED."Arena already started.");
                         return;
                     }
-                    if($arena->status === $arena::STATUS_DISABLED or $arena->status === $arena::STATUS_INVALID){
+                    if($arena->getStatus() === $arena::STATUS_DISABLED or $arena->getStatus() === $arena::STATUS_INVALID){
 						$player->sendMessage(Main::PREFIX . C::RED . "Cannot force a disabled/invalid arena.");
 						return;
 					}
@@ -269,7 +275,7 @@ class CommandHandler{
 						$player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
 						return;
 					}
-					if($arena->status !== $arena::STATUS_DISABLED){
+					if($arena->getStatus() !== $arena::STATUS_DISABLED){
 						$player->sendMessage(Main::PREFIX.C::RED."Arena is not disabled so how can you enable it...");
 						return;
 					}
@@ -292,7 +298,7 @@ class CommandHandler{
 						$player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
 						return;
 					}
-					if($arena->status === $arena::STATUS_DISABLED){
+					if($arena->getStatus() === $arena::STATUS_DISABLED){
 						$player->sendMessage(Main::PREFIX.C::RED."Arena is not enabled so how can you enable it...");
 						return;
 					}
@@ -318,20 +324,21 @@ class CommandHandler{
                         $player->sendMessage(str_replace("{USAGE}", "/koth setpos1 (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
                         return;
                     }
-                    /** @var Arena|null $arena */
                     $arena = $this->plugin->getArenaByName($args[1]);
                     if($arena === null){
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
                         return;
                     }
-                    if(isset($arena->hill[0])){
-                        $arena->hill[0] = $point;
-                        $arena->world = $player->getWorld()->getDisplayName();
+                    $hill = $arena->getHill();
+                    $hill[0] = $point;
+                    if(isset($arena->getHill()[0])){
+                        $arena->setHill($hill);
+                        $arena->setWorld($player->getWorld()->getDisplayName());
                         $player->sendMessage(Main::PREFIX.C::GREEN."Position 1 Re-set");
                         return;
                     }
-                    $arena->hill[0] = $point;
-                    $arena->world = $player->getWorld()->getDisplayName();
+                    $arena->setHill($hill);
+                    $arena->setWorld($player->getWorld()->getDisplayName());
                     $player->sendMessage(Main::PREFIX.C::GREEN."Position 1 set, be sure to do /koth setpos2 ".$arena->getName());
                     return;
 
@@ -355,17 +362,19 @@ class CommandHandler{
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
                         return;
                     }
-                    if(count($arena->hill) === 2){
-                        $arena->hill[1] = $point;
+                    $hill = $arena->getHill();
+                    $hill[1] = $point;
+                    if(count($arena->getHill()) === 2){
+                        $arena->setHill($hill);
                         $player->sendMessage(Main::PREFIX.C::GREEN."Position 2 re-set");
                         return;
                     }
-                    if(count($arena->hill) === 0){
-                        $arena->hill[1] = $point;
+                    if(count($arena->getHill()) === 0){
+                        $arena->setHill($hill);
                         $player->sendMessage(Main::PREFIX.C::RED."Position 2 set, please use /koth setpos1 ".$arena->getName()." as well !");
                         return;
                     }
-                    $arena->hill[1] = $point;
+                    $arena->setHill($hill);
                     $arena->checkStatus();
                     $player->sendMessage(Main::PREFIX.C::GREEN."Position 2 set, be sure to setup some spawn point '/koth setspawn ".$arena->getName());
                     return;
@@ -391,7 +400,9 @@ class CommandHandler{
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
                         return;
                     }
-                    $arena->spawns[] = $point;
+                    $spawns = $arena->getSpawns();
+                    $spawns[] = $point;
+                    $arena->setSpawns($spawns);
                     $arena->checkStatus();
                     $player->sendMessage(Main::PREFIX.C::GREEN."Spawn position added.");
                     return;
@@ -416,7 +427,9 @@ class CommandHandler{
                     unset($args[0]);
                     unset($args[1]);
                     $cmd = array_values($args);
-                    $arena->rewards[] = implode(" ",$cmd);
+                    $rewards = $arena->getRewards();
+                    $rewards[] = implode(" ",$cmd);
+                    $arena->setRewards($rewards);
                     $this->plugin->updateArena($arena);
                     $player->sendMessage(Main::PREFIX.C::GREEN."Reward added to the ".$arena->getName()." Arena.");
                     return;
@@ -443,6 +456,11 @@ class CommandHandler{
     }
 
 
+    /**
+     * @param Player|ConsoleCommandSender $player
+     * @param string[] $args
+     * @return void
+     */
 	protected function deleteArena(Player|ConsoleCommandSender $player, array $args): void{
         if(count($args) !== 2){
             $player->sendMessage(str_replace("{USAGE}", "/koth delete (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
@@ -453,7 +471,7 @@ class CommandHandler{
             $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_exist"]));
             return;
         }
-        if($arena->started === true){
+        if($arena->getStatus() === Arena::STATUS_STARTED){
             $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["not_while_running"]));
             return;
         }
@@ -470,6 +488,11 @@ class CommandHandler{
         $player->sendMessage(Main::PREFIX.C::GREEN."Arena Removed.");
     }
 
+    /**
+     * @param Player|ConsoleCommandSender $player
+     * @param string[] $args
+     * @return void
+     */
 	protected function createArena(Player|ConsoleCommandSender $player, array $args): void{
         $usage = "/koth create (arena name - no spaces) (min players) (max players) (gametime in seconds)";
 

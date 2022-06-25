@@ -24,6 +24,7 @@
 
 namespace JaxkDev\KOTH;
 
+use InvalidArgumentException;
 use JaxkDev\KOTH\Events\ArenaAddPlayerEvent;
 use JaxkDev\KOTH\Events\ArenaEndEvent;
 use JaxkDev\KOTH\Events\ArenaPreStartEvent;
@@ -61,6 +62,7 @@ class Arena{
     public const STATUS_DISABLED = 7;
     public const STATUS_UNKNOWN = 9;
 
+    /** @var array<int, string> */
     public array $statusList = [
         self::STATUS_NOT_READY => "Not Ready/Setup",
         self::STATUS_READY => "Ready",
@@ -72,34 +74,49 @@ class Arena{
     ];
 
     private Main $plugin;
-    public array $spawns = [];
-    public int $spawnCounter = 0;
-    public array $hill = [];
+    /** @var float[][]|int[][] */
+    private array $spawns;
+    private int $spawnCounter;
+    /** @var float[][]|int[][] */
+    private array $hill;
     /** @var string[] */
     private array $players = [];
-    public array $playerOldPositions = [];
-    public array $playerOldNameTags = [];
-    public int $minPlayers;
-    public int $maxPlayers;
-    public string $name;
-    public bool $started = false;
-    public int $time = 0;
-    public int $countDown = 30;
-    public string $world;
+    /** @var array<string, string[]|float[]|int[]> */
+    private array $playerOldPositions = [];
+    /** @var array<string, string> */
+    private array $playerOldNameTags = [];
+    private int $minPlayers;
+    private int $maxPlayers;
+    private string $name;
+    private bool $started = false;
+    private int $time;
+    private int $countDown;
+    private string $world;
     /** @var string[] */
-    public array $rewards = [];
+    private array $rewards;
 
-    public ?string $oldKing = null;
-    public ?string $king = null;
-    /** @var Player[] */
-    public array $playersInBox = [];
+    private ?string $oldKing = null;
+    private ?string $king = null;
+    /** @var string[] */
+    private array $playersInBox = [];
 
-    public ?TaskHandler $timerTask = null;
+    private ?TaskHandler $timerTask = null;
 
-    public int $status = self::STATUS_UNKNOWN;
+    private int $status = self::STATUS_UNKNOWN;
 
-    public ?FloatingText $currentKingParticle = null;
+    private ?FloatingText $currentKingParticle = null;
 
+    /**
+     * @param Main $plugin
+     * @param string $name
+     * @param int $min
+     * @param int $max
+     * @param int $time
+     * @param float[][]|int[][] $hill
+     * @param float[][]|int[][] $spawns
+     * @param string[] $rewards
+     * @param string $world
+     */
     public function __construct(Main $plugin, string $name, int $min, int $max, int $time, array $hill, array $spawns, array $rewards, string $world){
         $this->plugin = $plugin;
         $this->hill = $hill;
@@ -108,9 +125,10 @@ class Arena{
         $this->name = $name;
         $this->spawns = $spawns;
         $this->time = $time;
-        $this->countDown = (int)$plugin->config["countdown"];
+        $this->countDown = (int)$plugin->getConfig()->get("countdown", 30);
         $this->world = $world;
         $this->rewards = $rewards;
+        $this->spawnCounter = 0;
 
         $this->checkStatus();
         $this->createKingTextParticle();
@@ -221,7 +239,7 @@ class Arena{
 
     public function createKingTextParticle(): void{
     	$this->plugin->getLogger()->debug("Creating KT particle for arena '".$this->getName()."'");
-        if($this->plugin->config["KingTextParticles"] === false) return;
+        if($this->plugin->getConfig()->get("king_text_particles", true) === false) return;
         $this->checkStatus(); //Double check its ready, also used to get exact world name.
         if(($this->status !== $this::STATUS_NOT_READY and $this->status !== $this::STATUS_INVALID) and $this->currentKingParticle === null){
         	$this->plugin->getLogger()->debug("KT Particle being created... ('".$this->getName()."')");
@@ -251,8 +269,8 @@ class Arena{
 
     public function updateNameTags(): void{
         //this makes plugins that modify your tag based on things like health,lvl etc not work while in game.
-        if($this->plugin->config["nametag_enabled"] === true){
-            $format = $this->plugin->utils->colourise($this->plugin->config["nametag_format"]);
+        if($this->plugin->getConfig()->get("nametag_enabled", true) === true){
+            $format = $this->plugin->utils->colourise((string)$this->plugin->getConfig()->get("nametag_format", "{RED}[ {GREEN}KING {RED}]"));
             if($this->king !== null){
                 $player = $this->plugin->getServer()->getPlayerExact($this->king);
                 if(array_key_exists($this->king,$this->playerOldNameTags) !== true){
@@ -346,7 +364,7 @@ class Arena{
         $this->started = true;
         $this->checkStatus();
         $msg = str_replace("{ARENA}", $this->name, $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["start"]));
-        if($this->plugin->config["start_bcast_serverwide"] === true){
+        if($this->plugin->getConfig()->get("start_bcast_serverwide", true) === true){
             $this->plugin->getServer()->broadcastMessage($msg);
         }else{
             $this->broadcastMessage($msg);
@@ -388,7 +406,7 @@ class Arena{
             return;
         }
         $msg = str_replace("{ARENA}", $this->name, $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["end"]));
-        if($this->plugin->config["end_bcast_serverwide"] === true){
+        if($this->plugin->getConfig()->get("end_bcast_serverwide", true) === true){
             $this->plugin->getServer()->broadcastMessage($msg);
         }else{
             $this->broadcastMessage($msg);
@@ -436,7 +454,7 @@ class Arena{
     /**
      * @return string[]
      */
-    public function playersInBox(): array{
+    public function getPlayersInBox(): array{
         $pos1 = [];
         $pos1["x"] = $this->hill[0][0];
         $pos1["y"] = $this->hill[0][1];
@@ -451,7 +469,7 @@ class Arena{
         $maxY = max($pos2["y"],$pos1["y"]);
         $minZ = min($pos2["z"],$pos1["z"]);
         $maxZ = max($pos2["z"],$pos1["z"]);
-        $list = [];
+        $this->playersInBox = [];
 
         if($minY == $maxY){
             $maxY += 1.51;
@@ -460,10 +478,14 @@ class Arena{
         foreach($this->players as $playerName){
             $player = $this->plugin->getServer()->getPlayerExact($playerName)->getLocation();
             if(($minX <= $player->getX() && $player->getX() <= $maxX && $minY <= $player->getY() && $player->getY() <= $maxY && $minZ <= $player->getZ() && $player->getZ() <= $maxZ)){
-                $list[] = $playerName;
+                $this->playersInBox[] = $playerName;
             }
         }
-        return $list;
+        return $this->playersInBox;
+    }
+
+    public function getKing(): ?string{
+        return $this->king;
     }
 
     public function removeKing(): void{
@@ -484,7 +506,7 @@ class Arena{
      * @return bool
      */
     public function checkNewKing(): bool{
-        if(count($this->playersInBox()) === 0){
+        if(count($this->getPlayersInBox()) === 0){
             return false;
         }else{
             $player = $this->playersInBox[array_rand($this->playersInBox)];
@@ -571,10 +593,99 @@ class Arena{
         $player->setGamemode(GameMode::SURVIVAL()); //todo Beta4 configurable.
         $this->players[] = strtolower($player->getName());
         $this->broadcastJoin($player);
-        if(count($this->players) >= $this->minPlayers && $this->timerTask === null && $this->plugin->config["auto_start"] === true){
+        if(count($this->players) >= $this->minPlayers && $this->timerTask === null && $this->plugin->getConfig()->get("auto_start", true) === true){
             $this->startTimer();
         }
         $this->checkStatus();
         return true;
+    }
+
+    public function getTime(): int{
+        return $this->time;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getRewards(): array{
+        return $this->rewards;
+    }
+
+    /**
+     * @return float[][]|int[][]
+     */
+    public function getHill(): array{
+        return $this->hill;
+    }
+
+    public function setWorld(string $worldName): void{
+        $this->world = $worldName;
+    }
+
+    /**
+     * @param float[][]|int[][] $hill
+     * @return void
+     */
+    public function setHill(array $hill): void{
+        foreach($hill as $point){
+            if(count($point) !== 3){
+                throw new InvalidArgumentException("Invalid hill point, must be an array of length 3.");
+            }
+            foreach($point as $value){
+                if(!is_numeric($value)){
+                    throw new InvalidArgumentException("Invalid hill point, must be an array of 3 floats or ints.");
+                }
+            }
+        }
+        $this->hill = $hill;
+    }
+
+    /**
+     * @return float[][]|int[][]
+     */
+    public function getSpawns(): array{
+        return $this->spawns;
+    }
+
+    /**
+     * @param float[][]|int[][] $spawns
+     * @return void
+     */
+    public function setSpawns(array $spawns): void{
+        foreach($spawns as $spawn){
+            if(count($spawn) !== 3){
+                throw new InvalidArgumentException("Invalid spawn point, must be an array of length 3.");
+            }
+            foreach($spawn as $value){
+                if(!is_numeric($value)){
+                    throw new InvalidArgumentException("Invalid spawn point, must be an array of 3 floats or ints.");
+                }
+            }
+        }
+        $this->spawns = $spawns;
+    }
+
+    /**
+     * @param string[] $rewards
+     * @return void
+     */
+    public function setRewards(array $rewards): void{
+        $this->rewards = $rewards;
+    }
+
+    public function getCountDown(): int{
+        return $this->countDown;
+    }
+
+    public function getMinPlayers(): int{
+        return $this->minPlayers;
+    }
+
+    public function getMaxPlayers(): int{
+        return $this->maxPlayers;
+    }
+
+    public function getWorld(): string{
+        return $this->world;
     }
 }

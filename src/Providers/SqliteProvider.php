@@ -74,13 +74,13 @@ class SqliteProvider implements BaseProvider{
             throw new Exception("Failed to prepare SQLite3 statement to create arena.");
         }
         $code->bindValue(":name", strtolower($arena->getName()));
-        $code->bindValue(":min_players", $arena->minPlayers);
-        $code->bindValue(":max_players", $arena->maxPlayers);
-        $code->bindValue(":play_time", $arena->time);
-        $code->bindValue(":hill", json_encode($arena->hill));
-        $code->bindValue(":spawns", json_encode($arena->spawns));
-        $code->bindValue(":rewards", json_encode($arena->rewards));
-        $code->bindValue(":world", $arena->world);
+        $code->bindValue(":min_players", $arena->getMinPlayers());
+        $code->bindValue(":max_players", $arena->getMaxPlayers());
+        $code->bindValue(":play_time", $arena->getTime());
+        $code->bindValue(":hill", json_encode($arena->getHill()));
+        $code->bindValue(":spawns", json_encode($arena->getSpawns()));
+        $code->bindValue(":rewards", json_encode($arena->getRewards()));
+        $code->bindValue(":world", $arena->getWorld());
         $code->bindValue(":version", $this->version);
         if($code->execute() === false){
             throw new Exception("Failed to execute SQLite3 statement to create arena.");
@@ -95,13 +95,14 @@ class SqliteProvider implements BaseProvider{
         if($code === false){
             throw new Exception("Failed to prepare SQLite3 statement to update arena.");
         }
-        $code->bindValue(":min_players", $arena->minPlayers);
-        $code->bindValue(":max_players", $arena->maxPlayers);
-        $code->bindValue(":play_time", $arena->time);
-        $code->bindValue(":hill", json_encode($arena->hill));
-        $code->bindValue(":spawns", json_encode($arena->spawns));
-        $code->bindValue(":rewards", json_encode($arena->rewards));
-        $code->bindValue(":world", $arena->world);
+        $code->bindValue(":name", strtolower($arena->getName()));
+        $code->bindValue(":min_players", $arena->getMinPlayers());
+        $code->bindValue(":max_players", $arena->getMaxPlayers());
+        $code->bindValue(":play_time", $arena->getTime());
+        $code->bindValue(":hill", json_encode($arena->getHill()));
+        $code->bindValue(":spawns", json_encode($arena->getSpawns()));
+        $code->bindValue(":rewards", json_encode($arena->getRewards()));
+        $code->bindValue(":world", $arena->getWorld());
         $code->bindValue(":version", $this->version);
         if($code->execute() === false){
             throw new Exception("Failed to execute SQLite3 statement to update arena.");
@@ -123,11 +124,16 @@ class SqliteProvider implements BaseProvider{
     }
 
     /**
+     * TODO TEST.
      * @throws Exception
      */
     public function getDataVersion(): ?int{
         try{
-            $data = $this->getAllData();
+            $result = $this->db->query("SELECT version FROM arena");
+            if($result === false){
+                throw new Exception("Failed to execute SQLite3 statement to get all data.");
+            }
+            $data = $result->fetchArray(1);
         }catch(Exception){
             return null;
         }
@@ -137,8 +143,9 @@ class SqliteProvider implements BaseProvider{
 
     /**
      * @throws Exception
+     * @return Arena[]
      */
-    public function getAllData(): array{
+    public function loadAllArenas(): array{
         $result = $this->db->query("SELECT * FROM arena");
         if($result === false){
             throw new Exception("Failed to execute SQLite3 statement to get all data.");
@@ -147,7 +154,7 @@ class SqliteProvider implements BaseProvider{
         $countTmp = $result->fetchArray(1);
         while($countTmp !== false){
             $tmpData[] = $countTmp;
-            /** @var false|array $countTmp */
+            /** @var false|string[] $countTmp */
             $countTmp = $result->fetchArray(1);
         }
         $data = [];
@@ -157,30 +164,11 @@ class SqliteProvider implements BaseProvider{
             $tmp["rewards"] =  json_decode($tmp["rewards"], true);
             $data[] = $tmp;
         }
-        return $data;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function setAllData(array $data): void{
-        foreach($data as $arena){
-            $code = $this->db->prepare("INSERT OR REPLACE INTO arena (name,min_players,max_players,play_time,hill,spawns,rewards,world,version) VALUES (:name, :min_players, :max_players, :play_time, :hill, :spawns, :rewards, :world, :version);");
-            if($code === false){
-                throw new Exception("Failed to prepare SQLite3 statement to set all data.");
-            }
-            $code->bindValue(":name", strtolower($arena["name"]));
-            $code->bindValue(":min_players", $arena["min_players"]);
-            $code->bindValue(":max_players", $arena["max_players"]);
-            $code->bindValue(":play_time", $arena["play_time"]);
-            $code->bindValue(":hill", json_encode($arena["hill"]));
-            $code->bindValue(":spawns", json_encode($arena["spawns"]));
-            $code->bindValue(":rewards", json_encode($arena["rewards"]));
-            $code->bindValue(":world", $arena["world"]);
-            $code->bindValue(":version", $this->version);
-            if($code->execute() === false){
-                throw new Exception("Failed to execute SQLite3 statement to set all data.");
-            }
+        $arenas = [];
+        foreach($data as $arenaC){
+            $arena = new Arena($this->plugin, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["hill"], $arenaC["spawns"], $arenaC["rewards"], $arenaC["world"]);
+            $arenas[] = $arena;
         }
+        return $arenas;
     }
 }

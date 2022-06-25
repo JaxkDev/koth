@@ -44,7 +44,7 @@ class EventHandler implements Listener{
         $this->plugin = $plugin;
     }
 
-    public function onQuit(PlayerQuitEvent $event){
+    public function onQuit(PlayerQuitEvent $event): void{
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
         if(($arena = $this->plugin->getArenaByPlayer($playerName)) !== null){
@@ -53,7 +53,7 @@ class EventHandler implements Listener{
         }
     }
 
-    public function onRespawn(PlayerRespawnEvent $event){
+    public function onRespawn(PlayerRespawnEvent $event): void{
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
         if(($arena = $this->plugin->getArenaByPlayer($playerName)) !== null){
@@ -62,25 +62,25 @@ class EventHandler implements Listener{
         }
     }
 
-    public function onDeath(PlayerDeathEvent $event){
+    public function onDeath(PlayerDeathEvent $event): void{
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
-        if($this->plugin->getArenaByPlayer($playerName) !== null and $this->plugin->config["keep_inventory"] === true){
+        if($this->plugin->getArenaByPlayer($playerName) !== null and $this->plugin->getConfig()->get("keep_inventory", true) === true){
             $this->plugin->getLogger()->debug($playerName."'s inventory was not reset (death)");
             $event->setKeepInventory(true);
         }
     }
 
-    /*public function onLevelChange(EntityLevelChangeEvent $event){
+    /*public function onLevelChange(EntityLevelChangeEvent $event): void{
         $targetLevel = $event->getTarget();
         //todo hack for per world FTP (decide how to handle this :/ ) (Beta4)
     }*/
 
-    public function onCommand(CommandEvent $event){
+    public function onCommand(CommandEvent $event): void{
         $player = $event->getSender();
         $playerName = strtolower($player->getName());
         if($this->plugin->getArenaByPlayer($playerName) !== null){
-        	if($this->plugin->config["block_commands"] === true and !str_starts_with($event->getCommand(), "koth")){
+        	if($this->plugin->getConfig()->get("block_commands", true) === true and !str_starts_with($event->getCommand(), "koth")){
 				$this->plugin->getLogger()->debug($player->getName() . " tried to use command '/" . $event->getCommand() . "' but was cancelled.");
 				$event->cancel();
 				$player->sendMessage(Main::PREFIX.C::RED."You are not allowed to use commands in-game except: /koth");//TODO messages.yml
@@ -88,11 +88,11 @@ class EventHandler implements Listener{
         }
     }
     
-    public function onChat(PlayerChatEvent $event){
+    public function onChat(PlayerChatEvent $event): void{
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
         if($this->plugin->getArenaByPlayer($playerName) !== null){
-            if($this->plugin->config["block_messages"] === true){
+            if($this->plugin->getConfig()->get("block_messages", true) === true){
                 $this->plugin->getLogger()->debug($player->getName() . " tried to send '".$event->getMessage()."' globally, but was cancelled.");
                 $player->sendMessage(Main::PREFIX.C::RED."You are not allowed to chat while in-game.");//TODO messages.yml
                 $event->cancel();
@@ -100,11 +100,11 @@ class EventHandler implements Listener{
         }
     }
 
-    public function onPlayerGameModeChange(PlayerGameModeChangeEvent $event){
+    public function onPlayerGameModeChange(PlayerGameModeChangeEvent $event): void{
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
         if($this->plugin->getArenaByPlayer($playerName) !== null){
-            if($this->plugin->config["prevent_gamemode_change"] === true){
+            if($this->plugin->getConfig()->get("prevent_gamemode_change", true) === true){
                 $this->plugin->getLogger()->debug($playerName." attempted to change gamemode but was stopped.");
                 $player->sendMessage(Main::PREFIX.C::RED."You are not allowed to changed gamemode while in game.");//TODO messages.yml
                 $event->cancel();
@@ -112,24 +112,23 @@ class EventHandler implements Listener{
         }
     }
 
-    public function onBlockBreak(BlockBreakEvent $event){
+    public function onBlockBreak(BlockBreakEvent $event): void{
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
-        if($this->plugin->getArenaByPlayer($playerName) !== null and $this->plugin->config["prevent_break"] === true){
+        if($this->plugin->getArenaByPlayer($playerName) !== null and $this->plugin->getConfig()->get("prevent_break", true) === true){
             $this->plugin->getLogger()->debug($playerName." attempted to break a block but was stopped.");
 			$player->sendMessage(Main::PREFIX.C::RED."You are not allowed to break things while in game.");//TODO messages.yml
 			$event->cancel();
         }
     }
 
-    public function onBlockPlace(BlockPlaceEvent $event){
+    public function onBlockPlace(BlockPlaceEvent $event): void{
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
-        if($this->plugin->getArenaByPlayer($playerName) !== null and $this->plugin->config["prevent_place"] === true){
+        if($this->plugin->getArenaByPlayer($playerName) !== null and $this->plugin->getConfig()->get("prevent_place", true) === true){
             $this->plugin->getLogger()->debug($playerName." attempted to place a block but was stopped.");
 			$player->sendMessage(Main::PREFIX.C::RED."You are not allowed to place things while in game.");//TODO messages.yml
 			$event->cancel();
         }
     }
-
 }

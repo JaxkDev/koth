@@ -47,43 +47,34 @@ class Main extends PluginBase implements Listener{
     /** @var Arena[] */
     private array $arenas = [];
     private CommandHandler $commandHandler;
-    private Config $configC;
-    private Config $messagesC;
+    private Config $config;
     private BaseProvider $db;
     public Utils $utils;
 
-    public array $config;
     /** @var string[]|string[][] */
     public array $messages;
 
     public const PREFIX = C::YELLOW . "[" . C::AQUA . "KOTH" . C::YELLOW . "] " . C::RESET;
 
     private function loadArenas(): void{
-        switch (strtolower($this->config["provider"])){
+        switch(strtolower($this->config->get("provider", "unknown"))){
             case 'sqlite':
             case 'sqlite3':
                 $this->db = new SqliteProvider($this);
                 break;
             default:
-                $this->getLogger()->error("Invalid provider type: '" . $this->config["provider"] . "', Reverted to default provider 'sqlite3'");
+                $this->getLogger()->error("Invalid provider type: '" . $this->config->get("provider", "unknown") . "', Reverted to default provider 'sqlite3'");
                 $this->db = new SqliteProvider($this);
-                $this->config["provider"] = "sqlite3";
+                $this->config->set("provider", "sqlite3");
                 $this->saveConfig();
         }
         $this->getLogger()->debug(str_replace("{NAME}", $this->db->getName(), $this->utils->colourise($this->messages["general"]["provider"])));
         $this->db->open();
-        $data = $this->db->getAllData();
-
-        foreach ($data as $arenaC){
-            $arena = new Arena($this, $arenaC["name"], $arenaC["min_players"], $arenaC["max_players"], $arenaC["play_time"], $arenaC["hill"], $arenaC["spawns"], $arenaC["rewards"], $arenaC["world"]);
-            $this->arenas[] = $arena;
-        }
-
+        $this->arenas = $this->db->loadAllArenas();
         $this->getLogger()->debug(str_replace("{AMOUNT}", (string)count($this->arenas), $this->utils->colourise($this->messages["arenas"]["loaded"])));
     }
 
     public function onDisable(): void{
-        $this->updateAllArenas();
         $this->saveConfig();
         $this->db->close();
     }
@@ -94,47 +85,46 @@ class Main extends PluginBase implements Listener{
         }
 
         $this->saveResource("config.yml");
-        $this->configC = new Config($this->getDataFolder() . "config.yml", Config::YAML);
-        $this->config = $this->configC->getAll();
+        $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML);
 
         $this->saveResource("messages.yml");
-        $this->messagesC = new Config($this->getDataFolder() . "messages.yml", Config::YAML);
-        $this->messages = $this->messagesC->getAll();
+        $messagesC = new Config($this->getDataFolder() . "messages.yml", Config::YAML);
+        $this->messages = $messagesC->getAll();
 
         if($this->messages["version"] !== $this::MESSAGE_VER){
             // TODO UPDATE
             $this->getLogger()->debug("Message file is outdated, attempting to update.");
         }
-        if($this->config["version"] !== $this::CONFIG_VER){
-            if(isset($this->config["start_countdown"])){
-                $this->config["countdown"] = $this->config["start_countdown"];
-                unset($this->config["start_countdown"]);
+        if($this->config->get("version", 1) !== $this::CONFIG_VER){
+            if($this->config->exists("start_countdown")){
+                $this->config->set("countdown", $this->config->get("start_countdown"));
+                $this->config->remove("start_countdown");
             }else{
-                if(!isset($this->config["countdown"])){
-                    $this->config["countdown"] = 30;
+                if(!$this->config->exists("countdown")){
+                    $this->config->set("countdown", 30);
                 }
             }
-            if(!isset($this->config["countdown_bcast"])) $this->config["countdown_bcast"] = true;
-            if(!isset($this->config["countdown_bcast_interval"])) $this->config["countdown_bcast_interval"] = 5;
-            if(!isset($this->config["countdown_bcast_serverwide"])) $this->config["countdown_bcast_serverwide"] = false;
-            if(!isset($this->config["start_bcast_serverwide"])) $this->config["start_bcast_serverwide"] = false;
-            if(!isset($this->config["end_bcast_serverwide"])) $this->config["end_bcast_serverwide"] = false;
-            if(isset($this->config["language"])) unset($this->config["language"]);
-            if(!isset($this->config["provider"])) $this->config["provider"] = "sqlite3";
-            if(!isset($this->config["block_messages"])) $this->config["block_messages"] = true;
-            if(!isset($this->config["block_commands"])) $this->config["block_commands"] = true;
-            if(!isset($this->config["prevent_place"])) $this->config["prevent_place"] = true;
-            if(!isset($this->config["prevent_break"])) $this->config["prevent_break"] = true;
-            if(!isset($this->config["prevent_gamemode_change"])) $this->config["prevent_gamemode_change"] = true;
-            if(!isset($this->config["keep_inventory"])) $this->config["keep_inventory"] = true;
-            if(isset($this->config["show_updates"])) unset($this->config["show_updates"]);
-            if(!isset($this->config["check_updates"])) $this->config["check_updates"] = true;
-            if(isset($this->config["download_updates"])) unset($this->config["download_updates"]);
-            $this->config["version"] = $this::CONFIG_VER;
+            if(!$this->config->exists("countdown_bcast")) $this->config->set("countdown_bcast", true);
+            if(!$this->config->exists("countdown_bcast_interval")) $this->config->set("countdown_bcast_interval", 5);
+            if(!$this->config->exists("countdown_bcast_serverwide")) $this->config->set("countdown_bcast_serverwide", false);
+            if(!$this->config->exists("start_bcast_serverwide")) $this->config->set("start_bcast_serverwide", false);
+            if(!$this->config->exists("end_bcast_serverwide")) $this->config->set("end_bcast_serverwide", false);
+            if(!$this->config->exists("provider")) $this->config->set("provider", "sqlite3");
+            if(!$this->config->exists("block_messages")) $this->config->set("block_messages", true);
+            if(!$this->config->exists("block_commands")) $this->config->set("block_commands", true);
+            if(!$this->config->exists("prevent_place")) $this->config->set("prevent_place", true);
+            if(!$this->config->exists("prevent_break")) $this->config->set("prevent_break", true);
+            if(!$this->config->exists("prevent_gamemode_change")) $this->config->set("prevent_gamemode_change", true);
+            if(!$this->config->exists("keep_inventory")) $this->config->set("keep_inventory", true);
+            if(!$this->config->exists("check_updates")) $this->config->set("check_updates", true);
+            $this->config->remove("show_updates");
+            $this->config->remove("language");
+            $this->config->remove("download_updates");
+            $this->config->set("version", self::CONFIG_VER);
             $this->saveConfig();
         }
 
-        foreach(array("eng","spa","fra") as $language){
+        foreach(["eng","spa","fra"] as $language){
             @unlink($this->getDataFolder()."help_".$language.".txt");
             $this->saveResource("help_" . $language . ".txt");
         }
@@ -147,7 +137,7 @@ class Main extends PluginBase implements Listener{
         $this->loadArenas();
         $this->getServer()->getPluginManager()->registerEvents(new EventHandler($this), $this);
 
-        if($this->config["check_updates"]){
+        if($this->config->get("check_updates", true) === true){
             $this->getLogger()->debug("Starting update check task...");
             $this->getServer()->getAsyncPool()->submitTask(new CheckUpdate($this->getDescription()->getVersion()));
         }
@@ -165,36 +155,6 @@ class Main extends PluginBase implements Listener{
 
     public function updateArena(Arena $arena): void{
         $this->db->updateArena($arena);
-    }
-
-    public function updateAllArenas(?array $data = null): void{
-        if($data !== null){
-            $this->db->setAllData($data);
-            return;
-        }
-        $save = [];
-        foreach($this->arenas as $arena){
-            $save[] = [
-                "name" => strtolower($arena->name),
-                "min_players" => $arena->minPlayers,
-                "max_players" => $arena->maxPlayers,
-                "play_time" => $arena->time,
-                "hill" => $arena->hill,
-                "spawns" => $arena->spawns,
-                "rewards" => $arena->rewards,
-                "world" => $arena->world
-            ];
-        }
-        $this->db->setAllData($save);
-    }
-
-    public function saveConfig(?array $data = null): void{
-        if($data !== null){
-            $this->configC->setAll($data);
-            return;
-        }
-        $this->configC->setAll($this->config);
-        $this->configC->save();
     }
 
     public function createArena(Arena $arena): void{
