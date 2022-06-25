@@ -49,7 +49,7 @@ class StartCountdown extends Task{
             return;
         }
         if($this->plugin->getConfig()->get("countdown_bcast", true) === true){
-            $msg = str_replace(["{COUNT}","{ARENA}"],[$this->countDown, $this->arena->getName()], $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["countdown"]));
+            $msg = str_replace(["{COUNT}","{ARENA}"],[$this->countDown, $this->arena->getName()], $this->plugin->utils->colourise((string)$this->plugin->getMessages()->getNested("broadcasts.countdown", "{PREFIX}{GOLD}[{AQUA}{ARENA} | {GOLD}COUNTDOWN] {RED}: {GREEN}{COUNT}")));
             if($this->countDown <= 5){
                 if(!$this->serverBcast){
                     $this->arena->broadcastMessage($msg);

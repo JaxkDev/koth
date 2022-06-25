@@ -35,6 +35,7 @@ use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerRespawnEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\player\PlayerGameModeChangeEvent;
+use RuntimeException;
 
 
 class EventHandler implements Listener{
@@ -58,7 +59,12 @@ class EventHandler implements Listener{
         $playerName = strtolower($player->getName());
         if(($arena = $this->plugin->getArenaByPlayer($playerName)) !== null){
             $this->plugin->getLogger()->debug($playerName." was re-spawned.");
-            $event->setRespawnPosition($arena->getSpawn(true));
+            $spawn = $arena->getSpawn(true);
+            if($spawn !== null){
+                $event->setRespawnPosition($spawn);
+            }else{
+                throw new RuntimeException("No spawns found when player in arena on respawn.");
+            }
         }
     }
 

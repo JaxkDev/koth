@@ -47,12 +47,11 @@ class Main extends PluginBase implements Listener{
     /** @var Arena[] */
     private array $arenas = [];
     private CommandHandler $commandHandler;
-    private Config $config;
     private BaseProvider $db;
-    public Utils $utils;
+    private Config $config;
+    private Config $messages;
 
-    /** @var string[]|string[][] */
-    public array $messages;
+    public Utils $utils;
 
     public const PREFIX = C::YELLOW . "[" . C::AQUA . "KOTH" . C::YELLOW . "] " . C::RESET;
 
@@ -68,10 +67,10 @@ class Main extends PluginBase implements Listener{
                 $this->config->set("provider", "sqlite3");
                 $this->saveConfig();
         }
-        $this->getLogger()->debug(str_replace("{NAME}", $this->db->getName(), $this->utils->colourise($this->messages["general"]["provider"])));
+        $this->getLogger()->debug(str_replace("{NAME}", $this->db->getName(), $this->utils->colourise((string)$this->messages->getNested("general.provider", "Provider was set to: {NAME}"))));
         $this->db->open();
         $this->arenas = $this->db->loadAllArenas();
-        $this->getLogger()->debug(str_replace("{AMOUNT}", (string)count($this->arenas), $this->utils->colourise($this->messages["arenas"]["loaded"])));
+        $this->getLogger()->debug(str_replace("{AMOUNT}", (string)count($this->arenas), $this->utils->colourise((string)$this->messages->getNested("arenas.loaded", "{AMOUNT} Arena(s) loaded."))));
     }
 
     public function onDisable(): void{
@@ -88,10 +87,9 @@ class Main extends PluginBase implements Listener{
         $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML);
 
         $this->saveResource("messages.yml");
-        $messagesC = new Config($this->getDataFolder() . "messages.yml", Config::YAML);
-        $this->messages = $messagesC->getAll();
+        $this->messages = new Config($this->getDataFolder() . "messages.yml", Config::YAML);
 
-        if($this->messages["version"] !== $this::MESSAGE_VER){
+        if($this->messages->get("version", 1) !== $this::MESSAGE_VER){
             // TODO UPDATE
             $this->getLogger()->debug("Message file is outdated, attempting to update.");
         }
@@ -145,7 +143,7 @@ class Main extends PluginBase implements Listener{
 
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool{
         if($sender instanceof ConsoleCommandSender or $sender instanceof Player){
-            $this->commandHandler->handleCommand($sender, $command, $args);
+            $this->commandHandler->handleCommand($sender, $args);
         }else{
             //Lovely messages for people like RCON etc.
             $sender->sendMessage("Who are you... You're not a player or a console user!");
@@ -170,7 +168,10 @@ class Main extends PluginBase implements Listener{
     }
 
     public function deleteArenaByName(string $name): void{
-        $this->deleteArena($this->getArenaByName($name));
+        $arena = $this->getArenaByName($name);
+        if($arena !== null){
+            $this->deleteArena($arena);
+        }
     }
 
     /**
@@ -196,5 +197,9 @@ class Main extends PluginBase implements Listener{
             }
         }
         return null;
+    }
+
+    public function getMessages(): Config{
+        return $this->messages;
     }
 }

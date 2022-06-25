@@ -134,6 +134,9 @@ class SqliteProvider implements BaseProvider{
                 throw new Exception("Failed to execute SQLite3 statement to get all data.");
             }
             $data = $result->fetchArray(1);
+            if($data === false){
+                return null;
+            }
         }catch(Exception){
             return null;
         }
