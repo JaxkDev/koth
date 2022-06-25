@@ -34,8 +34,10 @@ use JaxkDev\KOTH\Tasks\StartCountdown;
 use JaxkDev\KOTH\Tasks\GameTimer;
 
 use pocketmine\console\ConsoleCommandSender;
+use pocketmine\lang\Language;
 use pocketmine\player\Player;
 use pocketmine\math\Vector3;
+use pocketmine\Server;
 use pocketmine\world\World;
 use pocketmine\scheduler\TaskHandler;
 use pocketmine\utils\TextFormat as C;
@@ -49,7 +51,7 @@ NOTES:
 - so if king dies out of box or goes out of box, its race to the box, 
   if killed in box from someone inside box that killer is king
   if someone outside the box kills him next to box is king
-  if multiple people in box when next king selection, person closest to middle is crowned.
+  if multiple people in box when next king selection, person closest to middle is crowned. (tbc?)
 
 - EventHandler handles all events from pmmp, then passed here, or handled by values obtained from here.
 
@@ -194,7 +196,7 @@ class Arena{
     	if($this->status === $this::STATUS_DISABLED) return;
     	if(count($this->hill) === 2 and count($this->spawns) >= 1 and $world !== null){
     		$this->status = self::STATUS_READY;
-    	} else {
+    	}else{
     		$this->status = self::STATUS_NOT_READY;
     		if($world === null){
     			$this->plugin->getLogger()->warning(C::RED."World '".$this->world."' couldn't be loaded/found, Arena '".$this->getName()."' Will not be playable.");
@@ -236,7 +238,7 @@ class Arena{
         if($this->currentKingParticle !== null){
             $this->currentKingParticle->setInvisible(false); //fix restarting games.
             $this->currentKingParticle->setText(C::RED."King: ".C::GOLD.($this->king === null ? "-" : $this->king));
-        } else {
+        }else{
             $this->createKingTextParticle(); //keep trying to create it in case the scenario changes and its now able.
         }
         //set name tags, its own function so others can run it without updating Particles.
@@ -269,7 +271,7 @@ class Arena{
                     if($p === null) return;
                     $p->setNameTag($old);
                 }
-            } else {
+            }else{
                 if($this->oldKing !== null){
                     $player = $this->plugin->getServer()->getPlayerExact($this->oldKing);
                     if($player === null) return;
@@ -292,7 +294,7 @@ class Arena{
     		return false;
 		}
         if($player->getLevel()->getId() !== $world->getId()){
-            if(!$this->plugin->getServer()->isLevelLoaded($world->getFolderName())) {
+            if(!$this->plugin->getServer()->isLevelLoaded($world->getFolderName())){
                 $this->plugin->getServer()->loadLevel($world->getFolderName());
                 $this->plugin->getLogger()->debug("Loaded world '".$world->getFolderName()."' So '".$player->getName()."' can join.");
             }
@@ -322,7 +324,7 @@ class Arena{
             $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getLevelByName($this->world));
             $this->spawnCounter++;
             return $pos;
-        } else {
+        }else{
             $old = $this->spawns[array_rand($this->spawns)];
             $pos = new Position($old[0], $old[1], $old[2], $this->plugin->getServer()->getLevelByName($this->world));
             return $pos;
@@ -367,7 +369,7 @@ class Arena{
         $msg = str_replace("{ARENA}", $this->name, $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["start"]));
         if($this->plugin->config["start_bcast_serverwide"] === true){
             $this->plugin->getServer()->broadcastMessage($msg);
-        } else {
+        }else{
             $this->broadcastMessage($msg);
         }
         $this->createKingTextParticle(); //in case it was never made on startup as it was first made.
@@ -409,36 +411,31 @@ class Arena{
         $msg = str_replace("{ARENA}", $this->name, $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["end"]));
         if($this->plugin->config["end_bcast_serverwide"] === true){
             $this->plugin->getServer()->broadcastMessage($msg);
-        } else {
+        }else{
             $this->broadcastMessage($msg);
         }
         $this->plugin->getLogger()->debug("Arena '".$this->name."' ended.");
         $this->freezeAll(true);
-        $king = "Null";
         $this->timerTask->cancel();
         if($this->king !== null){
             $king = $this->king;
-        } else {
-            if($this->oldKing !== null){
-                $king = $this->oldKing;
-            }
+        }else{
+            $king = $this->oldKing;
         }
         $this->setWinner($king);
         $this->reset();
         $this->checkStatus();
     }
 
-    /**
-     * @param string $king
-     */
-    public function setWinner(string $king): void{
-        if($king === "Null"){
+    public function setWinner(?string $king): void{
+        if($king === null){
             $this->broadcastMessage($this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["no_winner"]));
             $this->freezeAll(false);
             return;
         }
         $this->broadcastWinner($king);
-        $console = new ConsoleCommandSender();
+        //TODO Remove.
+        $console = new ConsoleCommandSender(Server::getInstance(), new Language(Language::FALLBACK_LANGUAGE));
         foreach($this->rewards as $reward){
             $reward = str_replace("{PLAYER}", $king, $reward);
             if($this->plugin->getServer()->getCommandMap()->dispatch($console, $reward) === false){
@@ -446,19 +443,19 @@ class Arena{
             };
 
         }
-        //todo particles fireworks and more for king, Beta4
+        //todo particles fireworks and more for king?
         $this->freezeAll(false);
     }
 
     /**
-     * @return array
+     * @return Player[]
      */
     public function getPlayers(): array{
         return $this->players;
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function playersInBox(): array{
         $pos1 = [];
@@ -479,10 +476,10 @@ class Arena{
 
         if($minY == $maxY){
             $maxY += 1.51;
-        } //To allow jumping, shouldn't effect what so ever.
+        } //To allow jumping, shouldn't affect whatsoever.
 
         foreach($this->players as $playerName){
-            $player = $this->plugin->getServer()->getPlayer($playerName);
+            $player = $this->plugin->getServer()->getPlayerExact($playerName)->getLocation();
             if(($minX <= $player->getX() && $player->getX() <= $maxX && $minY <= $player->getY() && $player->getY() <= $maxY && $minZ <= $player->getZ() && $player->getZ() <= $maxZ)){
                 $list[] = $playerName;
             }
@@ -510,7 +507,7 @@ class Arena{
     public function checkNewKing(): bool{
         if(count($this->playersInBox()) === 0){
             return false;
-        } else {
+        }else{
             $player = $this->playersInBox()[array_rand($this->playersInBox())]; //todo closest to middle, Beta4
             $this->broadcastMessage(str_replace("{PLAYER}", $player, $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["new_king"])));
             $this->king = $player;
@@ -534,7 +531,7 @@ class Arena{
             if(!$player->isConnected()){
                 //Player is leaving app.
                 $this->plugin->getLogger()->warning($this->plugin->prefix . C::RED . "Event cancelled, but player is leaving app so will be removed anyway.");
-            } else {
+            }else{
                 $player->sendMessage($this->plugin->prefix.C::RED."Cannot leave the arena, reason: ".$event->getReason());
                 return;
             }

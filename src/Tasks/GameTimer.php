@@ -41,8 +41,8 @@ class GameTimer extends Task{
         $inBox = $this->arena->playersInBox();
         if($this->arena->king === null){
             $this->arena->checkNewKing();
-        } else {
-            if (!in_array($this->arena->king, $inBox)) {
+        }else{
+            if(!in_array($this->arena->king, $inBox)){
                 $this->arena->removeKing();
             }
         }

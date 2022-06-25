@@ -18,50 +18,40 @@ commands:
     permission-message: "You do not have permission to use this command."
 
 permissions:
-  koth:
-    default: false
-    description: "Allows usage of /koth"
-    children:
-      koth.command:
-        description: "Allows player to use /koth"
-        default: true
-      koth.rem:
-        description: "Allows player to remove a arena."
-        default: op
-      koth.new:
-        description: "Allows player to start process of making a arena."
-        default: op
-      koth.enable:
-        description: "Allows player to enable a arena."
-        default: op
-      koth.disable:
-        description: "Allows player to disable a arena."
-        default: op
-      koth.addrewards:
-        description: "Allows player to add reward commands to an arena."
-        default: op
-      koth.setspawns:
-        description: "Allows player to set spawn points for a arena."
-        default: op
-      koth.setpos:
-        description: "Allows player to set points when setting up a new arena."
-        default: op
-      koth.info:
-        description: "Displays more details about one specific arena."
-        default: true
-      koth.list:
-        description: "Allows player to see all Arena's and their status."
-        default: true
-      koth.join:
-        description: "Allows player to join a game."
-        default: true
-      koth.leave:
-        description: "Allows player to chicken out of a game."
-        default: true
-      koth.start:
-        description: "Allows player to start a arena."
-        default: true
-      koth.forcestart:
-        description: "Allows player to force start a arena."
-        default: op
+  koth.command:
+    description: "Allows player to use /koth"
+    default: true
+  koth.command.delete:
+    description: "Allows player to delete an arena."
+    default: op
+  koth.command.create:
+    description: "Allows player to create an arena."
+    default: op
+  koth.command.enable:
+    description: "Allows player to enable an arena."
+    default: op
+  koth.command.disable:
+    description: "Allows player to disable an arena."
+    default: op
+  koth.command.rewards:
+    description: "Allows player to modify the reward of an arena."
+    default: op
+  koth.command.info:
+    description: "Allows player to see more details about an arena."
+    default: true
+  koth.command.list:
+    description: "Allows player to see the Arena's and their current status."
+    default: true
+  koth.command.join:
+    description: "Allows player to join a game."
+    default: true
+  koth.command.leave:
+    description: "Allows player to chicken out of a game."
+    default: true
+  koth.command.start:
+    description: "Allows player to start an arena."
+    default: true
+  koth.command.forcestart:
+    description: "Allows player to force start an arena."
+    default: op
 ...

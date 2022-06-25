@@ -62,44 +62,11 @@ class Utils{
                 if(intval($baseParts[3]) < intval($newParts[3])){
                     return 1;
                 }
-            } else {
+            }else{
                 return 1;
             }
         }
         return 0;
-    }
-
-    public static function getClosest(string $search, array $arr): int{
-        //https://stackoverflow.com/a/5464961 - Thanks :)
-        $closest = null;
-        foreach ($arr as $item) {
-            if ($closest === null || abs($search - $closest) > abs($item - $search)) {
-                $closest = $item;
-            }
-        }
-        return $closest;
-    }
-
-    /**
-     * NOTICE: Use with caution, if used incorrectly can have significant consequences.
-     * TODO remove, too dangerous (some people like to give perms to everything that pops up)
-     * @param string $dir
-     */
-    public static function rmalldir(string $dir): void{
-        if($dir == "" or $dir == "/" or $dir == "C:/") return; //tiny safeguard.
-        $tmp = scandir($dir);
-        foreach ($tmp as $item) {
-            if ($item === '.' || $item === '..') {
-                continue;
-            }
-            $path = $dir.'/'.$item;
-            if (is_dir($path)) {
-                self::rmalldir($path);
-            } else {
-                unlink($path);
-            }
-        }
-        rmdir($dir);
     }
 
 	/**
@@ -114,15 +81,15 @@ class Utils{
 				return $world;
 			}
 		}
-		if($server->getWorldManager()->loadWorld($name) === false) {
+		if($server->getWorldManager()->loadWorld($name) === false){
 			return null;
 		}
 		return self::getLevelByName($name);
 	}
 
     public function colourise(string $msg): string{
-        $colour = array("{PREFIX}","{BLACK}","{DARK_BLUE}","{DARK_GREEN}","{DARK_AQUA}","{DARK_RED}","{DARK_PURPLE}","{GOLD}","{GRAY}","{DARK_GRAY}","{BLUE}","{GREEN}","{AQUA}","{RED}","{LIGHT_PURPLE}","{YELLOW}","{WHITE}","{OBFUSCATED}","{BOLD}","{STRIKETHROUGH}","{UNDERLINE}","{ITALIC}","{RESET}");
-        $keys = array(Main::PREFIX, C::BLACK, C::DARK_BLUE, C::DARK_GREEN, C::DARK_AQUA, C::DARK_RED, C::DARK_PURPLE, C::GOLD, C::GRAY, C::DARK_GRAY, C::BLUE, C::GREEN, C::AQUA, C::RED, C::LIGHT_PURPLE, C::YELLOW, C::WHITE, C::OBFUSCATED, C::BOLD, C::STRIKETHROUGH, C::UNDERLINE, C::ITALIC, C::RESET);
+        $colour = ["{PREFIX}","{BLACK}","{DARK_BLUE}","{DARK_GREEN}","{DARK_AQUA}","{DARK_RED}","{DARK_PURPLE}","{GOLD}","{GRAY}","{DARK_GRAY}","{BLUE}","{GREEN}","{AQUA}","{RED}","{LIGHT_PURPLE}","{YELLOW}","{WHITE}","{OBFUSCATED}","{BOLD}","{STRIKETHROUGH}","{UNDERLINE}","{ITALIC}","{RESET}"];
+        $keys = [Main::PREFIX, C::BLACK, C::DARK_BLUE, C::DARK_GREEN, C::DARK_AQUA, C::DARK_RED, C::DARK_PURPLE, C::GOLD, C::GRAY, C::DARK_GRAY, C::BLUE, C::GREEN, C::AQUA, C::RED, C::LIGHT_PURPLE, C::YELLOW, C::WHITE, C::OBFUSCATED, C::BOLD, C::STRIKETHROUGH, C::UNDERLINE, C::ITALIC, C::RESET];
         return str_replace(
             $colour,
             $keys,

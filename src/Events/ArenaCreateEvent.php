@@ -72,8 +72,11 @@ class ArenaCreateEvent extends KothEvent{
     }
 
     public function setMinPlayers(int $amount): void{
-        if($amount < 0){
-            throw new \InvalidArgumentException("Min players cannot be negative");
+        if($amount < 2){
+            throw new \InvalidArgumentException("Min players must be above 2");
+        }
+        if($amount >= $this->maxPlayers){
+            throw new \InvalidArgumentException("Min players must be below max players");
         }
         $this->minPlayers = $amount;
     }
@@ -83,8 +86,8 @@ class ArenaCreateEvent extends KothEvent{
     }
 
     public function setMaxPlayers(int $amount): void{
-        if($amount < 2){
-            throw new \InvalidArgumentException("Max players cannot be less than 2");
+        if($amount <= $this->minPlayers){
+            throw new \InvalidArgumentException("Max players cannot be less than or equal to min players");
         }
         $this->maxPlayers = $amount;
     }

@@ -64,7 +64,7 @@ class CheckUpdate extends AsyncTask{
     public function onCompletion(): void{
         /** @var string[] $data */
         $data = $this->getResult();
-        if(Utils::compareVersions($this->version, $data["version"], ">")){
+        if(Utils::compareVersions($this->version, $data["version"])){
             Server::getInstance()->getLogger()->notice("A new version of KOTH is available on poggit! (Version: {$data["version"]})");
         }
     }

@@ -25,52 +25,48 @@
 namespace JaxkDev\KOTH;
 
 use pocketmine\event\Listener;
+use pocketmine\event\server\CommandEvent;
 use pocketmine\utils\TextFormat as C;
-use pocketmine\event\block\{BlockBreakEvent, BlockPlaceEvent};;
+use pocketmine\event\block\BlockBreakEvent;
+use pocketmine\event\block\BlockPlaceEvent;
 //use pocketmine\event\entity\EntityLevelChangeEvent;
-use pocketmine\event\player\{PlayerDeathEvent, PlayerRespawnEvent, PlayerQuitEvent, PlayerGameModeChangeEvent, PlayerCommandPreprocessEvent};;
+use pocketmine\event\player\PlayerChatEvent;
+use pocketmine\event\player\PlayerDeathEvent;
+use pocketmine\event\player\PlayerRespawnEvent;
+use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\event\player\PlayerGameModeChangeEvent;
 
 
 class EventHandler implements Listener{
-
-    private $plugin;
+    private Main $plugin;
 
     public function __construct(Main $plugin){
         $this->plugin = $plugin;
     }
 
-    /**
-     * @param PlayerQuitEvent $event
-     */
     public function onQuit(PlayerQuitEvent $event){
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
-        if($this->plugin->inGame($playerName) === true){
+        if(($arena = $this->plugin->getArenaByPlayer($playerName)) !== null){
             $this->plugin->getLogger()->debug($playerName." has left the game, informing arena...");
-            $arena = $this->plugin->getArenaByPlayer($playerName);
             $arena->removePlayer($event->getPlayer(), "Disconnected from server.");
         }
     }
 
-    /**
-     * @param PlayerRespawnEvent $event
-     */
     public function onRespawn(PlayerRespawnEvent $event){
         $player = $event->getPlayer();
         $playerName = strtolower($player->getName());
-        if($this->plugin->inGame($playerName) === true){
+        if(($arena = $this->plugin->getArenaByPlayer($playerName)) !== null){
             $this->plugin->getLogger()->debug($playerName." was re-spawned.");
-            $event->setRespawnPosition($this->plugin->getArenaByPlayer($playerName)->getSpawn(true));
+            $event->setRespawnPosition($arena->getSpawn(true));
         }
     }
 
-    /**
-     * @param PlayerDeathEvent $event
-     */
     public function onDeath(PlayerDeathEvent $event){
         $player = $event->getPlayer();
-        if($this->plugin->inGame($player->getLowerCaseName()) === true and $this->plugin->config["keep_inventory"] === true){
-            $this->plugin->getLogger()->debug($player->getLowerCaseName()."'s inventory was not reset (death)");
+        $playerName = strtolower($player->getName());
+        if($this->plugin->getArenaByPlayer($playerName) !== null and $this->plugin->config["keep_inventory"] === true){
+            $this->plugin->getLogger()->debug($playerName."'s inventory was not reset (death)");
             $event->setKeepInventory(true);
         }
     }
@@ -80,57 +76,59 @@ class EventHandler implements Listener{
         //todo hack for per world FTP (decide how to handle this :/ ) (Beta4)
     }*/
 
-    /**
-     * @param PlayerCommandPreprocessEvent $event
-     */
-    public function onPlayerCommandPreprocess(PlayerCommandPreprocessEvent $event){
-        $player = $event->getPlayer();
-        if($this->plugin->inGame($player->getLowerCaseName()) === true){
-        	if($this->plugin->config["block_commands"] === true and substr($event->getMessage(), 0, 5) !== "/koth" and substr($event->getMessage(), 0, 1) === "/") {
-				$this->plugin->getLogger()->debug($player->getName() . " tried to use command '" . $event->getMessage() . "' but was cancelled.");
-				$event->setCancelled(true);
-				$player->sendMessage($this->plugin->prefix.C::RED."You are not allowed to use commands in game except: /koth, ");//TODO messages.yml
-			}
-        	elseif($this->plugin->config["block_messages"] === true){
-        		$this->plugin->getLogger()->debug($player->getName() . " tried to send '".$event->getMessage()."' globally, but was cancelled.");
-				$player->sendMessage($this->plugin->prefix.C::RED."You are not allowed to chat while in game.");//TODO messages.yml
-        		$event->setCancelled(true);
+    public function onCommand(CommandEvent $event){
+        $player = $event->getSender();
+        $playerName = strtolower($player->getName());
+        if($this->plugin->getArenaByPlayer($playerName) !== null){
+        	if($this->plugin->config["block_commands"] === true and !str_starts_with($event->getCommand(), "koth")){
+				$this->plugin->getLogger()->debug($player->getName() . " tried to use command '/" . $event->getCommand() . "' but was cancelled.");
+				$event->cancel();
+				$player->sendMessage(Main::PREFIX.C::RED."You are not allowed to use commands in-game except: /koth");//TODO messages.yml
 			}
         }
     }
-
-    /**
-     * @param PlayerGameModeChangeEvent $event
-     */
-    public function onPlayerGameModeChange(PlayerGameModeChangeEvent $event){
-        if($this->plugin->inGame($event->getPlayer()->getLowerCaseName()) === true){
-            if($event->getPlayer()->isOp() === false and $this->plugin->config["prevent_gamemode_change"] === true){
-                $this->plugin->getLogger()->debug($event->getPlayer()->getName()." attempted to change gamemode but was stopped.");
-                $event->getPlayer()->sendMessage($this->plugin->prefix.C::RED."You are not allowed to changed gamemode while in game.");//TODO messages.yml
-                $event->setCancelled(true);
+    
+    public function onChat(PlayerChatEvent $event){
+        $player = $event->getPlayer();
+        $playerName = strtolower($player->getName());
+        if($this->plugin->getArenaByPlayer($playerName) !== null){
+            if($this->plugin->config["block_messages"] === true){
+                $this->plugin->getLogger()->debug($player->getName() . " tried to send '".$event->getMessage()."' globally, but was cancelled.");
+                $player->sendMessage(Main::PREFIX.C::RED."You are not allowed to chat while in-game.");//TODO messages.yml
+                $event->cancel();
             }
         }
     }
 
-    /**
-     * @param BlockBreakEvent $event
-     */
-    public function onBlockBreak(BlockBreakEvent $event){
-        if($this->plugin->inGame($event->getPlayer()->getLowerCaseName()) === true and $this->plugin->config["prevent_break"] === true){
-            $this->plugin->getLogger()->debug($event->getPlayer()->getName()." attempted to break a block but was stopped.");
-			$event->getPlayer()->sendMessage($this->plugin->prefix.C::RED."You are not allowed to break things while in game.");//TODO messages.yml
-			$event->setCancelled(true);
+    public function onPlayerGameModeChange(PlayerGameModeChangeEvent $event){
+        $player = $event->getPlayer();
+        $playerName = strtolower($player->getName());
+        if($this->plugin->getArenaByPlayer($playerName) !== null){
+            if($this->plugin->config["prevent_gamemode_change"] === true){
+                $this->plugin->getLogger()->debug($playerName." attempted to change gamemode but was stopped.");
+                $player->sendMessage(Main::PREFIX.C::RED."You are not allowed to changed gamemode while in game.");//TODO messages.yml
+                $event->cancel();
+            }
         }
     }
 
-    /**
-     * @param BlockPlaceEvent $event
-     */
+    public function onBlockBreak(BlockBreakEvent $event){
+        $player = $event->getPlayer();
+        $playerName = strtolower($player->getName());
+        if($this->plugin->getArenaByPlayer($playerName) !== null and $this->plugin->config["prevent_break"] === true){
+            $this->plugin->getLogger()->debug($playerName." attempted to break a block but was stopped.");
+			$player->sendMessage(Main::PREFIX.C::RED."You are not allowed to break things while in game.");//TODO messages.yml
+			$event->cancel();
+        }
+    }
+
     public function onBlockPlace(BlockPlaceEvent $event){
-        if($this->plugin->inGame($event->getPlayer()->getLowerCaseName()) === true and $this->plugin->config["prevent_place"] === true){
-            $this->plugin->getLogger()->debug($event->getPlayer()->getName()." attempted to place a block but was stopped.");
-			$event->getPlayer()->sendMessage($this->plugin->prefix.C::RED."You are not allowed to place things while in game.");//TODO messages.yml
-			$event->setCancelled(true);
+        $player = $event->getPlayer();
+        $playerName = strtolower($player->getName());
+        if($this->plugin->getArenaByPlayer($playerName) !== null and $this->plugin->config["prevent_place"] === true){
+            $this->plugin->getLogger()->debug($playerName." attempted to place a block but was stopped.");
+			$player->sendMessage(Main::PREFIX.C::RED."You are not allowed to place things while in game.");//TODO messages.yml
+			$event->cancel();
         }
     }
 

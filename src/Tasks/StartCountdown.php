@@ -40,7 +40,7 @@ class StartCountdown extends Task{
         $this->plugin = $plugin;
         $this->arena = $arena;
         $this->countDown = $count;
-        $this->serverBcast = $plugin->config["countdown_bcast_serverwide"] === true;
+        $this->serverBcast = $plugin->config["countdown_bcast_serverwide"];
     }
 
     public function onRun(): void{
@@ -48,16 +48,16 @@ class StartCountdown extends Task{
             $this->arena->startGame();
             return;
         }
-        if($this->plugin->config["countdown_bcast"] === true){
+        if($this->plugin->config["countdown_bcast"]){
             $msg = str_replace(["{COUNT}","{ARENA}"],[$this->countDown, $this->arena->getName()], $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["countdown"]));
-            if ($this->countDown <= 5) {
+            if($this->countDown <= 5){
                 if(!$this->serverBcast){
                     $this->arena->broadcastMessage($msg);
                 } else{
                     $this->plugin->getServer()->broadcastMessage($msg);
                 }
             }else{
-                if (($this->countDown % $this->plugin->config["countdown_bcast_interval"]) === 0){
+                if(($this->countDown % $this->plugin->config["countdown_bcast_interval"]) === 0){
                     if(!$this->serverBcast){
                         $this->arena->broadcastMessage($msg);
                     }else{

@@ -24,7 +24,7 @@
 
 namespace JaxkDev\KOTH\Particles;
 
-use pocketmine\world\world;
+use pocketmine\world\World;
 use pocketmine\math\Vector3;
 use pocketmine\world\particle\FloatingTextParticle;
 
@@ -36,7 +36,7 @@ use pocketmine\world\particle\FloatingTextParticle;
 
 class FloatingText extends FloatingTextParticle{
 
-    private world $world;
+    private World $world;
     private Vector3 $position;
 
     public function __construct(World $world, Vector3 $position, string $text, string $title = ""){
