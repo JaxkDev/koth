@@ -74,7 +74,7 @@ class Utils{
 	 * @param string $name
 	 * @return World|null
 	 */
-	public static function getLevelByName(string $name): ?World{
+	public static function getWorldByName(string $name): ?World{
         $server = Server::getInstance();
 		foreach($server->getWorldManager()->getWorlds() as $world){
 			if(strtolower($world->getFolderName()) === strtolower($name) or strtolower($world->getDisplayName()) === strtolower($name)){
@@ -84,7 +84,7 @@ class Utils{
 		if($server->getWorldManager()->loadWorld($name) === false){
 			return null;
 		}
-		return self::getLevelByName($name);
+		return self::getWorldByName($name);
 	}
 
     public function colourise(string $msg): string{
