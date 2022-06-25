@@ -6,10 +6,8 @@
 King Of The Hill mini-game, Pocketmine-MP Plugin by JaxkDev.
 
 ## NOTICE'S
- **This plugin is in BETA (Pre-Release), so *please* don't spam out comments/issues with broken things or things that you expect there and are not.**
- 
  *Just because it's the only plugin released, doesn't mean it's the best one.*
- 
+
  *Please feel free to create a PR to modify/add new help files for different languages !*
  
  
@@ -18,8 +16,7 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by JaxkDev.
  - Console has its own commands.
  - Enable/Disable arena's !
  - Much more events for other developers to be able to customise the game EVEN MORE !
- - Automatically install updates on server start ! - 
- - Check for updates on server start !             - Both won't work on android (CURL)
+ - Check for updates on server start !   - won't work on android (CURL)
  - Messages are customisable.
  - Multiple Arena's.
  - Custom spawn & hill points.
@@ -34,9 +31,48 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by JaxkDev.
  - On death keep inventory.
 
 ### Upcoming
- - Change of game layout (different types will be extensions) - Beta5/6 (check the extensions [repo](https://github.com/JaxkDev/Koth-Extensions) for more info)
- - Something extra for when winner is announced *wink*    - Beta5
+ - Change of game layout (different types will be extensions) - (check the extensions [repo](https://github.com/JaxkDev/Koth-Extensions) for more info)
+ - Something extra for when winner is announced *wink*
 
+### Permissions:
+```yaml
+koth.command:
+  description: "Allows player to use /koth"
+  default: true
+koth.command.delete:
+  description: "Allows player to delete an arena."
+  default: op
+koth.command.create:
+  description: "Allows player to create and setup an arena."
+  default: op
+koth.command.enable:
+  description: "Allows player to enable an arena."
+  default: op
+koth.command.disable:
+  description: "Allows player to disable an arena."
+  default: op
+koth.command.rewards:
+  description: "Allows player to modify the reward of an arena."
+  default: op
+koth.command.info:
+  description: "Allows player to see more details about an arena."
+  default: true
+koth.command.list:
+  description: "Allows player to see the Arena's and their current status."
+  default: true
+koth.command.join:
+  description: "Allows player to join a game."
+  default: true
+koth.command.leave:
+  description: "Allows player to chicken out of a game."
+  default: true
+koth.command.start:
+  description: "Allows player to start an arena."
+  default: true
+koth.command.forcestart:
+  description: "Allows player to force start an arena."
+  default: op
+```
 ## About the game
 ### KOTH
 King.Of.The.Hill
@@ -81,8 +117,8 @@ However, when the timer runs out the last standing king, or the previous king wi
 
 ## Setting up
 ### Creating/Removing arena(s)
-To create a new arena use the command `/koth new <arena name>` (No spaces are allowed in arena, for now)
-To remove an arena use the command `/koth rem <arena name>` (The arena cannot be in use when deleting)
+To create a new arena use the command `/koth create <arena name>` (No spaces are allowed in arena, for now)
+To remove an arena use the command `/koth delete <arena name>` (The arena cannot be in use when deleting)
 
 To check arena status type `/koth list` or `/koth info <arena name>`
 ### Setting positions/Values
@@ -123,25 +159,3 @@ _Developer:_ JaxkDev
 _Icon Creator:_ WowAssasin (WowAssasin#6608)
 
 _Requested Originally By:_ GOLDVAGE (GOLDVAGE#2712) (My Idea generator, hehe)
-
-
-### License:
-    KOTH - King of the hill
-    Copyright (C) 2019 JaxkDev
-    
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    any later version.
-    
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-    
-    Twitter :: @JaxkDev
-    Discord :: Jackthehaxk21#8860
-    Email   :: JaxkDev@gmail.com
