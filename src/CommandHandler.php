@@ -1,33 +1,26 @@
 <?php
 /*
-*    /$$   /$$  /$$$$$$  /$$$$$$$$ /$$   /$$
-*   | $$  /$$/ /$$__  $$|__  $$__/| $$  | $$
-*   | $$ /$$/ | $$  \ $$   | $$   | $$  | $$
-*   | $$$$$/  | $$  | $$   | $$   | $$$$$$$$
-*   | $$  $$  | $$  | $$   | $$   | $$__  $$
-*   | $$\  $$ | $$  | $$   | $$   | $$  | $$
-*   | $$ \  $$|  $$$$$$/   | $$   | $$  | $$
-*   |__/  \__/ \______/    |__/   |__/  |__/
-*  
-*   Copyright (C) 2019-2020 JaxkDev
-*
-*   This program is free software: you can redistribute it and/or modify
-*   it under the terms of the GNU General Public License as published by
-*   the Free Software Foundation, either version 3 of the License, or
-*   any later version.
-*
-*   This program is distributed in the hope that it will be useful,
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*   GNU General Public License for more details.
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*
-*   Twitter :: @JaxkDev
-*   Discord :: JaxkDev#2698
-*   Email   :: JaxkDev@gmail.com
-*/
+ *   KOTH, A pocketmine-MP Mini-game
+ *
+ *   Copyright (C) 2019-present JaxkDev
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ *   Twitter :: @JaxkDev
+ *   Discord :: JaxkDev#2698
+ *   Email   :: JaxkDev@gmail.com
+ */
 
 namespace JaxkDev\KOTH;
 
@@ -35,14 +28,14 @@ use JaxkDev\KOTH\Events\{ArenaCreateEvent, ArenaDeleteEvent};;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 
-use pocketmine\command\ConsoleCommandSender;
-use pocketmine\Player;
+use pocketmine\console\ConsoleCommandSender;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat as C;
 
 class CommandHandler{
 
-    private $plugin;
-    private $prefix;
+    private Main $plugin;
+    private string $prefix;
 
     public function __construct(Main $plugin){
         $this->plugin = $plugin;
@@ -340,12 +333,12 @@ class CommandHandler{
                     }
                     if(isset($arena->hill[0])){
                         $arena->hill[0] = $point;
-                        $arena->world = $player->getLevel()->getName();
+                        $arena->world = $player->getWorld()->getDisplayName();
                         $player->sendMessage($this->prefix.C::GREEN."Position 1 Re-set");
                         return;
                     }
                     $arena->hill[0] = $point;
-                    $arena->world = $player->getLevel()->getName();
+                    $arena->world = $player->getWorld()->getDisplayName();
                     $player->sendMessage($this->prefix.C::GREEN."Position 1 set, be sure to do /koth setpos2 ".$arena->getName());
                     return;
 
@@ -447,7 +440,7 @@ class CommandHandler{
 	/**
 	 * @param Player|ConsoleCommandSender $player
 	 */
-	private function listArenas($player) : void{
+	private function listArenas($player): void{
         $list = $this->plugin->getAllArenas();
         if(count($list) === 0){
             $player->sendMessage($this->prefix.C::RED."There are no arena's");
@@ -464,7 +457,7 @@ class CommandHandler{
 	 * @param Player|ConsoleCommandSender $player
 	 * @param array $args
 	 */
-	private function deleteArena($player, array $args) : void{
+	private function deleteArena($player, array $args): void{
         if(count($args) !== 2){
             $player->sendMessage(str_replace("{USAGE}", "/koth rem (arena name)", $this->plugin->utils->colourise($this->plugin->messages["commands"]["usage"])));
             return;
@@ -496,7 +489,7 @@ class CommandHandler{
 	 * @param Player|ConsoleCommandSender $player
 	 * @param array $args
 	 */
-	private function createArena($player, array $args) : void{
+	private function createArena($player, array $args): void{
         //assuming player has sufficient perms.
 
         $usage = "/koth new (arena name - no spaces) (min players) (max players) (gametime in seconds)";

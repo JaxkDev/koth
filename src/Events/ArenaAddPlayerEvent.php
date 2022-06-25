@@ -26,49 +26,23 @@ namespace JaxkDev\KOTH\Events;
 
 use JaxkDev\KOTH\Arena;
 use JaxkDev\KOTH\Main;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class ArenaAddPlayerEvent extends KothEvent{
+    private Arena $arena;
+    private Player $player;
 
-    /** @var Arena */
-    private $arena;
-
-    /** @var Player */
-    private $player;
-
-    /**
-     * ArenaAddPlayerEvent constructor.
-     * @param Main $plugin
-     * @param Arena $arena
-     * @param Player $player
-     */
     public function __construct(Main $plugin, Arena $arena, Player $player){
         $this->arena = $arena;
         $this->player = $player;
         parent::__construct($plugin);
     }
 
-    /**
-     * @return Arena
-     */
     public function getArena(): Arena{
         return $this->arena;
     }
 
-    /**
-     * @return Player
-     */
-    public function getPlayer(): Player
-    {
+    public function getPlayer(): Player{
         return $this->player;
-    }
-
-    /**
-     * @param Player $player
-     * Notice: Change this with caution, may result in unwanted behaviour.
-     *         You have been warned.
-     */
-    public function setPlayer(Player $player): void{
-        $this->player = $player;
     }
 }

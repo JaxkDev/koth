@@ -25,28 +25,17 @@
 namespace JaxkDev\KOTH\Tasks;
 
 use pocketmine\scheduler\Task;
-
 use JaxkDev\KOTH\Main;
 use JaxkDev\KOTH\Arena;
 
-class Prestart extends Task{
+class StartCountdown extends Task{
 
-    /** @var Main */
-    private $plugin;
+    private Main $plugin;
+    private Arena $arena;
 
-    /** @var Arena */
-    private $arena;
+    private int $countDown;
+    private bool $serverBcast;
 
-    /** @var int */
-    private $countDown;
-    private $serverBcast;
-
-    /**
-     * Prestart constructor.
-     * @param Main $plugin
-     * @param Arena $arena
-     * @param int $count
-     */
     public function __construct(Main $plugin, Arena $arena, int $count){
         $this->plugin = $plugin;
         $this->arena = $arena;
@@ -54,15 +43,12 @@ class Prestart extends Task{
         $this->serverBcast = $plugin->config["countdown_bcast_serverwide"] === true;
     }
 
-    /**
-     * @param int $tick
-     */
-    public function onRun(int $tick){
+    public function onRun(): void{
         if($this->countDown === 0){
             $this->arena->startGame();
             return;
         }
-        if($this->plugin->config["countdown_bcast"] === true) {
+        if($this->plugin->config["countdown_bcast"] === true){
             $msg = str_replace(["{COUNT}","{ARENA}"],[$this->countDown, $this->arena->getName()], $this->plugin->utils->colourise($this->plugin->messages["broadcasts"]["countdown"]));
             if ($this->countDown <= 5) {
                 if(!$this->serverBcast){
@@ -70,11 +56,11 @@ class Prestart extends Task{
                 } else{
                     $this->plugin->getServer()->broadcastMessage($msg);
                 }
-            } else {
-                if (($this->countDown % $this->plugin->config["countdown_bcast_interval"]) === 0) {
+            }else{
+                if (($this->countDown % $this->plugin->config["countdown_bcast_interval"]) === 0){
                     if(!$this->serverBcast){
                         $this->arena->broadcastMessage($msg);
-                    } else {
+                    }else{
                         $this->plugin->getServer()->broadcastMessage($msg);
                     }
                 }

@@ -25,28 +25,18 @@
 namespace JaxkDev\KOTH\Tasks;
 
 use pocketmine\scheduler\Task;
-
 use JaxkDev\KOTH\Arena;
 
-class Gametimer extends Task{
-    private $arena;
+class GameTimer extends Task{
+    private Arena $arena;
+    public float $secondsLeft;
 
-    public $secondsLeft;
-
-
-    /**
-     * Gametimer constructor.
-     * @param Arena $arena
-     */
     public function __construct(Arena $arena){
         $this->arena = $arena;
         $this->secondsLeft = $arena->time;
     }
 
-    /**
-     * @param int $tick
-     */
-    public function onRun(int $tick){
+    public function onRun(): void{
         $this->secondsLeft -= 0.5;
         $inBox = $this->arena->playersInBox();
         if($this->arena->king === null){

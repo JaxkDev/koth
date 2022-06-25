@@ -27,20 +27,9 @@ namespace JaxkDev\KOTH\Events;
 use JaxkDev\KOTH\Arena;
 use JaxkDev\KOTH\Main;
 
-/*
- * Note: The event is only used when the command /koth remove/delete is used,
- * NOT when the plugins removeArena is called (so it will not work if plugins call the function)
- *
- * You have been warned.
- */
-
 class ArenaEndEvent extends KothEvent{
-
-    /** @var Arena */
-    private $arena;
-
-    /** @var int */
-    private $secondsLeft;
+    private Arena $arena;
+    private int $secondsLeft;
 
     public function __construct(Main $plugin, Arena $arena){
         $this->arena = $arena;
@@ -48,27 +37,22 @@ class ArenaEndEvent extends KothEvent{
         parent::__construct($plugin);
     }
 
-    /**
-     * @return Arena
-     */
     public function getArena(): Arena{
         return $this->arena;
     }
 
-    /**
-     * @return int
-     */
-    public function getSecondsLeft(): int
-    {
+    public function getSecondsLeft(): int{
         return $this->secondsLeft;
     }
 
     /**
      * @param int $seconds
-     * Notice: Change this when cancelling otherwise it will continue to
-     *         send out this event in a loop until not cancelled.
+     * Notice: Cancels the event if seconds left is changed to a positive int (basically extra time.)
      */
     public function setSecondsLeft(int $seconds): void{
         $this->secondsLeft = $seconds;
+        if($seconds > 0){
+            $this->cancel(); //Just in-case developers don't...
+        }
     }
 }

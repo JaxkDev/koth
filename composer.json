@@ -12,7 +12,9 @@
         }
     },
     "require": {
-        "php": "^8.0.0"
+        "php": "^8.0.0",
+        "ext-curl": "*",
+        "ext-sqlite3": "*"
     },
     "require-dev": {
         "phpstan/phpstan": "^1.7",

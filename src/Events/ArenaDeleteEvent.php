@@ -26,9 +26,8 @@ namespace JaxkDev\KOTH\Events;
 
 use JaxkDev\KOTH\Arena;
 use JaxkDev\KOTH\Main;
-use pocketmine\command\CommandSender;
-use pocketmine\command\ConsoleCommandSender;
-use pocketmine\Player;
+use pocketmine\console\ConsoleCommandSender;
+use pocketmine\player\Player;
 
 /*
  * Note: The event is only used when the command /koth remove/delete is used,
@@ -38,27 +37,20 @@ use pocketmine\Player;
  */
 
 class ArenaDeleteEvent extends KothEvent{
+    private ConsoleCommandSender|Player|null $destroyer;
+    private Arena $arena;
 
-    private $destroyer;
-
-    /** @var Arena */
-    private $arena;
-
-    public function __construct(Main $plugin, $destroyer, Arena $arena){
+    public function __construct(Main $plugin, ConsoleCommandSender|Player|null $destroyer, Arena $arena){
         $this->destroyer = $destroyer;
         $this->arena = $arena;
         parent::__construct($plugin);
     }
 
-    /** @return Player|ConsoleCommandSender|CommandSender|null */
-    public function getDestroyer(){
+    public function getDestroyer(): ConsoleCommandSender|Player|null{
         return $this->destroyer;
     }
 
-    /**
-     * @return Arena
-     */
-    public function getArena() : Arena{
+    public function getArena(): Arena{
         return $this->arena;
     }
 }

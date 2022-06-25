@@ -26,36 +26,20 @@ namespace JaxkDev\KOTH\Events;
 
 use JaxkDev\KOTH\Arena;
 use JaxkDev\KOTH\Main;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 /*
- * NOTICE: This event may be cancellable however, if player is quiting MC (app)
+ * NOTICE: This event may be cancellable however, if player is leaving server (eg closed Minecraft)
  *         then the event will not matter unless messages like leaveReason and silent are changed.
- *         whether cancelled or not the player will be removed if leaving the app.
+ *         whether cancelled or not the player will be removed if leaving the server.
  */
 
 class ArenaRemovePlayerEvent extends KothEvent{
+    private Arena $arena;
+    private Player $player;
+    private string $leaveReason;
+    private bool $silent;
 
-    /** @var Arena */
-    private $arena;
-
-    /** @var Player */
-    private $player;
-
-    /** @var string */
-    private $leaveReason;
-
-    /** @var bool */
-    private $silent;
-
-    /**
-     * ArenaRemovePlayerEvent constructor.
-     * @param Main $plugin
-     * @param Arena $arena
-     * @param Player $player
-     * @param string $leaveReason
-     * @param bool $silent
-     */
     public function __construct(Main $plugin, Arena $arena, Player $player, string $leaveReason, bool $silent){
         $this->arena = $arena;
         $this->player = $player;
@@ -68,48 +52,24 @@ class ArenaRemovePlayerEvent extends KothEvent{
         $this->silent = $silent;
     }
 
-    /**
-     * @return bool
-     */
     public function isSilent(): bool{
         return $this->silent;
     }
 
-    /**
-     * @return string
-     */
     public function getLeaveReason(): string{
         return $this->leaveReason;
     }
 
-    /**
-     * @param string $leaveReason
-     */
     public function setLeaveReason(string $leaveReason): void{
         $this->leaveReason = $leaveReason;
     }
 
-    /**
-     * @return Arena
-     */
     public function getArena(): Arena{
         return $this->arena;
     }
 
-    /**
-     * @return Player
-     */
     public function getPlayer(): Player
     {
         return $this->player;
-    }
-
-    /**
-     * @param Player $player
-     * Notice: Change this with caution, may result in unwanted behaviour.
-     *         You have been warned.
-     */
-    public function setPlayer(Player $player): void{
-        $this->player = $player;
     }
 }

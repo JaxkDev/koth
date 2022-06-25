@@ -30,24 +30,24 @@ interface BaseProvider
 {
     public function __construct(Main $plugin);
 
-    public function getName() : string;
+    public function getName(): string;
 
-    public function open() : void;
+    public function open(): void;
 
-    public function close() : void;
+    public function close(): void;
 
-    public function save() : void;
+    public function save(): void;
 
 
-    public function createArena(Arena $arena) : void;
+    public function createArena(Arena $arena): void;
 
-    public function updateArena(Arena $arena) : void;
+    public function updateArena(Arena $arena): void;
 
-    public function deleteArena(string $name) : void;
+    public function deleteArena(string $arena): void;
 
 
     //TODO, Break these down into smaller methods.
-    public function getAllData() : array;
+    public function getAllData(): array;
 
-    public function setAllData(array $data) : void;
+    public function setAllData(array $data): void;
 }

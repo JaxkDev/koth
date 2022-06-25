@@ -27,20 +27,9 @@ namespace JaxkDev\KOTH\Events;
 use JaxkDev\KOTH\Arena;
 use JaxkDev\KOTH\Main;
 
-/*
- * Note: The event is only used when the command /koth remove/delete is used,
- * NOT when the plugins removeArena is called (so it will not work if plugins call the function)
- *
- * You have been warned.
- */
-
 class ArenaPreStartEvent extends KothEvent{
-
-    /** @var Arena */
-    private $arena;
-
-    /** @var int */
-    public $countdown;
+    private Arena $arena;
+    public int $countdown;
 
     public function __construct(Main $plugin, Arena $arena){
         $this->arena = $arena;
@@ -48,21 +37,17 @@ class ArenaPreStartEvent extends KothEvent{
         parent::__construct($plugin);
     }
 
-    /** @return int */
     public function getCountdown(): int{
         return $this->countdown;
     }
 
-    /** @var int
-     *  Notice, Does not change Arena->countDown.
+    /**
+     *  Notice, Does not change Arena->countDown (the countdown for future starts)
      */
     public function setCountdown(int $countdown): void{
         $this->countdown = $countdown;
     }
 
-    /**
-     * @return Arena
-     */
     public function getArena(): Arena{
         return $this->arena;
     }

@@ -25,41 +25,29 @@
 namespace JaxkDev\KOTH\Events;
 
 use JaxkDev\KOTH\Main;
-use pocketmine\command\CommandSender;
-use pocketmine\command\ConsoleCommandSender;
-use pocketmine\Player;
-
-/*
- * Note: The event is only used when the command /koth remove/delete is used,
- * NOT when the plugins removeArena is called (so it will not work if plugins call the function)
- *
- * You have been warned.
- */
+use pocketmine\console\ConsoleCommandSender;
+use pocketmine\player\Player;
 
 class ArenaCreateEvent extends KothEvent{
 
-    private $creator;
+    private Player|ConsoleCommandSender|null $creator;
+    private string $name;
+    private string $world;
+    private int $minPlayers;
+    private int $maxPlayers;
+    private int $gameTime;
 
-    /** @var string */
-    private $name;
-    private $world;
-
-    /** @var int */
-    private $min_players;
-    private $max_players;
-    private $game_time;
-
-    /** @var array */
-    private $hill;
-    private $spawns;
-    private $rewards;
+    private array $hill;
+    private array $spawns;
+    /** @var string[] */
+    private array $rewards;
 
     public function __construct(Main $plugin, $creator, string $name, int $min_players, int $max_players, int $gameTime, array $hill = [], array $spawns = [], array $rewards = [], string $world = "null"){
         $this->creator = $creator;
         $this->name = $name;
-        $this->min_players = $min_players;
-        $this->max_players = $max_players;
-        $this->game_time = $gameTime;
+        $this->minPlayers = $min_players;
+        $this->maxPlayers = $max_players;
+        $this->gameTime = $gameTime;
         $this->hill = $hill;
         $this->spawns = $spawns;
         $this->rewards = $rewards;
@@ -67,120 +55,77 @@ class ArenaCreateEvent extends KothEvent{
         parent::__construct($plugin);
     }
 
-    /** @return Player|ConsoleCommandSender|CommandSender|null */
-    public function getCreator(){
+    public function getCreator(): Player|ConsoleCommandSender|null{
         return $this->creator;
     }
 
-    /**
-     * @return string
-     */
-    public function getName() : string{
+    public function getName(): string{
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     */
-    public function setName(string $name) : void{
+    public function setName(string $name): void{
         $this->name = $name;
     }
 
-    /**
-     * @return int
-     */
-    public function getMinPlayers() : int{
-        return $this->min_players;
+    public function getMinPlayers(): int{
+        return $this->minPlayers;
     }
 
-    /**
-     * @param int $amount
-     */
-    public function setMinPlayers(int $amount) : void{
-        $this->min_players = $amount;
+    public function setMinPlayers(int $amount): void{
+        if($amount < 0){
+            throw new \InvalidArgumentException("Min players cannot be negative");
+        }
+        $this->minPlayers = $amount;
     }
 
-    /**
-     * @return int
-     */
-    public function getMaxPlayers() : int{
-        return $this->max_players;
+    public function getMaxPlayers(): int{
+        return $this->maxPlayers;
     }
 
-    /**
-     * @param int $amount
-     */
-    public function setMaxPlayers(int $amount) : void{
-        $this->max_players = $amount;
+    public function setMaxPlayers(int $amount): void{
+        if($amount < 2){
+            throw new \InvalidArgumentException("Max players cannot be less than 2");
+        }
+        $this->maxPlayers = $amount;
     }
 
-    /**
-     * @return int
-     */
-    public function getGameTime() : int{
-        return $this->game_time;
+    public function getGameTime(): int{
+        return $this->gameTime;
     }
 
-    /**
-     * @param int $amount
-     */
-    public function setGameTime(int $amount) : void{
-        $this->game_time = $amount;
+    public function setGameTime(int $amount): void{
+        $this->gameTime = $amount;
     }
 
-    /**
-     * @return array
-     */
-    public function getHillPositions() : array{
+    public function getHillPositions(): array{
         return $this->hill;
     }
 
-    /**
-     * @param array $hill
-     */
-    public function setHillPositions(array $hill) : void{
+    public function setHillPositions(array $hill): void{
         $this->hill = $hill;
     }
 
-    /**
-     * @return array
-     */
-    public function getSpawnPositions() : array{
+    public function getSpawnPositions(): array{
         return $this->spawns;
     }
 
-    /**
-     * @param array $spawns
-     */
-    public function setSpawnPositions(array $spawns) : void{
+    public function setSpawnPositions(array $spawns): void{
         $this->spawns = $spawns;
     }
 
-    /**
-     * @return array
-     */
-    public function getRewards() : array{
+    public function getRewards(): array{
         return $this->rewards;
     }
 
-    /**
-     * @param array $rewards
-     */
-    public function setRewards(array $rewards) : void{
+    public function setRewards(array $rewards): void{
         $this->rewards = $rewards;
     }
 
-    /**
-     * @return string
-     */
-    public function getWorld() : string{
+    public function getWorld(): string{
         return $this->world;
     }
 
-    /**
-     * @param string $worldName
-     */
-    public function setWorld(string $worldName) : void{
+    public function setWorld(string $worldName): void{
         $this->world = $worldName;
     }
 }

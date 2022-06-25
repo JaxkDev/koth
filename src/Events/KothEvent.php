@@ -26,9 +26,11 @@ namespace JaxkDev\KOTH\Events;
 
 use JaxkDev\KOTH\Main;
 use pocketmine\event\Cancellable;
+use pocketmine\event\CancellableTrait;
 use pocketmine\event\plugin\PluginEvent;
 
 abstract class KothEvent extends PluginEvent implements Cancellable{
+    use CancellableTrait;
 
     private $reason = "Event Cancelled";
     private $plugin;
@@ -36,7 +38,7 @@ abstract class KothEvent extends PluginEvent implements Cancellable{
     public function __construct(Main $plugin)
     {
     	$this->plugin = $plugin;
-        $this->plugin->debug("Event '".$this->getEventName()."' is being constructed...");
+        $this->plugin->getLogger()->debug("Event '".$this->getEventName()."' is being constructed...");
         parent::__construct($plugin);
     }
 
@@ -50,7 +52,7 @@ abstract class KothEvent extends PluginEvent implements Cancellable{
 
     public function call(): void
 	{
-		$this->plugin->debug("Event '".$this->getEventName()."' Called.");
+		$this->plugin->getLogger()->debug("Event '".$this->getEventName()."' Called.");
 		parent::call();
 	}
 }

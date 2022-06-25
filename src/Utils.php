@@ -2,12 +2,12 @@
 
 namespace JaxkDev\KOTH;
 
-use pocketmine\level\Level;
+use pocketmine\Server;
+use pocketmine\world\World;
 use pocketmine\utils\TextFormat as C;
 
 class Utils{
-
-    public $plugin;
+    public Main $plugin;
 
     public function __construct(Main $plugin){
         $this->plugin = $plugin;
@@ -17,7 +17,7 @@ class Utils{
 	 * Credit to https://gist.githubusercontent.com/LeoLopesWeb/a3e0bba7fe66a6af1e50eef3d231f2da/raw/16edbd69a709ca21d24f2774af5ccf68297aa97d/.php
 	 * Slightly modified for our use.
 	 */
-	function secToHR(int $seconds): string{
+	public static function secToHR(int $seconds): string{
 	  $days = floor($seconds / 86400);
 	  $hours = floor(($seconds / 3600) % 24);
 	  $minutes = floor(($seconds / 60) % 60);
@@ -25,7 +25,7 @@ class Utils{
 	  return $days > 0 ? "$days days, $hours hours, $minutes minutes" : ($hours > 0 ? "$hours hours, $minutes minutes" : ($minutes > 0 ? "$minutes minutes, $seconds seconds" : "$seconds seconds"));
 	}
 
-    public function compareVersions(string $base, string $new) : int{
+    public static function compareVersions(string $base, string $new): int{
         $baseParts = explode(".",$base);
         $baseParts[2] = explode("-beta",$baseParts[2])[0];
         if(sizeof(explode("-beta",explode(".",$base)[2])) >1){
@@ -69,7 +69,7 @@ class Utils{
         return 0;
     }
 
-    public function getClosest(string $search, array $arr) : int{
+    public static function getClosest(string $search, array $arr): int{
         //https://stackoverflow.com/a/5464961 - Thanks :)
         $closest = null;
         foreach ($arr as $item) {
@@ -85,7 +85,7 @@ class Utils{
      * TODO remove, too dangerous (some people like to give perms to everything that pops up)
      * @param string $dir
      */
-    public function rmalldir(string $dir): void{
+    public static function rmalldir(string $dir): void{
         if($dir == "" or $dir == "/" or $dir == "C:/") return; //tiny safeguard.
         $tmp = scandir($dir);
         foreach ($tmp as $item) {
@@ -94,7 +94,7 @@ class Utils{
             }
             $path = $dir.'/'.$item;
             if (is_dir($path)) {
-                $this->rmalldir($path);
+                self::rmalldir($path);
             } else {
                 unlink($path);
             }
@@ -103,27 +103,26 @@ class Utils{
     }
 
 	/**
-	 * Modified version of PMMP's one.
+	 * Modified version of world managers, but checks both display name and folder name.
 	 * @param string $name
-	 * @return Level|null
+	 * @return World|null
 	 */
-	public function getLevelByName(string $name) : ?Level{
-		foreach($this->plugin->getServer()->getLevels() as $level){
-			if(strtolower($level->getFolderName()) === strtolower($name) or strtolower($level->getName()) === strtolower($name)){
-				return $level;
+	public static function getLevelByName(string $name): ?World{
+        $server = Server::getInstance();
+		foreach($server->getWorldManager()->getWorlds() as $world){
+			if(strtolower($world->getFolderName()) === strtolower($name) or strtolower($world->getDisplayName()) === strtolower($name)){
+				return $world;
 			}
 		}
-		if($this->plugin->getServer()->loadLevel($name) === false) {
-			$this->plugin->debug("Failed to find or load the level '" . $name . "'");
+		if($server->getWorldManager()->loadWorld($name) === false) {
 			return null;
 		}
-		else $this->plugin->debug("Loaded level '".$name."'");
-		return $this->getLevelByName($name);
+		return self::getLevelByName($name);
 	}
 
-    public function colourise(string $msg) : string{
+    public function colourise(string $msg): string{
         $colour = array("{PREFIX}","{BLACK}","{DARK_BLUE}","{DARK_GREEN}","{DARK_AQUA}","{DARK_RED}","{DARK_PURPLE}","{GOLD}","{GRAY}","{DARK_GRAY}","{BLUE}","{GREEN}","{AQUA}","{RED}","{LIGHT_PURPLE}","{YELLOW}","{WHITE}","{OBFUSCATED}","{BOLD}","{STRIKETHROUGH}","{UNDERLINE}","{ITALIC}","{RESET}");
-        $keys = array($this->plugin->prefix, C::BLACK, C::DARK_BLUE, C::DARK_GREEN, C::DARK_AQUA, C::DARK_RED, C::DARK_PURPLE, C::GOLD, C::GRAY, C::DARK_GRAY, C::BLUE, C::GREEN, C::AQUA, C::RED, C::LIGHT_PURPLE, C::YELLOW, C::WHITE, C::OBFUSCATED, C::BOLD, C::STRIKETHROUGH, C::UNDERLINE, C::ITALIC, C::RESET);
+        $keys = array(Main::PREFIX, C::BLACK, C::DARK_BLUE, C::DARK_GREEN, C::DARK_AQUA, C::DARK_RED, C::DARK_PURPLE, C::GOLD, C::GRAY, C::DARK_GRAY, C::BLUE, C::GREEN, C::AQUA, C::RED, C::LIGHT_PURPLE, C::YELLOW, C::WHITE, C::OBFUSCATED, C::BOLD, C::STRIKETHROUGH, C::UNDERLINE, C::ITALIC, C::RESET);
         return str_replace(
             $colour,
             $keys,

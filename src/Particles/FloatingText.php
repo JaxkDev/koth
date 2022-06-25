@@ -24,11 +24,9 @@
 
 namespace JaxkDev\KOTH\Particles;
 
-use JaxkDev\KOTH\Main;
-
-use pocketmine\level\Level;
+use pocketmine\world\world;
 use pocketmine\math\Vector3;
-use pocketmine\level\particle\FloatingTextParticle;
+use pocketmine\world\particle\FloatingTextParticle;
 
 /**
  * Class FloatingText
@@ -36,46 +34,33 @@ use pocketmine\level\particle\FloatingTextParticle;
  * This class's sole purpose is to update every time its changed.
  */
 
-class FloatingText extends FloatingTextParticle {
+class FloatingText extends FloatingTextParticle{
 
-    private $plugin;
-    private $level;
-    private $position;
+    private world $world;
+    private Vector3 $position;
 
-    public function __construct(Main $plugin, Level $level, Vector3 $position, string $text, string $title = "")
-    {
-        parent::__construct($position, $text, $title);
-        $this->plugin = $plugin;
-        $this->level = $level;
+    public function __construct(World $world, Vector3 $position, string $text, string $title = ""){
+        parent::__construct($text, $title);
+        $this->world = $world;
         $this->position = $position;
     }
 
-    /**
-     * @param string $text
-     */
-    public function setText(string $text) : void{
+    public function setText(string $text): void{
         $this->text = $text;
         $this->update();
     }
 
-    /**
-     * @param string $title
-     */
-    public function setTitle(string $title) : void{
+    public function setTitle(string $title): void{
         $this->title = $title;
         $this->update();
     }
 
-    /**
-     * @param bool $value
-     */
-    public function setInvisible(bool $value = true) : void{
+    public function setInvisible(bool $value = true): void{
         $this->invisible = $value;
         $this->update();
     }
 
-    public function update() : void{
-        $this->level->addParticle($this);
+    public function update(): void{
+        $this->world->addParticle($this->position, $this);
     }
-
 }
