@@ -46,7 +46,7 @@ class CommandHandler{
      * @return void
      */
     public function handleCommand(Player|ConsoleCommandSender $player, Command $cmd, array $args): void{
-        if($cmd->getName() == "koth"){ //Is this really done server side ?? (if i only register /koth ?) - YES
+        if($cmd->getName() == "koth"){ //Is this really done server side ?? (if I only register /koth ?) - YES
             if(!isset($args[0])){
                 $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["unknown"]));
                 return;

@@ -29,7 +29,7 @@ use JaxkDev\KOTH\Main;
 use pocketmine\player\Player;
 
 /*
- * NOTICE: This event may be cancellable however, if player is leaving server (eg closed Minecraft)
+ * NOTICE: This event may be cancellable however, if player is leaving server (e.g. closed Minecraft)
  *         then the event will not matter unless messages like leaveReason and silent are changed.
  *         whether cancelled or not the player will be removed if leaving the server.
  */

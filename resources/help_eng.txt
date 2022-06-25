@@ -39,7 +39,7 @@ nametag_format: "{RED}[ {GREEN}KING {RED}]" <-- Format for nametag.
 
 ========== ARENA HELP ==========
 
-Arena's are saved and loaded from plugin_data so no need to manually save anything.
+Arenas are saved and loaded from plugin_data so no need to manually save anything.
 
 Creating new arena's:
 
@@ -47,10 +47,10 @@ Creating new arena's:
    No spaces in name ^        ^ Numbers above 1 ^         ^ amount of seconds game runs for. (above 5)
 
  - /koth setpos1 <arena name>
-   Stand on one corner of the kings area. (during this the world is auto detected.)
+   Stand on one corner of the king's area. (during this the world is auto-detected.)
 
  - /koth setpos2 <arena name>
-   Stand on the opposite corner of the kings area (Height is important if there's nothing above its advised to go a few blocks up to allow for jumping)
+   Stand on the opposite corner of the king's area (Height is important if there's nothing above it's advised to go a few blocks up to allow for jumping)
 
  - /koth setspawn <area name>
    Can be used any amount of times. (stand in the spawn location you wish to add)
@@ -69,13 +69,13 @@ Removing an Arena:
 Joining an Arena:
  - /koth join <arena name>
 
- You can only join a arena if its status is Ready or Started
+ You can only join an arena if its status is Ready or Started
  Status can be seen in /koth list (or /koth info <arena name>)
 
 Leaving an Game:
  - /koth leave
 
- The command will only work if your in a Arena, Alternatively leaving the server/mcpe will also make you leave the mini-game.
+ The command will only work if your in an Arena, Alternatively leaving the server/mcpe will also make you leave the mini-game.
 
 Arena Info/Status:
  - /koth list
@@ -83,6 +83,6 @@ Arena Info/Status:
 
  - /koth info <arena name>
    Displays more information on one arena.
-   (Players in game, Game time, Amount of spawns etc)
+   (Players in game, Game time, Amount of spawns etc.)
 
 ================================

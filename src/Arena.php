@@ -68,7 +68,7 @@ class Arena{
         self::STATUS_READY => "Ready",
         self::STATUS_STARTED => "Started",
         self::STATUS_FULL => "Full",
-        self::STATUS_INVALID => "Invalid Setup", #Used when arena was setup correctly but external causes means its no longer compatible.
+        self::STATUS_INVALID => "Invalid Setup", #Used when arena was set up correctly but external causes means it's no longer compatible.
 		self::STATUS_DISABLED => "Disabled",
         self::STATUS_UNKNOWN => "Unknown"
     ];
@@ -240,7 +240,7 @@ class Arena{
     public function createKingTextParticle(): void{
     	$this->plugin->getLogger()->debug("Creating KT particle for arena '".$this->getName()."'");
         if($this->plugin->getConfig()->get("king_text_particles", true) === false) return;
-        $this->checkStatus(); //Double check its ready, also used to get exact world name.
+        $this->checkStatus(); //Double check it's ready, also used to get exact world name.
         if(($this->status !== $this::STATUS_NOT_READY and $this->status !== $this::STATUS_INVALID) and $this->currentKingParticle === null){
         	$this->plugin->getLogger()->debug("KT Particle being created... ('".$this->getName()."')");
             $pos = new Vector3(($this->hill[0][0]+$this->hill[1][0])/2,($this->hill[0][1]+$this->hill[1][1])/2,($this->hill[0][2]+$this->hill[1][2])/2);
@@ -268,7 +268,7 @@ class Arena{
     }
 
     public function updateNameTags(): void{
-        //this makes plugins that modify your tag based on things like health,lvl etc not work while in game.
+        //this makes plugins that modify your tag based on things like health,lvl etc. not work while in game.
         if($this->plugin->getConfig()->get("nametag_enabled", true) === true){
             $format = $this->plugin->utils->colourise((string)$this->plugin->getConfig()->get("nametag_format", "{RED}[ {GREEN}KING {RED}]"));
             if($this->king !== null){
@@ -437,7 +437,7 @@ class Arena{
             $reward = str_replace("{PLAYER}", $king, $reward);
             if($this->plugin->getServer()->getCommandMap()->dispatch($console, $reward) === false){
                 $this->plugin->getLogger()->warning("Reward/command (".$reward.") failed to execute.");
-            };
+            }
 
         }
         //todo particles fireworks and more for king?
