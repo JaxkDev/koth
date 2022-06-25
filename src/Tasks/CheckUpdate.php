@@ -58,14 +58,16 @@ class CheckUpdate extends AsyncTask{
             throw new Error("Failed to decode data from poggit.");
         }
         curl_close($ch);
-        $this->setResult($data);
+        $this->setResult($data[0]);
     }
 
     public function onCompletion(): void{
         /** @var string[] $data */
         $data = $this->getResult();
         if(Utils::compareVersions($this->version, $data["version"])){
-            Server::getInstance()->getLogger()->notice("A new version of KOTH is available on poggit! (Version: {$data["version"]})");
+            Server::getInstance()->getLogger()->notice("[KOTH] A new version of KOTH is available on poggit! (Version: {$data["version"]})");
+        }else{
+            Server::getInstance()->getLogger()->debug("[KOTH] Latest version of KOTH is already installed.");
         }
     }
 }

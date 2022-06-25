@@ -87,7 +87,7 @@ class CommandHandler{
                     $player->sendMessage(C::AQUA."Icon creator: ".C::GOLD."WowAssasin#6608");
                     return;
                 case 'list':
-                    if(!$player->hasPermission("koth.list")){
+                    if(!$player->hasPermission("koth.command.list")){
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
                     }
@@ -99,7 +99,7 @@ class CommandHandler{
 						$player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
 						return;
 					}
-                    if(!$player->hasPermission("koth.delete")){
+                    if(!$player->hasPermission("koth.command.delete")){
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
                     }
@@ -111,7 +111,7 @@ class CommandHandler{
 						$player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
 						return;
 					}
-                    if(!$player->hasPermission("koth.new")){
+                    if(!$player->hasPermission("koth.command.create")){
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
                     }
@@ -125,7 +125,7 @@ class CommandHandler{
 						$player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
 						return;
 					}
-                    if(!$player->hasPermission("koth.leave")){
+                    if(!$player->hasPermission("koth.command.leave")){
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
                     }
@@ -142,7 +142,7 @@ class CommandHandler{
 						$player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
 						return;
 					}
-                    if(!$player->hasPermission("koth.join")){
+                    if(!$player->hasPermission("koth.command.join")){
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
                     }
@@ -164,7 +164,7 @@ class CommandHandler{
 
                 case 'details':
                 case 'info':
-                    if(!$player->hasPermission("koth.info")){
+                    if(!$player->hasPermission("koth.command.info")){
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
                     }
@@ -197,7 +197,7 @@ class CommandHandler{
                     return;
 
                 case 'start':
-                    if(!$player->hasPermission("koth.start")){
+                    if(!$player->hasPermission("koth.command.start")){
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
                     }
@@ -230,7 +230,7 @@ class CommandHandler{
                     return;
 
                 case 'forcestart':
-                    if(!$player->hasPermission("koth.forcestart")){
+                    if(!$player->hasPermission("koth.command.forcestart")){
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
                     }
@@ -261,7 +261,7 @@ class CommandHandler{
                     return;
 
 				case 'enable':
-					if(!$player->hasPermission("koth.enable")){
+					if(!$player->hasPermission("koth.command.enable")){
 						$player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
 						return;
 					}
@@ -284,7 +284,7 @@ class CommandHandler{
 					return;
 
 				case 'disable':
-					if(!$player->hasPermission("koth.disable")){
+					if(!$player->hasPermission("koth.command.disable")){
 						$player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
 						return;
 					}
@@ -314,7 +314,7 @@ class CommandHandler{
 						return;
 					}
                     //Set position one of the hill.
-                    if(!$player->hasPermission("koth.setpoints")){
+                    if(!$player->hasPermission("koth.command.create")){
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
                     }
@@ -347,7 +347,7 @@ class CommandHandler{
 						$player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
 						return;
 					}
-                    if(!$player->hasPermission("koth.setpoints")){
+                    if(!$player->hasPermission("koth.command.create")){
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
                     }
@@ -385,7 +385,7 @@ class CommandHandler{
 						$player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["in_game"]));
 						return;
 					}
-                    if(!$player->hasPermission("koth.setspawns")){
+                    if(!$player->hasPermission("koth.command.create")){
                         $player->sendMessage($this->plugin->utils->colourise($this->plugin->messages["commands"]["no_perms"]));
                         return;
                     }
