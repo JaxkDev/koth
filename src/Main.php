@@ -74,7 +74,7 @@ class Main extends PluginBase implements Listener{
     }
 
     public function onDisable(): void{
-        $this->saveConfig();
+        //$this->saveConfig();
         $this->db->close();
     }
 
