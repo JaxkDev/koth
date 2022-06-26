@@ -24,6 +24,7 @@
 
 namespace JaxkDev\KOTH\Tasks;
 
+use JaxkDev\KOTH\Utils;
 use pocketmine\scheduler\Task;
 use JaxkDev\KOTH\Main;
 use JaxkDev\KOTH\Arena;
@@ -49,7 +50,7 @@ class StartCountdown extends Task{
             return;
         }
         if($this->plugin->getConfig()->get("countdown_bcast", true) === true){
-            $msg = str_replace(["{COUNT}","{ARENA}"],[$this->countDown, $this->arena->getName()], $this->plugin->utils->colourise((string)$this->plugin->getMessages()->getNested("broadcasts.countdown", "{PREFIX}{GOLD}[{AQUA}{ARENA} | {GOLD}COUNTDOWN] {RED}: {GREEN}{COUNT}")));
+            $msg = str_replace(["{TIME}","{ARENA}"], [Utils::secToHR($this->countDown), $this->arena->getName()], $this->plugin->utils->colourise((string)$this->plugin->getMessages()->getNested("broadcasts.countdown", "{PREFIX}{GOLD}[{AQUA}{ARENA} | {GOLD}COUNTDOWN] {RED}: {GREEN}{TIME}")));
             if($this->countDown <= 5){
                 if(!$this->serverBcast){
                     $this->arena->broadcastMessage($msg);
