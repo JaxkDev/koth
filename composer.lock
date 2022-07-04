@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c942ab84f7b3b40aa31f4e4ed21cb1fa",
+    "content-hash": "99efc4c8de31dbe100a8a26b511b36c1",
     "packages": [],
     "packages-dev": [
         {
@@ -250,16 +250,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.7.15",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "cd0202ea1b1fc6d1bbe156c6e2e18a03e0ff160a"
+                "reference": "b7648d4ee9321665acaf112e49da9fd93df8fbd5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/cd0202ea1b1fc6d1bbe156c6e2e18a03e0ff160a",
-                "reference": "cd0202ea1b1fc6d1bbe156c6e2e18a03e0ff160a",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/b7648d4ee9321665acaf112e49da9fd93df8fbd5",
+                "reference": "b7648d4ee9321665acaf112e49da9fd93df8fbd5",
                 "shasum": ""
             },
             "require": {
@@ -285,7 +285,7 @@
             "description": "PHPStan - PHP Static Analysis Tool",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/1.7.15"
+                "source": "https://github.com/phpstan/phpstan/tree/1.8.0"
             },
             "funding": [
                 {
@@ -305,7 +305,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-06-20T08:29:01+00:00"
+            "time": "2022-06-29T08:53:31+00:00"
         },
         {
             "name": "pocketmine/bedrock-data",
@@ -787,16 +787,16 @@
         },
         {
             "name": "pocketmine/pocketmine-mp",
-            "version": "4.5.1",
+            "version": "4.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pmmp/PocketMine-MP.git",
-                "reference": "d641812c52ef278e714e9d72c5277733b0b2fda9"
+                "reference": "d5fa0a2fc5be94635af7ace5d80cbb6a6b4be24e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/PocketMine-MP/zipball/d641812c52ef278e714e9d72c5277733b0b2fda9",
-                "reference": "d641812c52ef278e714e9d72c5277733b0b2fda9",
+                "url": "https://api.github.com/repos/pmmp/PocketMine-MP/zipball/d5fa0a2fc5be94635af7ace5d80cbb6a6b4be24e",
+                "reference": "d5fa0a2fc5be94635af7ace5d80cbb6a6b4be24e",
                 "shasum": ""
             },
             "require": {
@@ -848,7 +848,7 @@
                 "webmozart/path-util": "^2.3"
             },
             "require-dev": {
-                "phpstan/phpstan": "1.7.8",
+                "phpstan/phpstan": "1.7.15",
                 "phpstan/phpstan-phpunit": "^1.1.0",
                 "phpstan/phpstan-strict-rules": "^1.2.0",
                 "phpunit/phpunit": "^9.2"
@@ -870,7 +870,7 @@
             "homepage": "https://pmmp.io",
             "support": {
                 "issues": "https://github.com/pmmp/PocketMine-MP/issues",
-                "source": "https://github.com/pmmp/PocketMine-MP/tree/4.5.1"
+                "source": "https://github.com/pmmp/PocketMine-MP/tree/4.5.2"
             },
             "funding": [
                 {
@@ -882,7 +882,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2022-06-08T01:50:33+00:00"
+            "time": "2022-06-29T01:18:50+00:00"
         },
         {
             "name": "pocketmine/raklib",
@@ -1182,6 +1182,45 @@
             "time": "2022-03-27T21:42:02+00:00"
         },
         {
+            "name": "sof3/libasynql",
+            "version": "4.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/poggit/libasynql.git",
+                "reference": "a55ecceb73e6aa99b80bbec2a78aed0c6341170c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/poggit/libasynql/zipball/a55ecceb73e6aa99b80bbec2a78aed0c6341170c",
+                "reference": "a55ecceb73e6aa99b80bbec2a78aed0c6341170c",
+                "shasum": ""
+            },
+            "require": {
+                "pocketmine/pocketmine-mp": "^4.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "poggit\\libasynql\\": "libasynql/src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "SOFe",
+                    "email": "sofe2038@gmail.com"
+                }
+            ],
+            "support": {
+                "issues": "https://github.com/poggit/libasynql/issues",
+                "source": "https://github.com/poggit/libasynql/tree/4.1.0"
+            },
+            "time": "2022-05-25T15:45:58+00:00"
+        },
+        {
             "name": "symfony/polyfill-php81",
             "version": "v1.26.0",
             "source": {
@@ -1376,7 +1415,10 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.0.0"
+        "php": "^8.0.0",
+        "ext-curl": "*",
+        "ext-sqlite3": "*",
+        "ext-yaml": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"

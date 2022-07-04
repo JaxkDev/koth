@@ -1,31 +1,54 @@
 ---
-version: 2
+version: 3
 
-provider: "sqlite3"
+general:
+  debug: false
+  check_updates: true
 
-debug: false
+database:
+  # The database type. "sqlite" and "mysql" are supported.
+  type: sqlite
 
-check_updates: true
+  # Edit these settings only if you choose "sqlite".
+  sqlite:
+    # The file name of the database in the plugin data folder.
+    # You can also put an absolute path here.
+    file: data.sqlite
+  # Edit these settings only if you choose "mysql".
+  mysql:
+    host: 127.0.0.1
+    # Avoid using the "root" user for security reasons.
+    username: root
+    password: ""
+    schema: your_schema
+  # The maximum number of simultaneous SQL queries
+  # Recommended: 1 for sqlite, 2 for MySQL. You may want to further increase this value if your MySQL connection is very slow.
+  worker-limit: 1
 
-block_commands: true
-block_messages: true
-prevent_place: true
-prevent_break: true
-prevent_gamemode_change: true
-keep_inventory: true
+options:
+  block_commands: true
+  block_messages: true
+  prevent_place: true
+  prevent_break: true
+  prevent_gamemode_change: true
+  keep_inventory: true
+  auto_start: true
 
-auto_start: true
-
-countdown: 30
-countdown_bcast: true
-countdown_bcast_interval: 5
-countdown_bcast_serverwide: false
+countdown:
+  time: 30
+  broadcast:
+    enabled: true
+    interval: 5
+    serverwide: false
 
 start_bcast_serverwide: false
 end_bcast_serverwide: false
 
-king_text_particles: true
+particles:
+  lobby: true
+  king: true
 
-nametag_enabled: true
-nametag_format: "{RED}[ {GREEN}KING {RED}]"
+nametag:
+  enabled: true
+  format: "{RED}[ {GREEN}KING {RED}]"
 ...

@@ -24,20 +24,20 @@
 
 namespace JaxkDev\KOTH\Providers;
 
-use JaxkDev\KOTH\{Main,Arena};
+use JaxkDev\KOTH\Main;
+use JaxkDev\KOTH\Arena;
 
-interface BaseProvider
-{
+interface BaseProvider{
     public function __construct(Main $plugin);
 
     public function getName(): string;
 
-    public function open(): void;
+    /**
+     * @param callable $callable (): void
+     */
+    public function open(callable $callable): void;
 
     public function close(): void;
-
-    public function save(): void;
-
 
     public function createArena(Arena $arena): void;
 
@@ -45,9 +45,8 @@ interface BaseProvider
 
     public function deleteArena(string $arena): void;
 
-
     /**
-     * @return Arena[]
+     * @param callable $callback (Arena[] $arenas): void
      */
-    public function loadAllArenas(): array;
+    public function loadAllArenas(callable $callback): void;
 }
