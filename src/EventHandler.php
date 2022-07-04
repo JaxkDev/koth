@@ -29,7 +29,6 @@ use pocketmine\event\server\CommandEvent;
 use pocketmine\utils\TextFormat as C;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\block\BlockPlaceEvent;
-//use pocketmine\event\entity\EntityLevelChangeEvent;
 use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerRespawnEvent;

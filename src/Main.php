@@ -26,7 +26,7 @@ namespace JaxkDev\KOTH;
 
 use Exception;
 use JaxkDev\KOTH\Providers\BaseProvider;
-use JaxkDev\KOTH\Providers\SqliteProvider;
+use JaxkDev\KOTH\Providers\SqlProvider;
 use JaxkDev\KOTH\Tasks\CheckUpdate;
 use JaxkDev\KOTH\Utils as PluginUtils;
 use Phar;
@@ -40,8 +40,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat as C;
 
 class Main extends PluginBase implements Listener{
-    public const ARENA_VER = 2;
-    public const CONFIG_VER = 2;
+    public const CONFIG_VER = 3;
     public const MESSAGE_VER = 0;
 
     /** @var Arena[] */
@@ -56,25 +55,16 @@ class Main extends PluginBase implements Listener{
     public const PREFIX = C::YELLOW . "[" . C::AQUA . "KOTH" . C::YELLOW . "] " . C::RESET;
 
     private function loadArenas(): void{
-        switch(strtolower($this->config->get("provider", "unknown"))){
-            case 'sqlite':
-            case 'sqlite3':
-                $this->db = new SqliteProvider($this);
-                break;
-            default:
-                $this->getLogger()->error("Invalid provider type: '" . $this->config->get("provider", "unknown") . "', Reverted to default provider 'sqlite3'");
-                $this->db = new SqliteProvider($this);
-                $this->config->set("provider", "sqlite3");
-                $this->saveConfig();
-        }
-        $this->getLogger()->debug(str_replace("{NAME}", $this->db->getName(), $this->utils->colourise((string)$this->messages->getNested("general.provider", "Provider was set to: {NAME}"))));
-        $this->db->open();
-        $this->arenas = $this->db->loadAllArenas();
-        $this->getLogger()->debug(str_replace("{AMOUNT}", (string)count($this->arenas), $this->utils->colourise((string)$this->messages->getNested("arenas.loaded", "{AMOUNT} Arena(s) loaded."))));
+        $this->db = new SqlProvider($this);
+        $this->db->open(function(){
+            $this->db->loadAllArenas(function(array $arenas){
+                $this->arenas = $arenas;
+                $this->getLogger()->debug(str_replace("{AMOUNT}", (string)count($this->arenas), $this->utils->colourise((string)$this->messages->getNested("arenas.loaded", "{AMOUNT} Arena(s) loaded."))));
+            });
+        });
     }
 
     public function onDisable(): void{
-        //$this->saveConfig();
         $this->db->close();
     }
 

@@ -18,6 +18,7 @@
         "ext-yaml": "*"
     },
     "require-dev": {
+        "sof3/libasynql": "^4.1",
         "phpstan/phpstan": "^1.7",
         "pocketmine/pocketmine-mp": "^4"
     }
