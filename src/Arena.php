@@ -339,10 +339,10 @@ class Arena{
 		}
         if(count($this->spawns) === 0) return null;
         if($random === false){
+            $this->spawnCounter++;
             if($this->spawnCounter >= count($this->spawns)){
                 $this->spawnCounter = 0;
             }
-            $this->spawnCounter++;
             $old = $this->spawns[$this->spawnCounter];
         }else{
             $old = $this->spawns[array_rand($this->spawns)];
