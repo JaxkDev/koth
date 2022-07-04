@@ -50,7 +50,7 @@ class StartCountdown extends Task{
             return;
         }
         if($this->plugin->getConfig()->get("countdown_bcast", true) === true){
-            $msg = str_replace(["{TIME}","{ARENA}"], [Utils::secToHR($this->countDown), $this->arena->getName()], $this->plugin->utils->colourise((string)$this->plugin->getMessages()->getNested("broadcasts.countdown", "{PREFIX}{GOLD}[{AQUA}{ARENA} | {GOLD}COUNTDOWN] {RED}: {GREEN}{TIME}")));
+            $msg = str_replace(["{TIME}","{ARENA}"], [Utils::secToHR($this->countDown), $this->arena->getName()], $this->plugin->utils->colourise((string)$this->plugin->getMessages()->getNested("broadcasts.countdown", "{PREFIX}{GOLD}[{AQUA}{ARENA} | {RED}COUNTDOWN{GOLD}] {RED}: {GREEN}{TIME}")));
             if($this->countDown <= 5){
                 if(!$this->serverBcast){
                     $this->arena->broadcastMessage($msg);

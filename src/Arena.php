@@ -133,7 +133,6 @@ class Arena{
         $this->spawnCounter = 0;
 
         $this->checkStatus();
-        $this->createKingTextParticle();
 
         $this->plugin->getLogger()->debug($this->getName()." - Arena Constructed, status: ".$this->getFriendlyStatus());
     }
@@ -239,7 +238,7 @@ class Arena{
 		$this->plugin->getLogger()->debug("Setting status to '".$this->getFriendlyStatus()."'. (Arena: '".$this->getName()."')");
     }
 
-    public function createKingTextParticle(): void{
+    private function createKingTextParticle(): void{
     	$this->plugin->getLogger()->debug("Creating KT particle for arena '".$this->getName()."'");
         if($this->plugin->getConfig()->get("king_text_particles", true) === false) return;
         $this->checkStatus(); //Double check it's ready, also used to get exact world name.
@@ -248,7 +247,7 @@ class Arena{
             $pos = new Vector3(($this->hill[0][0]+$this->hill[1][0])/2,($this->hill[0][1]+$this->hill[1][1])/2,($this->hill[0][2]+$this->hill[1][2])/2);
             $world = Utils::getWorldByName($this->world);
             if($world !== null){
-                $this->currentKingParticle = new FloatingText($world, $pos, C::RED."No King!");
+                $this->currentKingParticle = new FloatingText($world, $pos, C::RED."-");
             }else{
                 //Should never reach here due to checkStatus() above.
                 throw new Exception("World '".$this->world."' couldn't be loaded/found, Arena '".$this->getName()."' Will not be playable.");
@@ -262,9 +261,14 @@ class Arena{
     	$this->plugin->getLogger()->debug("Updating KT particle in arena '".$this->getName()."'");
         if($this->currentKingParticle !== null){
             $this->currentKingParticle->setInvisible(false); //fix restarting games.
-            $this->currentKingParticle->setText(C::RED.($this->king === null ? "No King!" : "King: ".C::GOLD.$this->king));
+            $text = C::RED."Arena: '".$this->name."' | ".count($this->players)."/".$this->maxPlayers." Players waiting.";
+            if($this->status === self::STATUS_STARTED){
+                $text = C::RED.($this->king === null ? "No King!" : "King: ".C::GOLD.$this->king);
+            }
+            $this->currentKingParticle->setText($text);
         }else{
             $this->createKingTextParticle(); //keep trying to create it in case the scenario changes and its now able.
+            $this->updateKingTextParticle();
         }
         //set name tags, its own function so others can run it without updating Particles.
         $this->updateNameTags();
@@ -357,7 +361,10 @@ class Arena{
         }
     }
 
-    public function startTimer(): ?string{
+    public function startTimer(bool $force = false): ?string{
+        if((count($this->players) < $this->minPlayers) and !$force){
+            return "Not enough players to start arena";
+        }
         $event = new ArenaPreStartEvent($this->plugin, $this);
         $event->call();
 
@@ -380,6 +387,7 @@ class Arena{
         $this->plugin->getLogger()->debug("Starting arena '".$this->name."'...");
         $this->timerTask?->cancel();
         $this->started = true;
+        $this->freezeAll(false);
         $this->checkStatus();
         $msg = str_replace("{ARENA}", $this->name, $this->plugin->utils->colourise((string)$this->plugin->getMessages()->getNested("broadcasts.start", "{PREFIX}{GOLD}[{ARENA}] {GREEN}Has Started !")));
         if($this->plugin->getConfig()->get("start_bcast_serverwide", true) === true){
@@ -387,8 +395,7 @@ class Arena{
         }else{
             $this->broadcastMessage($msg);
         }
-        $this->createKingTextParticle(); //in case it was never made on startup as it was first made.
-        $this->updateKingTextParticle(); //spawn in here.
+        $this->updateKingTextParticle(); //Set king message.
         $this->timerTask = $this->plugin->getScheduler()->scheduleRepeatingTask(new GameTimer($this),10);
         $this->plugin->getLogger()->debug("Started arena '".$this->name."'.");
     }
@@ -554,24 +561,26 @@ class Arena{
         $event->call();
         if($event->isCancelled()){
             if(!$player->isConnected()){
-                //Player is leaving app.
-                $this->plugin->getLogger()->warning(Main::PREFIX . C::RED . "Event cancelled, but player is leaving app so will be removed anyway.");
+                //Player is leaving server.
+                $this->plugin->getLogger()->warning(Main::PREFIX . C::RED . "Event cancelled, but player is leaving server so will be removed anyway.");
             }else{
                 $player->sendMessage(Main::PREFIX.C::RED."Cannot leave the arena, reason: ".$event->getReason());
                 return;
             }
         }
+        if($silent === false){
+            $this->broadcastQuit($player, $reason);
+        }
         unset($this->players[array_search(strtolower($player->getName()), $this->players)]);
         if($this->king === strtolower($player->getName())){
             $this->removeKing();
         }
-        if($silent === false){
-            $this->broadcastQuit($player, $reason);
-        }
         $this->checkStatus();
+        $this->updateKingTextParticle();
         if($player->isOnline() and $player->spawned !== false){ //check to avoid tp if player left server.
             $pos = new Position((float)$this->playerOldPositions[strtolower($player->getName())][1], (float)$this->playerOldPositions[strtolower($player->getName())][2], (float)$this->playerOldPositions[strtolower($player->getName())][3], $this->plugin->getServer()->getWorldManager()->getWorldByName((string)$this->playerOldPositions[strtolower($player->getName())][0]));
             $player->teleport($pos);
+            $player->setImmobile(false);
             unset($this->playerOldPositions[strtolower($player->getName())]);
         }
     }
@@ -615,7 +624,9 @@ class Arena{
             return false;
         }
         $player->setGamemode(GameMode::SURVIVAL()); //todo Beta4 configurable.
+        $player->setImmobile(true);
         $this->players[] = strtolower($player->getName());
+        $this->updateKingTextParticle();
         $this->broadcastJoin($player);
         if(count($this->players) >= $this->minPlayers && $this->timerTask === null && $this->plugin->getConfig()->get("auto_start", true) === true){
             $this->startTimer();

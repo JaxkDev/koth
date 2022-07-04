@@ -244,7 +244,7 @@ class CommandHandler{
                     $player->sendMessage(Main::PREFIX.C::RED."Cannot force a disabled/invalid arena.");
                     return;
                 }
-                $result = $arena->startTimer();
+                $result = $arena->startTimer(true);
                 if($result !== null){
                     $player->sendMessage(Main::PREFIX.C::RED."Arena not started because: ".C::RESET.$result);
                     return;
