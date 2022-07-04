@@ -1,0 +1,24 @@
+{
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "JaxkDev",
+            "email": "JaxkDev@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "JaxkDev\\KOTH\\": "src"
+        }
+    },
+    "require": {
+        "php": "^8.0.0",
+        "ext-curl": "*",
+        "ext-sqlite3": "*",
+        "ext-yaml": "*"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.7",
+        "pocketmine/pocketmine-mp": "^4"
+    }
+}

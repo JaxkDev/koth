@@ -5,10 +5,7 @@ provider: "sqlite3"
 
 debug: false
 
-show_updates: true
 check_updates: true
-download_updates: false
-update_check_url: "https://raw.githubusercontent.com/JaxkDev/koth/master/updates.json"
 
 block_commands: true
 block_messages: true
@@ -27,7 +24,7 @@ countdown_bcast_serverwide: false
 start_bcast_serverwide: false
 end_bcast_serverwide: false
 
-KingTextParticles: true
+king_text_particles: true
 
 nametag_enabled: true
 nametag_format: "{RED}[ {GREEN}KING {RED}]"

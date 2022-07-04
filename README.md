@@ -6,10 +6,8 @@
 King Of The Hill mini-game, Pocketmine-MP Plugin by JaxkDev.
 
 ## NOTICE'S
- **This plugin is in BETA (Pre-Release), so *please* dont spam out comments/issues with broken things or things that you expect there and are not.**
- 
- *Just because its the only plugin released, doesnt mean its the best one.*
- 
+ *Just because it's the only plugin released, doesn't mean it's the best one.*
+
  *Please feel free to create a PR to modify/add new help files for different languages !*
  
  
@@ -18,8 +16,7 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by JaxkDev.
  - Console has its own commands.
  - Enable/Disable arena's !
  - Much more events for other developers to be able to customise the game EVEN MORE !
- - Automatically install updates on server start ! - 
- - Check for updates on server start !             - Both wont work on android (CURL)
+ - Check for updates on server start !   - won't work on android (CURL)
  - Messages are customisable.
  - Multiple Arena's.
  - Custom spawn & hill points.
@@ -34,19 +31,58 @@ King Of The Hill mini-game, Pocketmine-MP Plugin by JaxkDev.
  - On death keep inventory.
 
 ### Upcoming
- - Change of game layout (different types will be extensions) - Beta5/6 (check the extensions [repo](https://github.com/JaxkDev/Koth-Extensions) for more info)
- - Something extra for when winner is announced *wink*    - Beta5
+ - Change of game layout (different types will be extensions) - (check the extensions [repo](https://github.com/JaxkDev/Koth-Extensions) for more info)
+ - Something extra for when winner is announced *wink*
 
+### Permissions:
+```yaml
+koth.command:
+  description: "Allows player to use /koth"
+  default: true
+koth.command.delete:
+  description: "Allows player to delete an arena."
+  default: op
+koth.command.create:
+  description: "Allows player to create and setup an arena."
+  default: op
+koth.command.enable:
+  description: "Allows player to enable an arena."
+  default: op
+koth.command.disable:
+  description: "Allows player to disable an arena."
+  default: op
+koth.command.rewards:
+  description: "Allows player to modify the reward of an arena."
+  default: op
+koth.command.info:
+  description: "Allows player to see more details about an arena."
+  default: true
+koth.command.list:
+  description: "Allows player to see the Arena's and their current status."
+  default: true
+koth.command.join:
+  description: "Allows player to join a game."
+  default: true
+koth.command.leave:
+  description: "Allows player to chicken out of a game."
+  default: true
+koth.command.start:
+  description: "Allows player to start an arena."
+  default: true
+koth.command.forcestart:
+  description: "Allows player to force start an arena."
+  default: op
+```
 ## About the game
 ### KOTH
 King.Of.The.Hill
 
-King of the hill is a mini game most players will be familiar with, either through minecraft or by playing pretty much any other strategy game. 
+King of the hill is a mini-game most players will be familiar with, either through minecraft or by playing pretty much any other strategy game. 
 
 The aim of king of the hill is to conquer the castle, fort or anything else in the middle of the arena, the arena is usually a large map of some sort with surrounding walls.
 The top point usually on a hill with a height advantage is the throne, castle, fort whatever you call it.
 
-players all spawn into the one map/arena, and then using the equipment/items on them they take on position of king.
+players all spawn into the one map/arena, and then using the equipment/items on them, they take on position of king.
 They remain king for as long as they stay in the specified area/fort/castle if they die, another player in the area takes place as king or next person who goes there.
 
 The winner is announced at the end of the game (When a timer runs out), the king currently in power or the previous king will be winner.
@@ -74,15 +110,15 @@ You can leave a game by using the command `/koth leave` or quiting the game.
 **NOTICE: There is plans for different types of ways of winning a game, targeted for beta 4/5**
 
 The game runs on a timer, during which anyone can move, attack and kill the king.
-However when the timer runs out the last standing king, or the previous king will be crowned.
+However, when the timer runs out the last standing king, or the previous king will be crowned.
 (And in future rewards and *other* things will be added)
 
 (Notice, players are frozen during 'presentations of the king')
 
 ## Setting up
 ### Creating/Removing arena(s)
-To create a new arena use the command `/koth new <arena name>` (No spaces are allowed in arena, for now)
-To remove a arena use the command `/koth rem <arena name>` (The arena cannot be in use when deleting)
+To create a new arena use the command `/koth create <arena name>` (No spaces are allowed in arena, for now)
+To remove an arena use the command `/koth delete <arena name>` (The arena cannot be in use when deleting)
 
 To check arena status type `/koth list` or `/koth info <arena name>`
 ### Setting positions/Values
@@ -113,9 +149,9 @@ For more info see the help file found in the same directory.
  Any issues should be reported in that repository if the extension crashes.
 
 ## Known Bugs:
- - Floating Text Particles will appear in every world but at same position, disable floating_text_particles if this is a issue for your server setup.
+ - Floating Text Particles will appear in every world but at same position, disable floating_text_particles if this is an issue for your server setup.
 
-To report bugs please make a issue over on [github](https://github.com/JaxkDev/koth/issues/new) and please *follow the template!*
+To report bugs please make an issue over on [GitHub](https://github.com/JaxkDev/koth/issues/new) and please *follow the template!*
 
 ## Credits:
 _Developer:_ JaxkDev
@@ -123,25 +159,3 @@ _Developer:_ JaxkDev
 _Icon Creator:_ WowAssasin (WowAssasin#6608)
 
 _Requested Originally By:_ GOLDVAGE (GOLDVAGE#2712) (My Idea generator, hehe)
-
-
-### License:
-    KOTH - King of the hill
-    Copyright (C) 2019 JaxkDev
-    
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    any later version.
-    
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-    
-    Twitter :: @JaxkDev
-    Discord :: Jackthehaxk21#8860
-    Email   :: JaxkDev@gmail.com
