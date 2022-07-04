@@ -1,7 +1,7 @@
 ---
 name: KOTH
 author: JaxkDev
-version: 1.0.0
+version: 1.0.0-dev
 api: 4.0.0
 main: JaxkDev\KOTH\Main
 src-namespace-prefix: JaxkDev\KOTH
